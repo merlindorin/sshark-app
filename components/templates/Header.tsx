@@ -7,7 +7,7 @@ export function Header() {
         <header className="border-b border-border">
             <div className="container mx-auto flex items-center justify-between px-6 py-4">
                 {/* Logo */}
-                <Link href="/public" className="text-2xl font-bold font-mono tracking-tight text-foreground">
+                <Link href="/" className="text-2xl font-bold font-mono tracking-tight text-foreground">
                     sshark.app
                 </Link>
 

@@ -9,10 +9,9 @@ imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
 
-# External API service configuration
+# External API service (mounted at /api via ingress)
 api:
-  # Service name and namespace for the API backend
-  service: "sshark-api"
+  name: "sshark-api"
   namespace: "sshark"
   port: 8080
 

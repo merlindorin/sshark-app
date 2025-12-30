@@ -1,6 +1,6 @@
 sshark has been deployed!
 
-API Backend: http://{{ .Values.api.service }}.{{ .Values.api.namespace }}.svc.cluster.local:{{ .Values.api.port }}
+API Backend mounted at /api (proxied to {{ .Values.api.service }}.{{ .Values.api.namespace }}:{{ .Values.api.port }})
 
 Get the application URL by running:
 {{- if .Values.ingress.enabled }}

@@ -28,6 +28,13 @@ spec:
     - host: {{ .host | quote }}
       http:
         paths:
+          - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ include "sshark.fullname" $ }}-api
+                port:
+                  number: {{ $.Values.api.port }}
           {{- range .paths }}
           - path: {{ .path }}
             {{- with .pathType }}
