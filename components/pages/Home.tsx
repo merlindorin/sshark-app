@@ -122,11 +122,12 @@ export function Main() {
 
     const [searchQuery, setSearchQuery] = useState('');
     const [debouncedSearch] = useDebounce(searchQuery, 350);
-    const {data, isLoading} = useSSHKeys(debouncedSearch)
+    const {data, isLoading, refetch} = useSSHKeys(debouncedSearch)
 
     const search = (s: string): void => {
         setHasSearched(true)
         setSearchQuery(s)
+        refetch()
     }
 
     return (
