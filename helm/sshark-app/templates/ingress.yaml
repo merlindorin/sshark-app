@@ -34,7 +34,7 @@ spec:
               service:
                 name: {{ include "sshark.fullname" $ }}-api
                 port:
-                  number: {{ $.Values.api.port }}
+                  number: {{ $.Values.api.port | int }}
           {{- range .paths }}
           - path: {{ .path }}
             {{- with .pathType }}

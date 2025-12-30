@@ -22,15 +22,15 @@ interface SearchResponse {
     duration: number;
 }
 
-const fetchSSHKeys = async (search: string, limit = 10, page = 1): Promise<SearchResponse> => {
-    const response = await fetch(`/api/v1/search/${encodeURIComponent(search)}?limit=${limit}&offset=${(page-1) * limit}`)
+const fetchSSHKeys = async (search: string, limit = 10, offset = 0): Promise<SearchResponse> => {
+    const response = await fetch(`/api/v1/search/${encodeURIComponent(search)}?limit=${limit}&offset=${(offset) * limit}`)
     return await response.json()
 }
 
-const useSSHKeys = (search: string, limit: number, page: number) => {
+const useSSHKeys = (search: string, limit?: number, offset?: number) => {
     return useQuery({
-        queryKey: ['sshkeys', search, limit, page],
-        queryFn: () => fetchSSHKeys(search, limit, page),
+        queryKey: ['sshkeys', search, limit, offset],
+        queryFn: () => fetchSSHKeys(search, limit, offset),
         enabled: search.length >= 2,
         placeholderData: (prev) => prev,
         staleTime: 60 * 1000,

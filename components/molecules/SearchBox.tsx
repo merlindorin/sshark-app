@@ -1,18 +1,27 @@
 "use client"
 
-import type {FormEvent} from "react"
-import React, {ChangeEvent} from "react"
-import {Search} from "lucide-react"
+import React, {ChangeEvent, FormEvent, useState} from "react"
+import {AlertCircle, CheckCircle, LoaderCircleIcon, Search} from "lucide-react"
 import {Button} from "@/components/ui/button"
 import {Input} from "@/components/ui/input"
+import {Tooltip, TooltipContent, TooltipProvider, TooltipTrigger} from "@/components/ui/tooltip";
+import {useDebounce} from "use-debounce";
+import {useValidateQuery} from "@/hooks/useValidateQuery";
 
-export default function SearchBox({searchQuery, setSearchQuery}: {
-    searchQuery: string,
-    setSearchQuery: (value: string) => void
-}) {
-    function onSubmit(e: FormEvent) {
+type SearchBoxProps = {
+    search: (value: string) => void,
+    searchIsLoading: boolean
+}
+
+export function SearchBox({search, searchIsLoading}: SearchBoxProps) {
+    const [searchQuery, setSearchQuery] = useState("")
+    const [debouncedSearch] = useDebounce(searchQuery, 350);
+    const {data: validation, isFetching} = useValidateQuery(debouncedSearch)
+
+    function onSubmit(e: FormEvent<HTMLFormElement>) {
         e.preventDefault()
-        setSearchQuery(searchQuery)
+        const formData = new FormData(e.currentTarget)
+        search(formData.get('searchquery') as string)
     }
 
     function onChange(e: ChangeEvent<HTMLInputElement>) {
@@ -20,20 +29,46 @@ export default function SearchBox({searchQuery, setSearchQuery}: {
         setSearchQuery(e.target.value)
     }
 
+    const showValidation = searchQuery.length > 0
+
     return (
         <form onSubmit={onSubmit} className="w-full">
             <div className="relative flex items-center gap-2">
                 <div className="relative flex-1">
                     <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground"/>
                     <Input
+                        name="searchquery"
                         type="text"
-                        placeholder={`Try "merlindorin", "AAAAC3NzaC1lZDI1*"...`}
-                        value={searchQuery}
+                        placeholder="Enter username..."
                         onChange={onChange}
-                        className="h-14 pl-12 pr-4 text-base bg-card border-border"
+                        className="h-14 pl-12 pr-12 text-base bg-card border-border"
                     />
+                    {showValidation && (
+                        <div className="absolute right-4 top-1/2 -translate-y-1/2">
+                            <TooltipProvider>
+                                <Tooltip>
+                                    <TooltipTrigger asChild>
+                                        <div className="cursor-help">
+                                            {(isFetching || searchIsLoading) && (
+                                                <LoaderCircleIcon className="h-5 w-5 animate-spin text-secondary"/>
+                                            )}
+                                            {!(isFetching || searchIsLoading) && validation?.isValid && (
+                                                <CheckCircle className="h-5 w-5 text-green-500"/>
+                                            )}
+                                            {!(isFetching || searchIsLoading) && !validation?.isValid && (
+                                                <AlertCircle className="h-5 w-5 text-destructive"/>
+                                            )}
+                                        </div>
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                        <p>{validation?.message}</p>
+                                    </TooltipContent>
+                                </Tooltip>
+                            </TooltipProvider>
+                        </div>
+                    )}
                 </div>
-                <Button type="submit" size="lg" className="h-14 px-8 cursor-pointer">
+                <Button type="submit" size="lg" className="h-14 px-8" disabled={!validation?.isValid}>
                     Search
                 </Button>
             </div>

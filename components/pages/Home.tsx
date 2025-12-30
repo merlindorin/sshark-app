@@ -2,7 +2,7 @@
 
 import {useState} from "react"
 
-import SearchBox from "@/components/molecules/SearchBox"
+import {SearchBox} from "@/components/molecules/SearchBox"
 import {SSHKeyResults} from "@/components/ssh-key-result"
 import {SearchResponse, useSSHKeys} from "@/hooks/useSSHKeys";
 import {Header} from "@/components/templates/Header";
@@ -122,7 +122,7 @@ export function Main() {
 
     const [searchQuery, setSearchQuery] = useState('');
     const [debouncedSearch] = useDebounce(searchQuery, 350);
-    const {data, isPending, isFetching} = useSSHKeys(debouncedSearch, 10, 1)
+    const {data, isLoading} = useSSHKeys(debouncedSearch)
 
     const search = (s: string): void => {
         setHasSearched(true)
@@ -162,7 +162,10 @@ export function Main() {
                         </div>
                     </div>
                     <div className="space-y-2">
-                        <SearchBox setSearchQuery={search} searchQuery={searchQuery}/>
+                        <SearchBox
+                            search={search}
+                            searchIsLoading={isLoading}
+                        />
                     </div>
                     <div className="space-y-2">
                         <ReassuringLine data={data}/>
