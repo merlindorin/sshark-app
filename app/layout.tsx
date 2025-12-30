@@ -3,10 +3,13 @@ import type {Metadata} from "next"
 import {Geist, Geist_Mono} from "next/font/google"
 import ThemeProvider from "@/components/providers/ThemeProvider"
 import QueryProvider from "@/components/providers/QueryProvider"
+import {GoogleTagManager} from '@next/third-parties/google'
 import "./globals.css"
 
 const _geist = Geist({subsets: ["latin"]})
 const _geistMono = Geist_Mono({subsets: ["latin"]})
+
+const env = process.env.NODE_ENV
 
 export const metadata: Metadata = {
     title: "sshark - Find Public SSH Keys",
@@ -31,9 +34,12 @@ export const metadata: Metadata = {
     },
 }
 
+
 export default function RootLayout({children,}: Readonly<{ children: React.ReactNode }>) {
+
     return (
         <html lang="en" suppressHydrationWarning>
+        {env === "production" && (<GoogleTagManager gtmId="GTM-5M5K2Q5R"/>)}
         <body className={`font-sans antialiased`}>
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
             <QueryProvider>
