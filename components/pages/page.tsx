@@ -2,7 +2,7 @@ import React, { PropsWithChildren } from "react"
 
 export function Page({children}: React.PropsWithChildren) {
     return (
-        <main className="container max-w-3xl mx-auto space-y-8 mt-12 px-6 py-12">
+        <main className="container grow max-w-3xl flex flex-col mx-auto space-y-8 mt-12 px-6 py-12">
             {children}
         </main>
     )

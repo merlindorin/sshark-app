@@ -1,11 +1,11 @@
+import { NavLinkProps } from "@/components/templates/navbar/nav-links"
 import { Button } from "@/components/ui/button"
 import { Drawer, DrawerClose, DrawerContent, DrawerHeader, DrawerTitle, DrawerTrigger } from "@/components/ui/drawer"
-import { NavLink } from "app/links"
 import { MenuIcon } from "lucide-react"
 import Link from "next/link"
 
 interface MobileMenuProps {
-    links: NavLink[]
+    links: NavLinkProps[]
 }
 
 export const MobileMenu = ({links}: MobileMenuProps) => (

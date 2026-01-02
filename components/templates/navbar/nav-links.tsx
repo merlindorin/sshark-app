@@ -1,17 +1,22 @@
 "use client"
 
-import { NavLink } from "app/links"
 import { navigationMenuTriggerStyle } from "@/components/ui/navigation-menu"
 import { cn } from "@/lib/utils"
+import { LinkProps } from "next/dist/client/link"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
+import { PropsWithChildren } from "react"
 
-type LinksProps = {
+export type NavLinkProps = LinkProps & PropsWithChildren & {
+    label: string;
+}
+
+export type NavLinksProps = {
     className: string
-    links: NavLink[]
+    links: NavLinkProps[]
 };
 
-export const Links = ({className, links}: LinksProps) => {
+export const NavLinks = ({className, links}: NavLinksProps) => {
     const pathname = usePathname()
     return (
         <div className={cn("flex items-center gap-1", className)}>

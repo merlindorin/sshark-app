@@ -1,17 +1,6 @@
-import { Logo } from "@/components/templates/logo"
-import { LinkProps } from "next/dist/client/link"
-import { PropsWithChildren } from "react"
+import { NavLinkProps } from "@/components/templates/navbar/nav-links"
 
-export type NavLink = LinkProps & PropsWithChildren & {
-    label: string;
-}
-
-export const links: NavLink[] = [
-    {
-        href: "/",
-        label: "Welcome",
-        children: <Logo />,
-    },
+export const links: NavLinkProps[] = [
     {
         href: "/roadmap",
         label: "Roadmap",

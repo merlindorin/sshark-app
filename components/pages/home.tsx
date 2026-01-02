@@ -2,17 +2,33 @@
 
 import { SearchBox } from "@/components/molecules/SearchBox"
 import Headline from "@/components/pages/Headline"
+import { Page } from "@/components/pages/page"
 import { SSHKeyResults } from "@/components/ssh-key-result"
 
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { SearchResponse, useSshKeys } from "@/hooks/use-ssh-keys"
-
-import { GitBranchIcon, Key, Users } from "lucide-react"
-import { useState } from "react"
+import { GitBranchIcon, KeyIcon, UsersIcon } from "lucide-react"
+import React, { ComponentType, useState } from "react"
 
 
 import { useDebounce } from 'use-debounce'
 
+
+interface StatCardProps {
+    label: string,
+    count: number,
+    Icon: ComponentType<{ className?: string }>,
+}
+
+function StatCard({label, Icon, count}: StatCardProps) {
+    return <div className="flex items-center gap-2 text-muted-foreground">
+        <Icon className="h-5 w-5 text-accent"/>
+        <div className="text-left">
+            <p className="text-2xl font-bold text-foreground">{count}</p>
+            <p className="text-sm">{label}</p>
+        </div>
+    </div>
+}
 
 export function Home() {
     const [hasSearched, setHasSearched] = useState(false)
@@ -28,42 +44,21 @@ export function Home() {
     }
 
     return (
-        <main className="container flex grow mx-auto px-6 py-12">
-            <div className="flex mx-auto justify-center flex-col items-center gap-12">
-                <div className="w-full max-w-2xl space-y-8 text-center">
+        <Page>
+            <div className="flex flex-grow justify-center items-center">
+                <div className="max-w-2xl space-y-8 text-center">
                     <div className="space-y-2">
                         <Headline/>
                     </div>
                     <div className="flex items-center justify-center gap-8">
-                        <div className="flex items-center gap-2 text-muted-foreground">
-                            <Users className="h-5 w-5 text-accent"/>
-                            <div className="text-left">
-                                <p className="text-2xl font-bold text-foreground">{123}</p>
-                                <p className="text-sm">Usernames</p>
-                            </div>
-                        </div>
+                        <StatCard Icon={UsersIcon} label="Usernames" count={1264}/>
                         <div className="h-12 w-px bg-border"/>
-                        <div className="flex items-center gap-2 text-muted-foreground">
-                            <Key className="h-5 w-5 text-accent"/>
-                            <div className="text-left">
-                                <p className="text-2xl font-bold text-foreground">{1239}</p>
-                                <p className="text-sm">Key indexed</p>
-                            </div>
-                        </div>
+                        <StatCard Icon={KeyIcon} label="Key indexed" count={1952}/>
                         <div className="h-12 w-px bg-border"/>
-                        <div className="flex items-center gap-2 text-muted-foreground">
-                            <GitBranchIcon className="h-5 w-5 text-accent"/>
-                            <div className="text-left">
-                                <p className="text-2xl font-bold text-foreground">{3}</p>
-                                <p className="text-sm">Platforms</p>
-                            </div>
-                        </div>
+                        <StatCard Icon={GitBranchIcon} label="Platforms" count={1}/>
                     </div>
                     <div className="space-y-2">
-                        <SearchBox
-                            search={search}
-                            searchIsLoading={isLoading}
-                        />
+                        <SearchBox search={search} searchIsLoading={isLoading}/>
                     </div>
                     <div className="space-y-2">
                         <ReassuringLine data={data}/>
@@ -75,7 +70,7 @@ export function Home() {
                     </div>
                 )}
             </div>
-        </main>
+        </Page>
     )
 }
 

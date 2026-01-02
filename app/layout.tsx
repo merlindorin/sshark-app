@@ -1,7 +1,9 @@
+import { links } from "@/app/links"
 import QueryProvider from "@/components/providers/QueryProvider"
 import ThemeProvider from "@/components/providers/ThemeProvider"
 import { Footer } from "@/components/templates/footer"
-import { Header } from "@/components/templates/header"
+import { Logo } from "@/components/templates/logo"
+import { Navbar } from "@/components/templates/navbar/navbar"
 import { GoogleTagManager } from '@next/third-parties/google'
 import "./globals.css"
 import { RootProvider } from "fumadocs-ui/provider/next"
@@ -47,7 +49,9 @@ export default function RootLayout({children}: Readonly<{ children: React.ReactN
             <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
                 <QueryProvider>
                     <div className="min-h-screen flex flex-col bg-background">
-                        <Header/>
+                        <header className="border-b border-border">
+                            <Navbar links={links} logoLink={{href: "/", label: "Welcome", children: <Logo/>}}/>
+                        </header>
                         {children}
                         <Footer/>
                     </div>
