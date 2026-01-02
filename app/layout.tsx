@@ -2,7 +2,7 @@ import { links } from "@/app/links"
 import QueryProvider from "@/components/providers/QueryProvider"
 import ThemeProvider from "@/components/providers/ThemeProvider"
 import { Footer } from "@/components/templates/footer"
-import { Logo } from "@/components/templates/logo"
+import { Logo } from "components/atoms/logo"
 import { Navbar } from "@/components/templates/navbar/navbar"
 import { GoogleTagManager } from '@next/third-parties/google'
 import "./globals.css"

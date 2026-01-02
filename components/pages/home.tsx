@@ -45,7 +45,7 @@ export function Home() {
 
     return (
         <Page>
-            <div className="flex flex-grow justify-center items-center">
+            <div className="flex flex-col space-y-8 flex-grow justify-center items-center">
                 <div className="max-w-2xl space-y-8 text-center">
                     <div className="space-y-2">
                         <Headline/>
