@@ -1,10 +1,13 @@
-import React from "react"
-import type {Metadata} from "next"
-import {Geist, Geist_Mono} from "next/font/google"
-import ThemeProvider from "@/components/providers/ThemeProvider"
 import QueryProvider from "@/components/providers/QueryProvider"
-import {GoogleTagManager} from '@next/third-parties/google'
+import ThemeProvider from "@/components/providers/ThemeProvider"
+import { Footer } from "@/components/templates/footer"
+import { Header } from "@/components/templates/header"
+import { GoogleTagManager } from '@next/third-parties/google'
 import "./globals.css"
+import { RootProvider } from "fumadocs-ui/provider/next"
+import type { Metadata } from "next"
+import { Geist, Geist_Mono } from "next/font/google"
+import React from "react"
 
 const _geist = Geist({subsets: ["latin"]})
 const _geistMono = Geist_Mono({subsets: ["latin"]})
@@ -35,17 +38,22 @@ export const metadata: Metadata = {
 }
 
 
-export default function RootLayout({children,}: Readonly<{ children: React.ReactNode }>) {
-
+export default function RootLayout({children}: Readonly<{ children: React.ReactNode }>) {
     return (
         <html lang="en" suppressHydrationWarning>
         {env === "production" && (<GoogleTagManager gtmId="GTM-5M5K2Q5R"/>)}
-        <body className={`font-sans antialiased`}>
-        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
-            <QueryProvider>
-                {children}
-            </QueryProvider>
-        </ThemeProvider>
+        <body className={`flex flex-col min-h-screen font-sans antialiased`}>
+        <RootProvider>
+            <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
+                <QueryProvider>
+                    <div className="min-h-screen flex flex-col bg-background">
+                        <Header/>
+                        {children}
+                        <Footer/>
+                    </div>
+                </QueryProvider>
+            </ThemeProvider>
+        </RootProvider>
         </body>
         </html>
     )

@@ -6,7 +6,7 @@ import {Button} from "@/components/ui/button"
 import {Input} from "@/components/ui/input"
 import {Tooltip, TooltipContent, TooltipProvider, TooltipTrigger} from "@/components/ui/tooltip";
 import {useDebounce} from "use-debounce";
-import {useValidateQuery} from "@/hooks/useValidateQuery";
+import {useValidateQuery} from "@/hooks/use-validate-query";
 
 type SearchBoxProps = {
     search: (value: string) => void,

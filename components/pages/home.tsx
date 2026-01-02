@@ -1,28 +1,81 @@
 "use client"
 
-import {useState} from "react"
+import { SearchBox } from "@/components/molecules/SearchBox"
+import Headline from "@/components/pages/Headline"
+import { SSHKeyResults } from "@/components/ssh-key-result"
 
-import {SearchBox} from "@/components/molecules/SearchBox"
-import {SSHKeyResults} from "@/components/ssh-key-result"
-import {SearchResponse, useSSHKeys} from "@/hooks/useSSHKeys";
-import {Header} from "@/components/templates/Header";
-import Headline from "@/components/pages/Headline";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
+import { SearchResponse, useSshKeys } from "@/hooks/use-ssh-keys"
 
-import {GitBranchIcon, Key, Users} from "lucide-react"
-
-import {Tooltip, TooltipContent, TooltipTrigger,} from "@/components/ui/tooltip"
+import { GitBranchIcon, Key, Users } from "lucide-react"
+import { useState } from "react"
 
 
-import {useDebounce} from 'use-debounce';
-import {Footer} from "@/components/pages/Footer";
+import { useDebounce } from 'use-debounce'
 
-export default function Home() {
+
+export function Home() {
+    const [hasSearched, setHasSearched] = useState(false)
+
+    const [searchQuery, setSearchQuery] = useState('')
+    const [debouncedSearch] = useDebounce(searchQuery, 350)
+    const {data, isLoading, refetch} = useSshKeys(debouncedSearch)
+
+    const search = (s: string): void => {
+        setHasSearched(true)
+        setSearchQuery(s)
+        refetch()
+    }
+
     return (
-        <div className="min-h-screen flex flex-col bg-background">
-            <Header/>
-            <Main/>
-            <Footer/>
-        </div>
+        <main className="container flex grow mx-auto px-6 py-12">
+            <div className="flex mx-auto justify-center flex-col items-center gap-12">
+                <div className="w-full max-w-2xl space-y-8 text-center">
+                    <div className="space-y-2">
+                        <Headline/>
+                    </div>
+                    <div className="flex items-center justify-center gap-8">
+                        <div className="flex items-center gap-2 text-muted-foreground">
+                            <Users className="h-5 w-5 text-accent"/>
+                            <div className="text-left">
+                                <p className="text-2xl font-bold text-foreground">{123}</p>
+                                <p className="text-sm">Usernames</p>
+                            </div>
+                        </div>
+                        <div className="h-12 w-px bg-border"/>
+                        <div className="flex items-center gap-2 text-muted-foreground">
+                            <Key className="h-5 w-5 text-accent"/>
+                            <div className="text-left">
+                                <p className="text-2xl font-bold text-foreground">{1239}</p>
+                                <p className="text-sm">Key indexed</p>
+                            </div>
+                        </div>
+                        <div className="h-12 w-px bg-border"/>
+                        <div className="flex items-center gap-2 text-muted-foreground">
+                            <GitBranchIcon className="h-5 w-5 text-accent"/>
+                            <div className="text-left">
+                                <p className="text-2xl font-bold text-foreground">{3}</p>
+                                <p className="text-sm">Platforms</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="space-y-2">
+                        <SearchBox
+                            search={search}
+                            searchIsLoading={isLoading}
+                        />
+                    </div>
+                    <div className="space-y-2">
+                        <ReassuringLine data={data}/>
+                    </div>
+                </div>
+                {hasSearched && (
+                    <div className="w-full max-w-4xl">
+                        <SSHKeyResults searchQuery={searchQuery} data={data}/>
+                    </div>
+                )}
+            </div>
+        </main>
     )
 }
 
@@ -114,70 +167,5 @@ function ReassuringLine({data}: ReassuringLineProps) {
                 </Tooltip>
             </div>
         </div>
-    )
-}
-
-export function Main() {
-    const [hasSearched, setHasSearched] = useState(false)
-
-    const [searchQuery, setSearchQuery] = useState('');
-    const [debouncedSearch] = useDebounce(searchQuery, 350);
-    const {data, isLoading, refetch} = useSSHKeys(debouncedSearch)
-
-    const search = (s: string): void => {
-        setHasSearched(true)
-        setSearchQuery(s)
-        refetch()
-    }
-
-    return (
-        <main className="container flex grow mx-auto px-6 py-12">
-            <div className="flex mx-auto justify-center flex-col items-center gap-12">
-                <div className="w-full max-w-2xl space-y-8 text-center">
-                    <div className="space-y-2">
-                        <Headline/>
-                    </div>
-                    <div className="flex items-center justify-center gap-8">
-                        <div className="flex items-center gap-2 text-muted-foreground">
-                            <Users className="h-5 w-5 text-accent"/>
-                            <div className="text-left">
-                                <p className="text-2xl font-bold text-foreground">{123}</p>
-                                <p className="text-sm">Usernames</p>
-                            </div>
-                        </div>
-                        <div className="h-12 w-px bg-border"/>
-                        <div className="flex items-center gap-2 text-muted-foreground">
-                            <Key className="h-5 w-5 text-accent"/>
-                            <div className="text-left">
-                                <p className="text-2xl font-bold text-foreground">{1239}</p>
-                                <p className="text-sm">Key indexed</p>
-                            </div>
-                        </div>
-                        <div className="h-12 w-px bg-border"/>
-                        <div className="flex items-center gap-2 text-muted-foreground">
-                            <GitBranchIcon className="h-5 w-5 text-accent"/>
-                            <div className="text-left">
-                                <p className="text-2xl font-bold text-foreground">{3}</p>
-                                <p className="text-sm">Platforms</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div className="space-y-2">
-                        <SearchBox
-                            search={search}
-                            searchIsLoading={isLoading}
-                        />
-                    </div>
-                    <div className="space-y-2">
-                        <ReassuringLine data={data}/>
-                    </div>
-                </div>
-                {hasSearched && (
-                    <div className="w-full max-w-4xl">
-                        <SSHKeyResults searchQuery={searchQuery} data={data}/>
-                    </div>
-                )}
-            </div>
-        </main>
     )
 }

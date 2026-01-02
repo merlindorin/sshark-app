@@ -1,4 +1,5 @@
 export default function Headline() {
+
     return (
         <>
             <h1 className="text-5xl font-bold tracking-tight text-foreground sm:text-6xl text-balance">

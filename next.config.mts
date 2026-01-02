@@ -1,14 +1,15 @@
-import type {NextConfig} from "next";
-import {PHASE_DEVELOPMENT_SERVER} from 'next/constants'
+import { createMDX } from "fumadocs-mdx/next"
+import type { NextConfig } from 'next'
 
-const nextConfig = (phase: string) => {
+const nextConfig = (): NextConfig => {
     const nextConfigOptions: NextConfig = {
         output: "standalone",
         reactStrictMode: true,
         poweredByHeader: false,
-    };
+    }
 
-    if (phase === PHASE_DEVELOPMENT_SERVER) {
+
+    if (process.env.NODE_ENV != "production") {
         console.log('happy development session ;)')
 
         nextConfigOptions.rewrites = async () => [
@@ -20,7 +21,11 @@ const nextConfig = (phase: string) => {
     }
 
     return nextConfigOptions
-
 }
 
-export default nextConfig;
+const withMDX = createMDX({
+    // customise the config file path
+    // configPath: "source.config.ts"
+})
+
+export default withMDX(nextConfig())

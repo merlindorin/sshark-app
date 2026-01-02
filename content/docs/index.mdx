@@ -1,0 +1,67 @@
+---
+title: Quickstart
+description: Learn how to search and query SSH keys effectively.
+---
+
+First off, thank you for using `sshark.app`
+
+## Basic Search
+
+Simply type a username to find their public SSH keys:
+```
+merlindorin
+```
+
+## Field-Specific Search
+
+Use field prefixes to search specific attributes:
+
+- `@username:merlindorin` — Search by username
+- `@key:AAAAC3NzaC1lZD...` — Reverse lookup by key content
+- `@title:laptop` — Search by key title/name
+- `@comment:work` — Search in key comments
+
+## Available Fields
+
+### Text Fields
+
+| Field | Description |
+|-------|-------------|
+| `@id` | Key identifier |
+| `@key` | Key content |
+| `@username` | Owner username |
+| `@title` | Key title |
+| `@comment` | Key comment |
+| `@created_at` | Creation date |
+
+### Tag Fields
+
+| Field | Values |
+|-------|--------|
+| `@source` | github, gitlab, bitbucket |
+| `@type` | ssh-rsa, ssh-ed25519, ecdsa-sha2-nistp256 |
+
+## Tag Filters
+
+Filter by source platform or key type:
+
+- `@source:{github}` — Only keys from GitHub
+- `@source:{github|gitlab}` — Keys from GitHub or GitLab
+- `@type:{ssh-ed25519}` — Only Ed25519 keys
+
+## Advanced Patterns
+
+| Pattern | Description |
+|---------|-------------|
+| `merl*` | Wildcard search — matches merlindorin, merlin, etc. |
+| `"merlindorin"` | Exact phrase match |
+| `%typo%` | Fuzzy search — tolerates typos |
+
+## Reverse Lookup
+
+Have a key and want to find who owns it? Just paste the key content directly in the search box:
+```
+AAAAC3NzaC1lZDI1NTE5AAAAI...
+```
+
+Paste any part of the public key to find its owner.

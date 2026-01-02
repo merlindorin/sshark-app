@@ -5,7 +5,7 @@ import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card"
 import {Badge} from "@/components/ui/badge"
 import {Button} from "@/components/ui/button"
 import {useState} from "react"
-import {SearchResponse} from "@/hooks/useSSHKeys";
+import {SearchResponse} from "@/hooks/use-ssh-keys";
 
 const platformConfig: { [key: string]: { icon: LucideIcon; label: string } } = {
     github: {

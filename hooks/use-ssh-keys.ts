@@ -27,7 +27,7 @@ const fetchSSHKeys = async (search: string, limit = 10, offset = 0): Promise<Sea
     return await response.json()
 }
 
-const useSSHKeys = (search: string, limit?: number, offset?: number) => {
+const useSshKeys = (search: string, limit?: number, offset?: number) => {
     return useQuery({
         queryKey: ['sshkeys', search, limit, offset],
         queryFn: () => fetchSSHKeys(search, limit, offset),
@@ -37,5 +37,5 @@ const useSSHKeys = (search: string, limit?: number, offset?: number) => {
     })
 }
 
-export {useSSHKeys, fetchSSHKeys}
+export {useSshKeys, fetchSSHKeys}
 export type {SSHKey, SearchResultItem, SearchResponse}
