@@ -2,6 +2,7 @@ import { links } from "@/app/links"
 import QueryProvider from "@/components/providers/QueryProvider"
 import ThemeProvider from "@/components/providers/ThemeProvider"
 import { Footer } from "@/components/templates/footer"
+import { Toaster } from "@/components/ui/sonner"
 import { Logo } from "components/atoms/logo"
 import { Navbar } from "@/components/templates/navbar/navbar"
 import { GoogleTagManager } from '@next/third-parties/google'
@@ -55,6 +56,7 @@ export default function RootLayout({children}: Readonly<{ children: React.ReactN
                         {children}
                         <Footer/>
                     </div>
+                    <Toaster position="top-center" richColors={true} />
                 </QueryProvider>
             </ThemeProvider>
         </RootProvider>

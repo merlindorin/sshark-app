@@ -5,16 +5,16 @@ import { Input } from "@/components/ui/input"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { useValidateQuery } from "@/hooks/use-validate-query"
 import { AlertCircle, CheckCircle, LoaderCircleIcon, Search } from "lucide-react"
-import React, { ChangeEvent, FormEvent, useState } from "react"
+import React, { ChangeEvent, FormEvent } from "react"
 import { useDebounce } from "use-debounce"
 
 type SearchBoxProps = {
     search: (value: string) => void,
-    searchIsLoading: boolean
+    searchQuery: string,
+    setSearchQuery: (value: (((prevState: string) => string) | string)) => void
 }
 
-export function SearchBox({search, searchIsLoading}: SearchBoxProps) {
-    const [searchQuery, setSearchQuery] = useState("")
+export function SearchBox({search, searchQuery, setSearchQuery}: SearchBoxProps) {
     const [debouncedSearch] = useDebounce(searchQuery, 350)
     const {data: isValid, error, isError, isFetching} = useValidateQuery(debouncedSearch)
 
@@ -41,27 +41,27 @@ export function SearchBox({search, searchIsLoading}: SearchBoxProps) {
                         type="text"
                         placeholder="Enter username..."
                         onChange={onChange}
+                        value={searchQuery}
                         className="h-14 pl-12 pr-12 text-base bg-card border-border"
                     />
                     {showValidation && (
                         <div className="absolute right-4 top-1/2 -translate-y-1/2">
+                            {(isFetching) && (
+                                <LoaderCircleIcon className="h-5 w-5 animate-spin text-secondary"/>
+                            )}
+                            {!(isFetching) && isValid && (
+                                <CheckCircle className="h-5 w-5 text-green-500"/>
+                            )}
                             <TooltipProvider>
                                 <Tooltip>
                                     <TooltipTrigger asChild>
-                                        <div className="cursor-help">
-                                            {(isFetching || searchIsLoading) && (
-                                                <LoaderCircleIcon className="h-5 w-5 animate-spin text-secondary"/>
-                                            )}
-                                            {!(isFetching || searchIsLoading) && isValid && (
-                                                <CheckCircle className="h-5 w-5 text-green-500"/>
-                                            )}
-                                            {!(isFetching || searchIsLoading) && isError && (
-                                                <AlertCircle className="h-5 w-5 text-destructive"/>
-                                            )}
-                                        </div>
+                                        {!(isFetching) && isError && (
+                                            <AlertCircle className="h-5 w-5 cursor-help text-destructive"/>
+                                        )}
                                     </TooltipTrigger>
                                     <TooltipContent>
-                                        {isError && <p>{error && 'error' in error ? error.error?.details : error?.message}</p>}
+                                        {isError &&
+                                            <p>{error && 'error' in error ? error.error?.details : error?.message}</p>}
                                     </TooltipContent>
                                 </Tooltip>
                             </TooltipProvider>

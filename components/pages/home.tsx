@@ -4,17 +4,11 @@ import { SearchBox } from "@/components/molecules/SearchBox"
 import Headline from "@/components/pages/Headline"
 import { Page } from "@/components/pages/page"
 import { SSHKeyResults } from "@/components/ssh-key-result"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
 
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { SearchResponse, useSshKeys } from "@/hooks/use-ssh-keys"
-import { GitBranchIcon, Key, KeyIcon, UsersIcon } from "lucide-react"
+import { GitBranchIcon, KeyIcon, UsersIcon } from "lucide-react"
 import React, { ComponentType, useState } from "react"
-
-
-import { useDebounce } from 'use-debounce'
-
 
 interface StatCardProps {
     label: string,
@@ -33,16 +27,25 @@ function StatCard({label, Icon, count}: StatCardProps) {
 }
 
 export function Home() {
-    const [hasSearched, setHasSearched] = useState(false)
-
     const [searchQuery, setSearchQuery] = useState('')
-    const [debouncedSearch] = useDebounce(searchQuery, 350)
-    const {data, isFetched, isError, isLoading, refetch} = useSshKeys(debouncedSearch)
+    const [toSearchQuery, setToSearchQuery] = useState('')
+    const {data, refetch, isError, isFetching} = useSshKeys(toSearchQuery)
 
-    const search = (s: string): void => {
-        setHasSearched(true)
-        setSearchQuery(s)
-        refetch()
+    const search = (s?: string): void => {
+        if (s !== undefined) {
+            setSearchQuery(s)
+        }
+
+        const trimmed = searchQuery.trim()
+
+        if (trimmed !== toSearchQuery) {
+            setToSearchQuery(trimmed)
+            return
+        }
+
+        if (toSearchQuery.length > 0) {
+            refetch()
+        }
     }
 
     return (
@@ -52,7 +55,7 @@ export function Home() {
                     <div className="space-y-2">
                         <Headline/>
                     </div>
-                    <div className="flex items-center justify-center gap-8">
+                    <div className="flex items-center justify-center gap-4 md:gap-8">
                         <StatCard Icon={UsersIcon} label="Usernames" count={1264}/>
                         <div className="h-12 w-px bg-border"/>
                         <StatCard Icon={KeyIcon} label="Key indexed" count={1952}/>
@@ -60,30 +63,25 @@ export function Home() {
                         <StatCard Icon={GitBranchIcon} label="Platforms" count={1}/>
                     </div>
                     <div className="space-y-2">
-                        <SearchBox search={search} searchIsLoading={isLoading}/>
+                        <SearchBox
+                            search={search}
+                            searchQuery={searchQuery}
+                            setSearchQuery={setSearchQuery}
+                        />
                     </div>
                     <div className="space-y-2">
                         <ReassuringLine data={data}/>
                     </div>
                 </div>
-                {isError && (
-                    <div className="w-full max-w-4xl">
-                        <Card className="w-full border-border bg-card">
-                            <CardContent className="py-12 text-center">
-                                <Key className="mx-auto h-12 w-12 text-muted-foreground mb-4"/>
-                                <p className="text-lg font-medium text-foreground">Oops something goes wrong.</p>
-                                <p className="text-sm text-muted-foreground mt-2">
-                                    <Button onClick={() => refetch()}>Retry</Button>
-                                </p>
-                            </CardContent>
-                        </Card>
-                    </div>
-                )}
-                {isFetched && (
-                    <div className="w-full max-w-4xl">
-                        <SSHKeyResults searchQuery={searchQuery} data={data}/>
-                    </div>
-                )}
+                <div className="w-full max-w-4xl">
+                    <SSHKeyResults
+                        searchIsFetching={isFetching}
+                        searchIsError={isError}
+                        searchFn={search}
+                        searchQuery={toSearchQuery}
+                        data={data}
+                    />
+                </div>
             </div>
         </Page>
     )

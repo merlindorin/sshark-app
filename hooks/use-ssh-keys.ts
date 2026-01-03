@@ -23,26 +23,34 @@ interface SearchResponse {
     duration: number;
 }
 
-const fetchSSHKeys = async (search: string, limit = 10, offset = 0): Promise<SearchResponse> => {
-    const response = await fetch(`/api/v1/search/${encodeURIComponent(search)}?limit=${limit}&offset=${(offset) * limit}`)
+const fetchSSHKeys = async (search: string, limit = 10, offset = 0, timeout = 500): Promise<SearchResponse> => {
+    const response = fetch(`/api/v1/search/${encodeURIComponent(search)}?limit=${limit}&offset=${(offset) * limit}`)
+    const wait = new Promise((resolve) => {
+        setTimeout(resolve, timeout)
+    })
 
-    if (response.status !== 200) {
-        throw await response.json()
-    }
+    return Promise
+        .all([wait, response])
+        .then(v =>  Promise.all([v[1], v[1].json()])).then(v => {
 
-    return await response.json()
+        if (v[0].status !== 200) {
+            throw v[1]
+        }
+
+        return v[1]
+    })
 }
 
 const useSshKeys = (search: string, limit?: number, offset?: number) => {
     return useQuery({
         queryKey: ['sshkeys', search, limit, offset],
         queryFn: () => fetchSSHKeys(search, limit, offset),
-        enabled: search.length >= 2,
+        enabled: search.length > 0,
         placeholderData: (prev) => prev,
         retry: (failureCount, error: APIError | Error): boolean => {
             return !('error' in error && ['INVALID_SEARCH_QUERY', 'INVALID_PATH_PARAM', 'INVALID_QUERY_PARAM'].includes(error?.error?.code))
         },
-        staleTime: 60 * 1000,
+        staleTime: 5 * 1000,
     })
 }
 

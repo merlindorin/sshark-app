@@ -1,60 +1,54 @@
-"use client"
+import { KeyPill } from "@/components/molecules/key-pill"
+import { ProviderPill } from "@/components/molecules/provider-pill"
+import { UserPill } from "@/components/molecules/user-pill"
+import { Button } from "@/components/ui/button"
+import { ButtonGroup } from "@/components/ui/button-group"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { SearchResponse } from "@/hooks/use-ssh-keys"
+import { CopyIcon, ExternalLink, Key, LucideLoaderCircle, MoreHorizontalIcon } from "lucide-react"
+import { toast } from "sonner"
 
-import {ExternalLink, Github, Gitlab, Key, type LucideIcon, User} from "lucide-react"
-import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card"
-import {Badge} from "@/components/ui/badge"
-import {Button} from "@/components/ui/button"
-import {useState} from "react"
-import {SearchResponse} from "@/hooks/use-ssh-keys";
-
-const platformConfig: { [key: string]: { icon: LucideIcon; label: string } } = {
-    github: {
-        icon: Github,
-        label: "GitHub",
-    },
-    gitlab: {
-        icon: Gitlab,
-        label: "GitLab",
-    },
-    bitbucket: {
-        icon: Key,
-        label: "Bitbucket",
-    },
-    manual: {
-        icon: Key,
-        label: "Manual",
-    },
-}
-
-function highlightMatch(text: string, query: string) {
-    if (!query) return <span>{text}</span>
-
-    const lowerText = text.toLowerCase()
-    const lowerQuery = query.toLowerCase()
-    const index = lowerText.indexOf(lowerQuery)
-
-    if (index === -1) return <span>{text}</span>
-
-    return (
-        <>
-            {text.slice(0, index)}
-            <mark
-                className="bg-accent/30 text-foreground font-semibold">{text.slice(index, index + query.length)}</mark>
-            {text.slice(index + query.length)}
-        </>
-    )
-}
-
-export function SSHKeyResults({searchQuery, data}: { searchQuery: string; data: SearchResponse | undefined }) {
-    const [copiedId, setCopiedId] = useState<string | null>(null)
-
+export function SSHKeyResults({searchQuery, data, searchFn, searchIsError, searchIsFetching}: {
+    searchQuery: string,
+    searchFn: (s: string) => void
+    searchIsError: boolean,
+    searchIsFetching: boolean,
+    data: SearchResponse | undefined,
+}) {
     const copyToClipboard = (key: string, id: string) => {
         navigator.clipboard.writeText(key)
-        setCopiedId(id)
-        setTimeout(() => setCopiedId(null), 2000)
+        toast.success("Copied to clipboard")
     }
 
-    if (data?.entities.length === 0) {
+    if (searchIsError) {
+        return (
+            <Card className="w-full border-border bg-card">
+                <CardContent className="py-12 text-center">
+                    <Key className="mx-auto h-12 w-12 text-muted-foreground mb-4"/>
+                    <p className="text-lg font-medium text-foreground">Oops</p>
+                    <p className="text-sm text-muted-foreground mt-2">Something goes wrong</p>
+                </CardContent>
+            </Card>
+        )
+    }
+
+    if (searchIsFetching) {
+        return (
+            <Card className="w-full border-border bg-card">
+                <CardContent className="py-12 text-center">
+                    <LucideLoaderCircle className="mx-auto h-12 w-12 text-muted-foreground mb-4 animate-spin"/>
+                    <p className="text-lg font-medium text-foreground">Searching...</p>
+                </CardContent>
+            </Card>
+        )
+    }
+
+    if (data === undefined) {
+        return null
+    }
+
+    if (data.entities.length === 0) {
         return (
             <Card className="w-full border-border bg-card">
                 <CardContent className="py-12 text-center">
@@ -75,22 +69,15 @@ export function SSHKeyResults({searchQuery, data}: { searchQuery: string; data: 
                 <CardTitle className="flex items-center gap-2 text-xl">
                     <Key className="h-5 w-5"/>
                     Public SSH Keys for <span
-                    className="font-mono text-accent">{highlightMatch(searchQuery, searchQuery)}</span>
+                    className="text-primary font-mono">{searchQuery}</span>
                 </CardTitle>
                 <p className="text-sm text-muted-foreground">
                     Found {data?.entities.length} public SSH key{data?.entities.length !== 1 ? "s" : ""} across
                     platforms
-                    {hasExactMatch && (
-                        <Badge variant="secondary" className="ml-2 bg-accent/20 text-accent">
-                            Exact Match
-                        </Badge>
-                    )}
                 </p>
             </CardHeader>
             <CardContent className="space-y-4">
                 {data?.entities.map((sshKey) => {
-                    const config = platformConfig[sshKey.provider] || ""
-                    const Icon = config.icon
 
                     return (
                         <div
@@ -98,45 +85,39 @@ export function SSHKeyResults({searchQuery, data}: { searchQuery: string; data: 
                             className="space-y-3 rounded-lg border border-border bg-background p-4 transition-colors hover:bg-muted/50"
                         >
                             <div className="flex items-center justify-between gap-4">
-                                <div className="flex grow items-center gap-3 flex-wrap">
-                                    <Badge
-                                        className="bg-blue-500/10 text-blue-600 dark:text-blue-400 hover:bg-blue-500/20 border-blue-500/20">
-                                        <Icon/>
-                                        {config.label}
-                                    </Badge>
-                                    <Badge
-                                        className="bg-green-500/10 text-green-700 dark:text-green-400 hover:bg-green-500/20 border-green-500/20 font-mono">
-                                        <User/>
-                                        {sshKey.username}
-                                    </Badge>
-                                    <span className="grow"/>
-                                    <span className="text-sm text-muted-foreground">
-                                        Updated {new Date(sshKey.updated_at).toLocaleDateString()}
-                                    </span>
+                                <div className="flex grow items-center gap-1 flex-wrap">
+                                    <ProviderPill provider={sshKey.provider}
+                                                  onClick={() => searchFn(`@provider:{${sshKey.provider}}`)}/>
+                                    <UserPill user={sshKey.username}
+                                              onClick={() => searchFn(`@username:${sshKey.username.replaceAll(`-`, `\\-`)}`)}/>
+                                    <KeyPill keyType={sshKey.type}
+                                             onClick={() => searchFn(`@type:{${sshKey.type.replaceAll(`-`, `\\-`)}}`)}/>
                                 </div>
                                 <div className="flex">
-                                    <Button
-                                        size="sm"
-                                        variant="outline"
-                                        onClick={() => window.open(sshKey.source, '_blank')?.focus()}
-                                        className="shrink-0, mr-2"
-                                    >
-                                        <ExternalLink className="mr-0 h-1 w-10"/>
-                                    </Button>
-                                    <Button
-                                        size="sm"
-                                        variant="outline"
-                                        onClick={() => copyToClipboard(sshKey.key, sshKey.id)}
-                                        className="shrink-0 ml-0"
-                                    >
-                                        {copiedId === sshKey.id ? "Copied!" : "Copy"}
-                                    </Button>
+                                    <ButtonGroup>
+                                        <DropdownMenu>
+                                            <DropdownMenuTrigger asChild>
+                                                <Button size="sm" variant="ghost">
+                                                    <MoreHorizontalIcon/>
+                                                </Button>
+                                            </DropdownMenuTrigger>
+                                            <DropdownMenuContent align="end">
+                                                <DropdownMenuItem
+                                                    onClick={() => copyToClipboard(sshKey.key, sshKey.id)}>
+                                                    <CopyIcon
+                                                        className="mr-0 h-1 w-10"/> Copy</DropdownMenuItem>
+                                                <DropdownMenuItem
+                                                    onClick={() => window.open(sshKey.source, '_blank')?.focus()}><ExternalLink
+                                                    className="mr-0 h-1 w-10"/> Source</DropdownMenuItem>
+                                            </DropdownMenuContent>
+                                        </DropdownMenu>
+                                    </ButtonGroup>
                                 </div>
                             </div>
                             <div className="overflow-x-auto">
                                 <code
                                     className="block rounded bg-muted px-3 py-2 text-xs font-mono text-foreground break-all">
-                                    {sshKey.key}
+                                    {`${sshKey.type} ${sshKey.key}`}
                                 </code>
                             </div>
                         </div>

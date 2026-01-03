@@ -15,7 +15,7 @@ const useValidateQuery = (search: string) => {
     return useQuery({
         queryKey: ['validateQuery', search],
         queryFn: () => fetchValidateQuery(search),
-        enabled: search.length >= 2,
+        enabled: search.length > 0,
         placeholderData: (prev) => prev,
         retry: (failureCount, error: APIError | Error): boolean => {
             return !('error' in error && error?.error?.code === 'INVALID_SEARCH_QUERY')
