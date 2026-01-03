@@ -9,19 +9,19 @@ import React, { ChangeEvent, FormEvent } from "react"
 import { useDebounce } from "use-debounce"
 
 type SearchBoxProps = {
-    search: (value: string) => void,
+    searchFn: (value: string) => void,
     searchQuery: string,
     setSearchQuery: (value: (((prevState: string) => string) | string)) => void
 }
 
-export function SearchBox({search, searchQuery, setSearchQuery}: SearchBoxProps) {
+export function SearchBox({searchFn, searchQuery, setSearchQuery}: SearchBoxProps) {
     const [debouncedSearch] = useDebounce(searchQuery, 350)
     const {data: isValid, error, isError, isFetching} = useValidateQuery(debouncedSearch)
 
     function onSubmit(e: FormEvent<HTMLFormElement>) {
         e.preventDefault()
         const formData = new FormData(e.currentTarget)
-        search(formData.get('searchquery') as string)
+        searchFn(formData.get('searchquery') as string)
     }
 
     function onChange(e: ChangeEvent<HTMLInputElement>) {

@@ -31,19 +31,21 @@ export function Home() {
     const [toSearchQuery, setToSearchQuery] = useState('')
     const {data, refetch, isError, isFetching} = useSshKeys(toSearchQuery)
 
-    const search = (s?: string): void => {
-        if (s !== undefined) {
-            setSearchQuery(s)
+    const search = (s: string): void => {
+        const trimmed = s.trim()
+
+        if (trimmed === "") {
+            return
         }
 
-        const trimmed = searchQuery.trim()
+        setSearchQuery(s)
 
-        if (trimmed !== toSearchQuery) {
+        if (toSearchQuery !== trimmed && toSearchQuery.length > 0) {
             setToSearchQuery(trimmed)
             return
         }
 
-        if (toSearchQuery.length > 0) {
+        if (toSearchQuery.length !== 0) {
             refetch()
         }
     }
@@ -64,7 +66,7 @@ export function Home() {
                     </div>
                     <div className="space-y-2">
                         <SearchBox
-                            search={search}
+                            searchFn={search}
                             searchQuery={searchQuery}
                             setSearchQuery={setSearchQuery}
                         />
