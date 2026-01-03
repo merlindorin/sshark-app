@@ -1,24 +1,14 @@
-import {useQuery} from '@tanstack/react-query'
+import { APIError } from "@/hooks/errors"
+import { useQuery } from '@tanstack/react-query'
 
-interface ValidateResponse {
-    query: string
-    is_valid: boolean
-    message: string
-    explanation: string
-}
-
-interface ValidationResult {
-    isValid: boolean
-    message: string
-}
-
-const fetchValidateQuery = async (search: string): Promise<ValidationResult> => {
+const fetchValidateQuery = async (search: string): Promise<boolean> => {
     const response = await fetch(`/api/v1/validate/${encodeURIComponent(search)}`)
-    const data: ValidateResponse = await response.json()
-    return {
-        isValid: data.is_valid,
-        message: data.is_valid ? data.message : data.explanation || data.message,
+
+    if (response.status !== 204) {
+        throw await response.json()
     }
+
+    return true
 }
 
 const useValidateQuery = (search: string) => {
@@ -27,9 +17,11 @@ const useValidateQuery = (search: string) => {
         queryFn: () => fetchValidateQuery(search),
         enabled: search.length >= 2,
         placeholderData: (prev) => prev,
+        retry: (failureCount, error: APIError | Error): boolean => {
+            return !('error' in error && error?.error?.code === 'INVALID_SEARCH_QUERY')
+        },
         staleTime: 60 * 1000,
     })
 }
 
-export {useValidateQuery, fetchValidateQuery}
-export type {ValidationResult}
+export { useValidateQuery, fetchValidateQuery }

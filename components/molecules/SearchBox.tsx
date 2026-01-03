@@ -1,12 +1,12 @@
 "use client"
 
-import React, {ChangeEvent, FormEvent, useState} from "react"
-import {AlertCircle, CheckCircle, LoaderCircleIcon, Search} from "lucide-react"
-import {Button} from "@/components/ui/button"
-import {Input} from "@/components/ui/input"
-import {Tooltip, TooltipContent, TooltipProvider, TooltipTrigger} from "@/components/ui/tooltip";
-import {useDebounce} from "use-debounce";
-import {useValidateQuery} from "@/hooks/use-validate-query";
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { useValidateQuery } from "@/hooks/use-validate-query"
+import { AlertCircle, CheckCircle, LoaderCircleIcon, Search } from "lucide-react"
+import React, { ChangeEvent, FormEvent, useState } from "react"
+import { useDebounce } from "use-debounce"
 
 type SearchBoxProps = {
     search: (value: string) => void,
@@ -15,8 +15,8 @@ type SearchBoxProps = {
 
 export function SearchBox({search, searchIsLoading}: SearchBoxProps) {
     const [searchQuery, setSearchQuery] = useState("")
-    const [debouncedSearch] = useDebounce(searchQuery, 350);
-    const {data: validation, isFetching} = useValidateQuery(debouncedSearch)
+    const [debouncedSearch] = useDebounce(searchQuery, 350)
+    const {data: isValid, error, isError, isFetching} = useValidateQuery(debouncedSearch)
 
     function onSubmit(e: FormEvent<HTMLFormElement>) {
         e.preventDefault()
@@ -52,23 +52,23 @@ export function SearchBox({search, searchIsLoading}: SearchBoxProps) {
                                             {(isFetching || searchIsLoading) && (
                                                 <LoaderCircleIcon className="h-5 w-5 animate-spin text-secondary"/>
                                             )}
-                                            {!(isFetching || searchIsLoading) && validation?.isValid && (
+                                            {!(isFetching || searchIsLoading) && isValid && (
                                                 <CheckCircle className="h-5 w-5 text-green-500"/>
                                             )}
-                                            {!(isFetching || searchIsLoading) && !validation?.isValid && (
+                                            {!(isFetching || searchIsLoading) && isError && (
                                                 <AlertCircle className="h-5 w-5 text-destructive"/>
                                             )}
                                         </div>
                                     </TooltipTrigger>
                                     <TooltipContent>
-                                        <p>{validation?.message}</p>
+                                        {isError && <p>{error && 'error' in error ? error.error?.details : error?.message}</p>}
                                     </TooltipContent>
                                 </Tooltip>
                             </TooltipProvider>
                         </div>
                     )}
                 </div>
-                <Button type="submit" size="lg" className="h-14 px-8" disabled={!validation?.isValid}>
+                <Button type="submit" size="lg" className="h-14 px-8" disabled={!isValid}>
                     Search
                 </Button>
             </div>

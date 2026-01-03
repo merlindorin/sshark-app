@@ -17,8 +17,7 @@ merlindorin
 Use field prefixes to search specific attributes:
 
 - `@username:merlindorin` — Search by username
-- `@key:AAAAC3NzaC1lZD...` — Reverse lookup by key content
-- `@title:laptop` — Search by key title/name
+- `@key:{AAAAC3NzaC1lZD*}` — Reverse lookup by key content
 - `@comment:work` — Search in key comments
 
 ## Available Fields
@@ -27,18 +26,17 @@ Use field prefixes to search specific attributes:
 
 | Field | Description |
 |-------|-------------|
-| `@id` | Key identifier |
-| `@key` | Key content |
 | `@username` | Owner username |
-| `@title` | Key title |
 | `@comment` | Key comment |
-| `@created_at` | Creation date |
+| `@updated_at` | Last update date |
 
 ### Tag Fields
 
-| Field | Values |
-|-------|--------|
-| `@source` | github, gitlab, bitbucket |
+| Field | Description |
+|-------|-------------|
+| `@id` | Key identifier (UUID) |
+| `@key` | Key content (base64) |
+| `@source` | github, gitlab, bitbucket, manual |
 | `@type` | ssh-rsa, ssh-ed25519, ecdsa-sha2-nistp256 |
 
 ## Tag Filters

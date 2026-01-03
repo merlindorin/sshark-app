@@ -1,4 +1,5 @@
-import {useQuery} from '@tanstack/react-query'
+import { APIError } from "@/hooks/errors"
+import { useQuery } from '@tanstack/react-query'
 
 interface SSHKey {
     id: string;
@@ -24,6 +25,11 @@ interface SearchResponse {
 
 const fetchSSHKeys = async (search: string, limit = 10, offset = 0): Promise<SearchResponse> => {
     const response = await fetch(`/api/v1/search/${encodeURIComponent(search)}?limit=${limit}&offset=${(offset) * limit}`)
+
+    if (response.status !== 200) {
+        throw await response.json()
+    }
+
     return await response.json()
 }
 
@@ -33,9 +39,12 @@ const useSshKeys = (search: string, limit?: number, offset?: number) => {
         queryFn: () => fetchSSHKeys(search, limit, offset),
         enabled: search.length >= 2,
         placeholderData: (prev) => prev,
+        retry: (failureCount, error: APIError | Error): boolean => {
+            return !('error' in error && ['INVALID_SEARCH_QUERY', 'INVALID_PATH_PARAM', 'INVALID_QUERY_PARAM'].includes(error?.error?.code))
+        },
         staleTime: 60 * 1000,
     })
 }
 
-export {useSshKeys, fetchSSHKeys}
-export type {SSHKey, SearchResultItem, SearchResponse}
+export { useSshKeys, fetchSSHKeys }
+export type { SSHKey, SearchResultItem, SearchResponse }

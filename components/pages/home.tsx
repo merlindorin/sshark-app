@@ -4,10 +4,12 @@ import { SearchBox } from "@/components/molecules/SearchBox"
 import Headline from "@/components/pages/Headline"
 import { Page } from "@/components/pages/page"
 import { SSHKeyResults } from "@/components/ssh-key-result"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent } from "@/components/ui/card"
 
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { SearchResponse, useSshKeys } from "@/hooks/use-ssh-keys"
-import { GitBranchIcon, KeyIcon, UsersIcon } from "lucide-react"
+import { GitBranchIcon, Key, KeyIcon, UsersIcon } from "lucide-react"
 import React, { ComponentType, useState } from "react"
 
 
@@ -35,7 +37,7 @@ export function Home() {
 
     const [searchQuery, setSearchQuery] = useState('')
     const [debouncedSearch] = useDebounce(searchQuery, 350)
-    const {data, isLoading, refetch} = useSshKeys(debouncedSearch)
+    const {data, isFetched, isError, isLoading, refetch} = useSshKeys(debouncedSearch)
 
     const search = (s: string): void => {
         setHasSearched(true)
@@ -64,7 +66,20 @@ export function Home() {
                         <ReassuringLine data={data}/>
                     </div>
                 </div>
-                {hasSearched && (
+                {isError && (
+                    <div className="w-full max-w-4xl">
+                        <Card className="w-full border-border bg-card">
+                            <CardContent className="py-12 text-center">
+                                <Key className="mx-auto h-12 w-12 text-muted-foreground mb-4"/>
+                                <p className="text-lg font-medium text-foreground">Oops something goes wrong.</p>
+                                <p className="text-sm text-muted-foreground mt-2">
+                                    <Button onClick={() => refetch()}>Retry</Button>
+                                </p>
+                            </CardContent>
+                        </Card>
+                    </div>
+                )}
+                {isFetched && (
                     <div className="w-full max-w-4xl">
                         <SSHKeyResults searchQuery={searchQuery} data={data}/>
                     </div>
@@ -110,13 +125,11 @@ function ReassuringLine({data}: ReassuringLineProps) {
                         <div className="space-y-2 text-xs">
                             <div>
                                 <p className="font-semibold">Text Fields:</p>
-                                <p className="text-muted-foreground">@id, @key, @username, @title, @comment,
-                                    @created_at</p>
+                                <p className="text-muted-foreground">@username, @comment, @updated_at</p>
                             </div>
                             <div>
                                 <p className="font-semibold">Tag Fields:</p>
-                                <p className="text-muted-foreground">@source{`{github|gitlab|bitbucket|manual}`}</p>
-                                <p className="text-muted-foreground">@type{`{ssh-rsa|ssh-ed25519|ecdsa-sha2-nistp256}`}</p>
+                                <p className="text-muted-foreground">@id, @key, @source, @type</p>
                             </div>
                             <div>
                                 <p className="font-semibold">Redis Query Engine Syntax:</p>
@@ -155,7 +168,7 @@ function ReassuringLine({data}: ReassuringLineProps) {
                             </div>
                             <div>
                                 <p className="font-semibold">And if you feel geeky</p>
-                                <p><code className="mr-2">@key:AAAAC3NzaC1lZD...</code></p>
+                                <p><code className="mr-2">@key:{`{AAAAC3NzaC1lZD*}`}</code></p>
                             </div>
                         </div>
                     </TooltipContent>
