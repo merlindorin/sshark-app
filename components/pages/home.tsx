@@ -32,20 +32,16 @@ export function Home() {
     const {data, refetch, isError, isFetching} = useSshKeys(toSearchQuery)
 
     const search = (s: string): void => {
-        const trimmed = s.trim()
-
-        if (trimmed === "") {
-            return
-        }
-
         setSearchQuery(s)
 
-        if (toSearchQuery !== trimmed && toSearchQuery.length > 0) {
+        const trimmed = s.trim()
+
+        if (toSearchQuery !== trimmed && trimmed !== "") {
             setToSearchQuery(trimmed)
             return
         }
 
-        if (toSearchQuery.length !== 0) {
+        if (toSearchQuery !== "") {
             refetch()
         }
     }
