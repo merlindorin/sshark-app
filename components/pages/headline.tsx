@@ -5,7 +5,8 @@ export default function Headline() {
 				Find Public SSH Keys
 			</h1>
 			<p className="text-balance text-lg text-muted-foreground">
-				Search for any user&apos;s public SSH keys instantly. Quick, secure, and developer-friendly.
+				Search for any user&apos;s public SSH keys or reverse lookup who owns a key. Quick, secure, and
+				developer-friendly.
 			</p>
 		</>
 	)
