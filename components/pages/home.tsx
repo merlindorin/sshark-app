@@ -4,9 +4,12 @@ import { SearchBox } from "@/components/molecules/SearchBox"
 import Headline from "@/components/pages/Headline"
 import { Page } from "@/components/pages/page"
 import { SSHKeyResults } from "@/components/ssh-key-result"
+import NumberFlow from "@number-flow/react"
+import { useInterval } from 'usehooks-ts'
 
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { SearchResponse, useSshKeys } from "@/hooks/use-ssh-keys"
+import { useStats } from "@/hooks/use-stats"
 import { GitBranchIcon, KeyIcon, UsersIcon } from "lucide-react"
 import React, { ComponentType, useState } from "react"
 
@@ -20,10 +23,25 @@ function StatCard({label, Icon, count}: StatCardProps) {
     return <div className="flex items-center gap-2 text-muted-foreground">
         <Icon className="h-5 w-5 text-accent"/>
         <div className="text-left">
-            <p className="text-2xl font-bold text-foreground">{count}</p>
+            <p className="text-2xl font-bold text-foreground"><NumberFlow value={count} /></p>
             <p className="text-sm">{label}</p>
         </div>
     </div>
+}
+
+function Stats() {
+    const { data, refetch } = useStats()
+    useInterval(refetch, 10000)
+
+    return (
+        <div className="flex items-center justify-center gap-4 md:gap-8">
+            <StatCard Icon={UsersIcon} label="Usernames" count={data?.total_usernames || 0}/>
+            <div className="h-12 w-px bg-border"/>
+            <StatCard Icon={KeyIcon} label="Key indexed" count={data?.total_keys || 0}/>
+            <div className="h-12 w-px bg-border"/>
+            <StatCard Icon={GitBranchIcon} label="Platforms" count={data?.total_providers || 0}/>
+        </div>
+    )
 }
 
 export function Home() {
@@ -53,13 +71,7 @@ export function Home() {
                     <div className="space-y-2">
                         <Headline/>
                     </div>
-                    <div className="flex items-center justify-center gap-4 md:gap-8">
-                        <StatCard Icon={UsersIcon} label="Usernames" count={1264}/>
-                        <div className="h-12 w-px bg-border"/>
-                        <StatCard Icon={KeyIcon} label="Key indexed" count={1952}/>
-                        <div className="h-12 w-px bg-border"/>
-                        <StatCard Icon={GitBranchIcon} label="Platforms" count={1}/>
-                    </div>
+                    <Stats />
                     <div className="space-y-2">
                         <SearchBox
                             searchFn={search}
