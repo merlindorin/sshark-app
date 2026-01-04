@@ -1,12 +1,12 @@
-import { Pill, PillIcon } from "@/components/kibo-ui/pill"
 import { KeyIcon } from "lucide-react"
-import { MouseEventHandler } from "react"
+import type { MouseEventHandler } from "react"
+import { Pill, PillIcon } from "@/components/kibo-ui/pill"
 
-export function KeyPill({keyType, onClick}: { keyType: string, onClick: MouseEventHandler }) {
-    return (
-        <Pill onClick={onClick} className="cursor-pointer">
-            <PillIcon icon={KeyIcon}/>
-            {keyType}
-        </Pill>
-    )
+export function KeyPill({ keyType, onClick }: { keyType: string; onClick: MouseEventHandler }) {
+	return (
+		<Pill className="cursor-pointer" onClick={onClick}>
+			<PillIcon icon={KeyIcon} />
+			{keyType}
+		</Pill>
+	)
 }
