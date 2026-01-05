@@ -95,7 +95,9 @@ export function SSHKeyResults({
 										provider={sshKey.provider}
 									/>
 									<UserPill
-										onClick={() => searchFn(`@username:${sshKey.username.replaceAll("-", "\\-")}`)}
+										onClick={() =>
+											searchFn(`@username:{${sshKey.username.replaceAll("-", "\\-")}}`)
+										}
 										user={sshKey.username}
 									/>
 									<KeyPill
