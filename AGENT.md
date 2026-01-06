@@ -1,4 +1,4 @@
-# CLAUDE.md
+# AGENT.md
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
@@ -13,9 +13,24 @@ npm run dev          # Start development server (localhost:3000)
 npm run build        # Build for production
 npm run lint         # Run ESLint
 npm run storybook    # Start Storybook on port 6006
+npm exec -- ultracite fix    # Format code with Biome
+npm exec -- ultracite check  # Check for linting issues
 ```
 
 ## Architecture
+
+### Directory Structure
+```
+app/                  # Next.js App Router pages and API routes
+├── (pages)/          # Route groups for pages (about, docs, roadmap)
+├── api/              # API route handlers
+components/           # React components (atomic design)
+content/              # MDX documentation content (fumadocs)
+hooks/                # Custom React hooks
+lib/                  # Utilities and shared code
+helm/                 # Helm chart for Kubernetes deployment
+public/               # Static assets
+```
 
 ### API Integration
 - The app proxies API requests to an external `sshark-api` service at `/api/v1/*`
@@ -24,10 +39,11 @@ npm run storybook    # Start Storybook on port 6006
 
 ### Component Structure
 Components follow atomic design principles:
-- `components/atoms/` - Basic building blocks (logo, etc.)
-- `components/molecules/` - Composed components (SearchBox, pills)
-- `components/pages/` - Page-level components
-- `components/templates/` - Layout templates
+- `components/atoms/` - Basic building blocks (logo)
+- `components/molecules/` - Composed components (SearchBox, pills, mode toggle)
+- `components/pages/` - Page-level components (home, about, roadmap, headline)
+- `components/templates/` - Layout templates (navbar, footer)
+- `components/providers/` - React context providers (query, theme)
 - `components/ui/` - shadcn/ui components (new-york style)
 - `components/kibo-ui/` - Components from kibo-ui registry
 
@@ -37,14 +53,28 @@ Components follow atomic design principles:
   - `use-ssh-keys.ts` - Search SSH keys with pagination
   - `use-stats.ts` - Fetch platform statistics
   - `use-validate-query.ts` - Query validation
+  - `errors.ts` - Error handling utilities
 
 ### Search Query Syntax
-The backend uses Redis Query Engine syntax:
-- Text fields: `@username`, `@comment`, `@updated_at`
-- Tag fields: `@id`, `@key`, `@source`, `@type`
-- Wildcards: `merl*`
-- Exact phrase: `"merlindorin"`
-- Fuzzy: `%typo%`
+The backend uses Redis Query Engine syntax with **tag fields only**.
+
+**Simple search:**
+- `merlin` → automatically expands to `@username:{merlin*} | @key:{merlin*}`
+
+**Available tag fields:**
+- `@id` - Key identifier (UUID)
+- `@username` - Owner username
+- `@source` - Platform (github, gitlab, etc.)
+- `@provider` - Provider name
+- `@type` - Key type (ssh-rsa, ssh-ed25519, ecdsa-sha2-nistp256)
+- `@key` - Key content (base64)
+- `@comment` - Key comment
+
+**Tag field syntax (use curly braces):**
+- `@username:{merlindorin}` - Exact match
+- `@username:{merl*}` - Wildcard match
+- `@source:{github|gitlab}` - Multiple values (OR)
+- `@key:{AAAAC3NzaC1lZD*}` - Reverse lookup by key content
 
 ## Release Workflow
 

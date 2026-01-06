@@ -7,37 +7,34 @@ First off, thank you for using `sshark.app`
 
 ## Basic Search
 
-Simply type a username to find their public SSH keys:
+Simply type a username or key content to search:
 ```
 merlindorin
 ```
 
+This automatically expands to `@username:{merlindorin*} | @key:{merlindorin*}`
+
 ## Field-Specific Search
 
-Use field prefixes to search specific attributes:
+Use field prefixes with curly braces to search specific attributes:
 
-- `@username:merlindorin` — Search by username
+- `@username:{merlindorin}` — Search by username
 - `@key:{AAAAC3NzaC1lZD*}` — Reverse lookup by key content
-- `@comment:work` — Search in key comments
+- `@comment:{work}` — Search in key comments
 
 ## Available Fields
 
-### Text Fields
-
-| Field | Description |
-|-------|-------------|
-| `@username` | Owner username |
-| `@comment` | Key comment |
-| `@updated_at` | Last update date |
-
-### Tag Fields
+All fields are **tag fields** and use curly brace syntax:
 
 | Field | Description |
 |-------|-------------|
 | `@id` | Key identifier (UUID) |
-| `@key` | Key content (base64) |
-| `@source` | github, gitlab, bitbucket, manual |
+| `@username` | Owner username |
+| `@source` | Platform: github, gitlab, etc. |
+| `@provider` | Provider name |
 | `@type` | ssh-rsa, ssh-ed25519, ecdsa-sha2-nistp256 |
+| `@key` | Key content (base64) |
+| `@comment` | Key comment |
 
 ## Tag Filters
 
@@ -47,13 +44,12 @@ Filter by source platform or key type:
 - `@source:{github|gitlab}` — Keys from GitHub or GitLab
 - `@type:{ssh-ed25519}` — Only Ed25519 keys
 
-## Advanced Patterns
+## Wildcards
 
 | Pattern | Description |
 |---------|-------------|
-| `merl*` | Wildcard search — matches merlindorin, merlin, etc. |
-| `"merlindorin"` | Exact phrase match |
-| `%typo%` | Fuzzy search — tolerates typos |
+| `@username:{merl*}` | Wildcard — matches merlindorin, merlin, etc. |
+| `@username:{merlindorin}` | Exact match |
 
 ## Reverse Lookup
 
@@ -62,4 +58,7 @@ Have a key and want to find who owns it? Just paste the key content directly in 
 AAAAC3NzaC1lZDI1NTE5AAAAI...
 ```
 
-Paste any part of the public key to find its owner.
+Or use the field syntax for more control:
+```
+@key:{AAAAC3NzaC1lZD*}
+```

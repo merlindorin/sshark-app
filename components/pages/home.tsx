@@ -124,34 +124,28 @@ function ReassuringLine({ data }: ReassuringLineProps) {
 					<TooltipContent className="max-w-sm text-left" side={"bottom"}>
 						<div className="space-y-2 text-xs">
 							<div>
-								<p className="font-semibold">Text Fields:</p>
-								<p className="text-muted-foreground">@username, @comment, @updated_at</p>
+								<p className="font-semibold">Available Fields:</p>
+								<p className="text-muted-foreground">
+									@username, @key, @source, @provider, @type, @comment, @id
+								</p>
 							</div>
 							<div>
-								<p className="font-semibold">Tag Fields:</p>
-								<p className="text-muted-foreground">@id, @key, @source, @type</p>
-							</div>
-							<div>
-								<p className="font-semibold">Redis Query Engine Syntax:</p>
+								<p className="font-semibold">Query Syntax:</p>
 								<p>
-									<code className="mr-2">@textfield:merlin</code>
-									<span className="font-bold">text field search</span>
+									<code className="mr-2">merlin</code>
+									<span className="font-bold">simple search</span>
 								</p>
 								<p>
-									<code className="mr-2">@tagfield:{"{github|gitlab}"}</code>
-									<span className="font-bold"> tag field search</span>
+									<code className="mr-2">@username:{"{merlindorin}"}</code>
+									<span className="font-bold">exact match</span>
 								</p>
 								<p>
-									<code className="mr-2">merl*</code>
-									<span className="font-bold"> wildcard search</span>
+									<code className="mr-2">@username:{"{merl*}"}</code>
+									<span className="font-bold">wildcard</span>
 								</p>
 								<p>
-									<code className="mr-2">&#34;merlindorin&#34;</code>
-									<span className="font-bold"> exact phrase</span>
-								</p>
-								<p>
-									<code className="mr-2">%typo%</code>
-									<span className="font-bold"> fuzzy search</span>
+									<code className="mr-2">@source:{"{github|gitlab}"}</code>
+									<span className="font-bold">multiple values</span>
 								</p>
 							</div>
 						</div>
