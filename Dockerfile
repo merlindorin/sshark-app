@@ -3,9 +3,11 @@ FROM node:24-alpine AS builder
 
 WORKDIR /app
 
-# Build args for Next.js public env vars (inlined at build time)
+# Build args for Clerk (needed for static generation)
 ARG NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
+ARG CLERK_SECRET_KEY
 ENV NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=$NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
+ENV CLERK_SECRET_KEY=$CLERK_SECRET_KEY
 
 # Copy package files
 COPY package.json package-lock.json ./
