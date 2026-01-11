@@ -45,6 +45,13 @@ ingress:
 
 resources: {}
 
+# Environment variables from secrets/configmaps
+# Example for Clerk secret:
+# envFrom:
+#   - secretRef:
+#       name: sshark-clerk-secret
+envFrom: []
+
 livenessProbe:
   httpGet:
     path: /

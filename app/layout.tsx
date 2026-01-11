@@ -1,6 +1,7 @@
 import "./globals.css"
 
 import { ClerkProvider } from "@clerk/nextjs"
+
 import { GoogleTagManager } from "@next/third-parties/google"
 import { Logo } from "components/atoms/logo"
 import { RootProvider } from "fumadocs-ui/provider/next"
@@ -18,6 +19,9 @@ const _geist = Geist({ subsets: ["latin"] })
 const _geistMono = Geist_Mono({ subsets: ["latin"] })
 
 const env = process.env.NODE_ENV
+
+// Disable static generation - Clerk requires CLERK_SECRET_KEY at runtime
+export const dynamic = "force-dynamic"
 
 export const metadata: Metadata = {
 	title: "sshark - Find Public SSH Keys",
