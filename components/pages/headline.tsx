@@ -3,24 +3,11 @@ import { Box } from "@/components/atoms/box"
 import { H1, P } from "@/components/atoms/text"
 
 function SubTitle({ children }: PropsWithChildren) {
-	return (
-		<P textColor="muted-foreground" textSize="lg" textWrap="balance">
-			{children}
-		</P>
-	)
+	return <P className="text-balance text-lg text-muted-foreground">{children}</P>
 }
 
 function MainTitle({ children }: PropsWithChildren) {
-	return (
-		<H1
-			className="tracking-tight"
-			fontWeight="bold"
-			textColor="foreground"
-			textSize={{ default: "5xl", sm: "6xl" }}
-			textWrap="balance">
-			{children}
-		</H1>
-	)
+	return <H1 className="text-balance font-bold text-5xl text-foreground tracking-tight sm:text-6xl">{children}</H1>
 }
 
 export default function Headline() {

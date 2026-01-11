@@ -20,8 +20,8 @@ export const MobileMenu = ({ links }: MobileMenuProps) => (
 			<DrawerHeader className="sr-only">
 				<DrawerTitle>Mobile Menu</DrawerTitle>
 			</DrawerHeader>
-			<Flex className="overflow-y-auto" direction="col" pb={12} pt={8} px={6} spaceY={4}>
-				<Flex direction="col" gap={2}>
+			<Flex className="flex-col space-y-4 overflow-y-auto px-6 pt-8 pb-12">
+				<Flex className="flex-col gap-2">
 					{links.map(({ href, label, ...props }) => (
 						<DrawerClose asChild key={label}>
 							<Link className="text-muted-foreground" href={href} key={label} {...props}>

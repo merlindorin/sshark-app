@@ -2,13 +2,12 @@ import { Flex } from "@/components/atoms/flex"
 import { Span } from "@/components/atoms/text"
 
 export const Logo = () => (
-	<Flex align="center" gap={2}>
+	<Flex className="items-center gap-2">
 		<svg
 			className="h-5 w-auto"
 			style={{ fill: "var(--accent-foreground)" }}
 			viewBox="269.6 277.52 468.62 468.62"
-			xmlns="http://www.w3.org/2000/svg"
-		>
+			xmlns="http://www.w3.org/2000/svg">
 			<title>sshark.app</title>
 			<path
 				d="M496.981 277.643C626.236 273.825 734.144 375.447 738.083 504.698C742.021 633.95 640.499 741.953 511.252 746.012C381.834 750.076 273.657 648.391 269.713 518.969C265.77 389.547 367.555 281.465 496.981 277.643Z"
@@ -19,6 +18,6 @@ export const Logo = () => (
 				fill="black"
 			/>
 		</svg>
-		<Span fontWeight="semibold">sshark</Span>
+		<Span className="font-semibold">sshark</Span>
 	</Flex>
 )

@@ -49,11 +49,9 @@ export function UserNav({ user, signout, className, ...props }: UserNavProps) {
 			</DropdownMenuTrigger>
 			<DropdownMenuContent align="end" className="w-56" forceMount>
 				<DropdownMenuLabel className="font-normal">
-					<Flex direction="col" spaceY={1}>
-						<P className="leading-none" fontWeight="medium" textSize="sm">
-							{user?.username || "User"}
-						</P>
-						<P className="leading-none" textColor="muted-foreground" textSize="xs">
+					<Flex className="flex-col space-y-1">
+						<P className="font-medium text-sm leading-none">{user?.username || "User"}</P>
+						<P className="text-muted-foreground text-xs leading-none">
 							{user?.primaryEmailAddress?.emailAddress || ""}
 						</P>
 					</Flex>

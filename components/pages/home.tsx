@@ -25,14 +25,14 @@ interface StatCardProps {
 
 function StatCard({ label, Icon, count }: StatCardProps) {
 	return (
-		<Flex align="center" className="text-muted-foreground" direction="col" textAlign="left">
-			<Flex align="center" gap={2}>
+		<Flex className="flex-col items-center text-left text-muted-foreground">
+			<Flex className="items-center gap-2">
 				<Icon className="h-5 w-5 text-accent" />
-				<P fontWeight="bold" textSize={{ md: "2xl", default: "xl" }}>
+				<P className="font-bold text-xl md:text-2xl">
 					<NumberFlow value={count} />
 				</P>
 			</Flex>
-			<P textSize={{ default: "sm", md: "base" }}>{label}</P>
+			<P className="text-sm md:text-base">{label}</P>
 		</Flex>
 	)
 }
@@ -42,11 +42,11 @@ function Stats() {
 	useInterval(refetch, 10_000)
 
 	return (
-		<Flex align="center" gap={{ default: 4, md: 8 }} justify="center">
+		<Flex className="items-center justify-center gap-4 md:gap-8">
 			<StatCard count={data?.total_usernames || 0} Icon={UsersIcon} label="Usernames" />
-			<Box className="bg-border" h={12} w="px" />
+			<Box className="h-12 w-px bg-border" />
 			<StatCard count={data?.total_keys || 0} Icon={KeyIcon} label="Key indexed" />
-			<Box className="bg-border" h={12} w="px" />
+			<Box className="h-12 w-px bg-border" />
 			<StatCard count={data?.total_providers || 0} Icon={GitBranchIcon} label="Platforms" />
 		</Flex>
 	)
@@ -80,7 +80,7 @@ export function Home() {
 				<SearchBox searchFn={search} searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
 				<ReassuringLine data={data} />
 			</PageHeader>
-			<Box maxW="4xl" w="full">
+			<Box className="w-full max-w-4xl">
 				<SSHKeyResults
 					data={data}
 					searchFn={search}
@@ -98,23 +98,23 @@ interface ReassuringLineProps {
 }
 
 function FeatureDot() {
-	return <Box bg="accent" h={2} rounded="full" w={2} />
+	return <Box className="h-2 w-2 rounded-full bg-accent" />
 }
 
 function ReassuringLine({ data }: ReassuringLineProps) {
 	return (
-		<Flex align="center" gap={4} justify="center" textColor="muted-foreground" textSize="sm">
-			<Flex align="center" gap={2}>
+		<Flex className="items-center justify-center gap-4 text-muted-foreground text-sm">
+			<Flex className="items-center gap-2">
 				<FeatureDot />
 				<Tooltip>
 					<TooltipTrigger asChild className="cursor-pointer">
 						<span className="border-b-1 border-dotted">Fast Lookup</span>
 					</TooltipTrigger>
 					<TooltipContent className="max-w-sm text-left" side="bottom">
-						<Box spaceY={2} textSize="xs">
+						<Box className="space-y-2 text-xs">
 							<Box>
 								<P>
-									<Span fontWeight="bold">Last query duration: </Span>
+									<Span className="font-bold">Last query duration: </Span>
 									<code className="mr-2">
 										{data ? `${(data.duration / 1_000_000).toFixed(2)}ms` : "-"}
 									</code>
@@ -124,65 +124,65 @@ function ReassuringLine({ data }: ReassuringLineProps) {
 					</TooltipContent>
 				</Tooltip>
 			</Flex>
-			<Flex align="center" gap={2}>
+			<Flex className="items-center gap-2">
 				<FeatureDot />
 				<Tooltip>
 					<TooltipTrigger asChild className="cursor-pointer">
 						<span className="border-b-1 border-dotted">Advanced Search</span>
 					</TooltipTrigger>
 					<TooltipContent className="max-w-sm text-left" side="bottom">
-						<Box spaceY={2} textSize="xs">
+						<Box className="space-y-2 text-xs">
 							<Box>
-								<P fontWeight="semibold">Available Fields:</P>
-								<P textColor="muted-foreground">
+								<P className="font-semibold">Available Fields:</P>
+								<P className="text-muted-foreground">
 									@username, @key, @source, @provider, @type, @comment, @id
 								</P>
 							</Box>
 							<Box>
-								<P fontWeight="semibold">Query Syntax:</P>
+								<P className="font-semibold">Query Syntax:</P>
 								<P>
 									<code className="mr-2">merlin</code>
-									<Span fontWeight="bold">simple search</Span>
+									<Span className="font-bold">simple search</Span>
 								</P>
 								<P>
 									<code className="mr-2">@username:{"{merlindorin}"}</code>
-									<Span fontWeight="bold">exact match</Span>
+									<Span className="font-bold">exact match</Span>
 								</P>
 								<P>
 									<code className="mr-2">@username:{"{merl*}"}</code>
-									<Span fontWeight="bold">wildcard</Span>
+									<Span className="font-bold">wildcard</Span>
 								</P>
 								<P>
 									<code className="mr-2">@source:{"{github|gitlab}"}</code>
-									<Span fontWeight="bold">multiple values</Span>
+									<Span className="font-bold">multiple values</Span>
 								</P>
 							</Box>
 						</Box>
 					</TooltipContent>
 				</Tooltip>
 			</Flex>
-			<Flex align="center" gap={2}>
+			<Flex className="items-center gap-2">
 				<FeatureDot />
 				<Span>Secure access</Span>
 			</Flex>
-			<Flex align="center" gap={2}>
+			<Flex className="items-center gap-2">
 				<FeatureDot />
 				<Tooltip>
 					<TooltipTrigger asChild className="cursor-pointer">
 						<span className="border-b-1 border-dotted">Reverse Lookup</span>
 					</TooltipTrigger>
 					<TooltipContent className="max-w-sm text-left" side="bottom">
-						<Box spaceY={2} textSize="xs">
+						<Box className="space-y-2 text-xs">
 							<Box>
 								<P>
-									<Span fontWeight="semibold">Just search the key:</Span>
+									<Span className="font-semibold">Just search the key:</Span>
 								</P>
 								<P>
 									<code className="mr-2">AAAAC3NzaC1lZD...</code>
 								</P>
 							</Box>
 							<Box>
-								<P fontWeight="semibold">And if you feel geeky</P>
+								<P className="font-semibold">And if you feel geeky</P>
 								<P>
 									<code className="mr-2">@key:{"{AAAAC3NzaC1lZD*}"}</code>
 								</P>

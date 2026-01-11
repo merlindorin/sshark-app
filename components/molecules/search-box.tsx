@@ -36,8 +36,8 @@ export function SearchBox({ searchFn, searchQuery, setSearchQuery }: SearchBoxPr
 
 	return (
 		<form onSubmit={onSubmit}>
-			<Flex direction={{ default: "col", md: "row" }} gap={2}>
-				<Box className="relative" grow="true">
+			<Flex className="flex-col gap-2 md:flex-row">
+				<Box className="relative grow">
 					<Search className="absolute top-1/2 left-4 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
 					<Input
 						className="h-14 border-border bg-card pr-12 pl-12 text-base"

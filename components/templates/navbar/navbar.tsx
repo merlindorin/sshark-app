@@ -17,14 +17,7 @@ interface NavbarProps {
 
 function NavbarContainer({ children }: PropsWithChildren) {
 	return (
-		<Flex
-			align="center"
-			className="top-(--fd-banner-height) bg-fd-background/80 backdrop-blur-sm transition-colors"
-			insetX={0}
-			position="fixed"
-			px={4}
-			py={4}
-			z-index={40}>
+		<Flex className="fixed inset-x-0 top-(--fd-banner-height) z-40 items-center bg-fd-background/80 px-4 py-4 backdrop-blur-sm transition-colors">
 			{children}
 		</Flex>
 	)
@@ -36,16 +29,16 @@ export function Navbar({ links, logoLink }: NavbarProps) {
 
 	return (
 		<NavbarContainer>
-			<Flex grow={"true"}>
-				<NavLinks display={{ default: "hidden", md: "flex" }} links={[logoLink, ...links]} />
-				<NavLinks display={{ default: "flex", md: "hidden" }} links={[logoLink]} />
+			<Flex className="grow">
+				<NavLinks className="hidden md:flex" links={[logoLink, ...links]} />
+				<NavLinks className="flex md:hidden" links={[logoLink]} />
 			</Flex>
-			<Flex align="center" display={{ default: "hidden", md: "flex" }}>
-				{!isLoaded && <Skeleton h={10} rounded={"full"} w={10} />}
+			<Flex className="hidden items-center md:flex">
+				{!isLoaded && <Skeleton className="h-10 w-10 rounded-full" />}
 				{isLoaded && isSignedIn && <UserNav className="h-10 w-10" signout={signOut} user={user} />}
 				{isLoaded && !isSignedIn && <UnAuthenticatedNavbar />}
 			</Flex>
-			<Flex align="center" display={{ md: "hidden" }}>
+			<Flex className="items-center md:hidden">
 				<MobileMenu links={links} />
 			</Flex>
 		</NavbarContainer>
@@ -54,7 +47,7 @@ export function Navbar({ links, logoLink }: NavbarProps) {
 
 function UnAuthenticatedNavbar(): React.JSX.Element {
 	return (
-		<Flex gap={2}>
+		<Flex className="gap-2">
 			<SignInButton>
 				<Button variant="secondary">Signin</Button>
 			</SignInButton>
