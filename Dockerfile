@@ -16,6 +16,9 @@ RUN npm ci
 # Copy source
 COPY . .
 
+# Verify required build args
+RUN if [ -z "$NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY" ]; then echo "ERROR: NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY is required" && exit 1; fi
+
 # Build
 RUN npm run build
 
