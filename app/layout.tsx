@@ -20,9 +20,6 @@ const _geistMono = Geist_Mono({ subsets: ["latin"] })
 
 const env = process.env.NODE_ENV
 
-// Disable static generation - Clerk requires CLERK_SECRET_KEY at runtime
-export const dynamic = "force-dynamic"
-
 export const metadata: Metadata = {
 	title: "sshark - Find Public SSH Keys",
 	description: "Search for any user's public SSH keys instantly. Quick, secure, and developer-friendly.",

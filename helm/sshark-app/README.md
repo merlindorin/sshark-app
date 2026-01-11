@@ -4,20 +4,12 @@
 
 ### Clerk Authentication Secret
 
-Create a Kubernetes secret with your Clerk credentials before deploying:
+Create a Kubernetes secret with your Clerk credentials:
 
 ```bash
-kubectl create secret generic sshark-clerk-secret \
+kubectl create secret generic sshark-clerk \
   --namespace sshark \
   --from-literal=CLERK_SECRET_KEY='sk_live_xxxxx'
-```
-
-Then configure your values to use it:
-
-```yaml
-envFrom:
-  - secretRef:
-      name: sshark-clerk-secret
 ```
 
 ## Installation
@@ -26,14 +18,15 @@ envFrom:
 helm upgrade --install sshark-app ./helm/sshark-app \
   --namespace sshark \
   --create-namespace \
-  --set envFrom[0].secretRef.name=sshark-clerk-secret
+  --set clerk.secretName=sshark-clerk
 ```
 
 ## Configuration
 
 | Parameter | Description | Default |
 |-----------|-------------|---------|
-| `envFrom` | Environment variables from secrets/configmaps | `[]` |
+| `clerk.secretName` | Name of the secret containing Clerk credentials | `""` |
+| `clerk.secretKey` | Key in the secret for CLERK_SECRET_KEY | `"CLERK_SECRET_KEY"` |
 | `image.repository` | Image repository | `ghcr.io/merlindorin/sshark-app` |
 | `image.tag` | Image tag | `appVersion` |
 | `ingress.enabled` | Enable ingress | `false` |

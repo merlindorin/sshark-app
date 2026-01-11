@@ -45,12 +45,13 @@ ingress:
 
 resources: {}
 
-# Environment variables from secrets/configmaps
-# Example for Clerk secret:
-# envFrom:
-#   - secretRef:
-#       name: sshark-clerk-secret
-envFrom: []
+# Clerk authentication configuration
+clerk:
+  # Secret containing CLERK_SECRET_KEY
+  # Create with: kubectl create secret generic sshark-clerk --from-literal=CLERK_SECRET_KEY=sk_xxx
+  secretName: "sshark-clerk-secret"
+  # Key in the secret (default: CLERK_SECRET_KEY)
+  secretKey: "CLERK_SECRET_KEY"
 
 livenessProbe:
   httpGet:
