@@ -1,37 +1,67 @@
 "use client"
 
+import { SignInButton, SignUpButton, useAuth, useUser } from "@clerk/nextjs"
 import { MobileMenu } from "components/templates/navbar/mobile-menu"
+import type { PropsWithChildren } from "react"
+import { Flex } from "@/components/atoms/flex"
+import { Skeleton } from "@/components/atoms/skeleton"
 import { ModeToggle } from "@/components/molecules/mode-toggle"
 import { type NavLinkProps, NavLinks } from "@/components/templates/navbar/nav-links"
+import { UserNav } from "@/components/templates/navbar/nav-user"
 import { Button } from "@/components/ui/button"
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 
 interface NavbarProps {
 	links: NavLinkProps[]
 	logoLink: NavLinkProps
 }
 
-export function Navbar({ links, logoLink }: NavbarProps) {
+function NavbarContainer({ children }: PropsWithChildren) {
 	return (
-		<div className="fixed inset-x-0 top-(--fd-banner-height) z-40 flex items-center justify-between bg-fd-background/80 px-4 py-4 backdrop-blur-sm transition-colors">
-			<div className="flex grow items-center gap-3">
-				<NavLinks className="hidden gap-1 md:flex" links={[logoLink, ...links]} />
-				<NavLinks className="flex gap-1 md:hidden" links={[logoLink]} />
-			</div>
-			<div className="hidden items-center gap-3 md:flex">
-				<Tooltip>
-					<TooltipTrigger asChild>
-						<Button>Signup</Button>
-					</TooltipTrigger>
-					<TooltipContent className="max-w-sm text-left" side={"bottom"}>
-						Soon 🌟
-					</TooltipContent>
-				</Tooltip>
-				<ModeToggle />
-			</div>
-			<div className="flex items-center gap-3 md:hidden">
+		<Flex
+			align="center"
+			className="top-(--fd-banner-height) bg-fd-background/80 backdrop-blur-sm transition-colors"
+			insetX={0}
+			position="fixed"
+			px={4}
+			py={4}
+			z-index={40}>
+			{children}
+		</Flex>
+	)
+}
+
+export function Navbar({ links, logoLink }: NavbarProps) {
+	const { isSignedIn, user, isLoaded } = useUser()
+	const { signOut } = useAuth()
+
+	return (
+		<NavbarContainer>
+			<Flex grow={"true"}>
+				<NavLinks display={{ default: "hidden", md: "flex" }} links={[logoLink, ...links]} />
+				<NavLinks display={{ default: "flex", md: "hidden" }} links={[logoLink]} />
+			</Flex>
+			<Flex align="center" display={{ default: "hidden", md: "flex" }}>
+				{!isLoaded && <Skeleton h={10} rounded={"full"} w={10} />}
+				{isLoaded && isSignedIn && <UserNav className="h-10 w-10" signout={signOut} user={user} />}
+				{isLoaded && !isSignedIn && <UnAuthenticatedNavbar />}
+			</Flex>
+			<Flex align="center" display={{ md: "hidden" }}>
 				<MobileMenu links={links} />
-			</div>
-		</div>
+			</Flex>
+		</NavbarContainer>
+	)
+}
+
+function UnAuthenticatedNavbar(): React.JSX.Element {
+	return (
+		<Flex gap={2}>
+			<SignInButton>
+				<Button variant="secondary">Signin</Button>
+			</SignInButton>
+			<SignUpButton>
+				<Button>Signup</Button>
+			</SignUpButton>
+			<ModeToggle />
+		</Flex>
 	)
 }

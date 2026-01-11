@@ -2,7 +2,33 @@
 
 import { ArrowRight, Globe, Key, Search, Zap } from "lucide-react"
 import Link from "next/link"
+import type { ComponentType } from "react"
+import { Box } from "@/components/atoms/box"
+import { Flex } from "@/components/atoms/flex"
+import { H2, H3, P } from "@/components/atoms/text"
 import { Page, PageContent, PageHeaderHero } from "@/components/pages/page"
+
+interface FeatureCardProps {
+	Icon: ComponentType<{ className?: string }>
+	title: string
+	description: string
+}
+
+function FeatureCard({ Icon, title, description }: FeatureCardProps) {
+	return (
+		<Flex gap={4}>
+			<Box shrink="false">
+				<Icon className="h-6 w-6 text-accent" />
+			</Box>
+			<Box>
+				<H3 fontWeight="medium">{title}</H3>
+				<P textColor="muted-foreground" textSize="sm">
+					{description}
+				</P>
+			</Box>
+		</Flex>
+	)
+}
 
 export default function About() {
 	return (
@@ -12,69 +38,50 @@ export default function About() {
 				title="About"
 			/>
 			<PageContent>
-				<div className="space-y-6">
-					<h2 className="font-semibold text-2xl">What is sshark?</h2>
-					<p className="text-muted-foreground leading-relaxed">
+				<Box spaceY={6}>
+					<H2 fontWeight="semibold" textSize="2xl">
+						What is sshark?
+					</H2>
+					<P className="leading-relaxed" textColor="muted-foreground">
 						sshark is a fast, indexed search engine for public SSH keys. It aggregates keys from major
 						platforms like GitHub, GitLab, and Bitbucket, enabling instant lookups by username, key
 						fingerprint, or even partial key content.
-					</p>
-					<p className="text-muted-foreground leading-relaxed">
+					</P>
+					<P className="leading-relaxed" textColor="muted-foreground">
 						Whether you need to verify a colleague&apos;s SSH key, audit access across your infrastructure,
 						or simply explore the public key landscape, sshark provides the tools you need.
-					</p>
-				</div>
-				<div className="space-y-6">
-					<h2 className="font-semibold text-2xl">Current Features</h2>
-					<div className="grid gap-6 sm:grid-cols-2">
-						<div className="flex gap-4">
-							<div className="flex-shrink-0">
-								<Search className="h-6 w-6 text-accent" />
-							</div>
-							<div>
-								<h3 className="font-medium">Fast Indexed Search</h3>
-								<p className="text-muted-foreground text-sm">
-									Sub-millisecond queries powered by Redis Search across millions of keys.
-								</p>
-							</div>
-						</div>
-						<div className="flex gap-4">
-							<div className="flex-shrink-0">
-								<Key className="h-6 w-6 text-accent" />
-							</div>
-							<div>
-								<h3 className="font-medium">Reverse Lookup</h3>
-								<p className="text-muted-foreground text-sm">
-									Find the owner of any SSH key by searching with the key content itself.
-								</p>
-							</div>
-						</div>
-						<div className="flex gap-4">
-							<div className="flex-shrink-0">
-								<Globe className="h-6 w-6 text-accent" />
-							</div>
-							<div>
-								<h3 className="font-medium">Multi-Platform</h3>
-								<p className="text-muted-foreground text-sm">
-									Aggregates keys from GitHub, GitLab, Bitbucket, and more.
-								</p>
-							</div>
-						</div>
-						<div className="flex gap-4">
-							<div className="flex-shrink-0">
-								<Zap className="h-6 w-6 text-accent" />
-							</div>
-							<div>
-								<h3 className="font-medium">Advanced Query Syntax</h3>
-								<p className="text-muted-foreground text-sm">
-									Wildcards, fuzzy matching, field-specific searches, and tag filters.
-								</p>
-							</div>
-						</div>
-					</div>
-				</div>
+					</P>
+				</Box>
 
-				<div className="flex gap-6 pt-4">
+				<Box spaceY={6}>
+					<H2 fontWeight="semibold" textSize="2xl">
+						Current Features
+					</H2>
+					<Box className="grid gap-6 sm:grid-cols-2">
+						<FeatureCard
+							description="Sub-millisecond queries powered by Redis Search across millions of keys."
+							Icon={Search}
+							title="Fast Indexed Search"
+						/>
+						<FeatureCard
+							description="Find the owner of any SSH key by searching with the key content itself."
+							Icon={Key}
+							title="Reverse Lookup"
+						/>
+						<FeatureCard
+							description="Aggregates keys from GitHub, GitLab, Bitbucket, and more."
+							Icon={Globe}
+							title="Multi-Platform"
+						/>
+						<FeatureCard
+							description="Wildcards, fuzzy matching, field-specific searches, and tag filters."
+							Icon={Zap}
+							title="Advanced Query Syntax"
+						/>
+					</Box>
+				</Box>
+
+				<Flex gap={6} pt={4}>
 					<Link
 						className="flex items-center gap-2 font-medium text-muted-foreground text-sm transition-colors hover:text-foreground"
 						href="/docs">
@@ -85,7 +92,7 @@ export default function About() {
 						href="/roadmap">
 						View roadmap <ArrowRight className="h-4 w-4" />
 					</Link>
-				</div>
+				</Flex>
 			</PageContent>
 		</Page>
 	)

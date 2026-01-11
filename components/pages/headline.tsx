@@ -1,13 +1,36 @@
+import type { PropsWithChildren } from "react"
+import { Box } from "@/components/atoms/box"
+import { H1, P } from "@/components/atoms/text"
+
+function SubTitle({ children }: PropsWithChildren) {
+	return (
+		<P textColor="muted-foreground" textSize="lg" textWrap="balance">
+			{children}
+		</P>
+	)
+}
+
+function MainTitle({ children }: PropsWithChildren) {
+	return (
+		<H1
+			className="tracking-tight"
+			fontWeight="bold"
+			textColor="foreground"
+			textSize={{ default: "5xl", sm: "6xl" }}
+			textWrap="balance">
+			{children}
+		</H1>
+	)
+}
+
 export default function Headline() {
 	return (
-		<>
-			<h1 className="text-balance font-bold text-5xl text-foreground tracking-tight sm:text-6xl">
-				Find Public SSH Keys
-			</h1>
-			<p className="text-balance text-lg text-muted-foreground">
+		<Box>
+			<MainTitle>Find Public SSH Keys</MainTitle>
+			<SubTitle>
 				Search for any user&apos;s public SSH keys or reverse lookup who owns a key. Quick, secure, and
 				developer-friendly.
-			</p>
-		</>
+			</SubTitle>
+		</Box>
 	)
 }

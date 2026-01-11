@@ -1,6 +1,8 @@
 import { cva, type VariantProps } from "class-variance-authority"
 import { AlertCircle, CheckCircle, CircleQuestionMark, LoaderCircle, type LucideProps } from "lucide-react"
 import type React from "react"
+import { Box } from "@/components/atoms/box"
+import { P } from "@/components/atoms/text"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { cn } from "@/lib/utils"
 
@@ -59,12 +61,12 @@ export function SearchStatus({ status = STATUS.UNKNOWN, size = "md", message, ..
 		<TooltipProvider>
 			<Tooltip>
 				<TooltipTrigger asChild>
-					<div {...props} className={cn(sizeClassName, props.className)}>
+					<Box {...props} className={cn(sizeClassName, props.className)}>
 						<Icon className={cn(classname, sizeClassName)} />
-					</div>
+					</Box>
 				</TooltipTrigger>
 				<TooltipContent>
-					<p>{message}</p>
+					<P>{message}</P>
 				</TooltipContent>
 			</Tooltip>
 		</TooltipProvider>

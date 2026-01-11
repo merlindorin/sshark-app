@@ -4,11 +4,16 @@ import NumberFlow from "@number-flow/react"
 import { GitBranchIcon, KeyIcon, UsersIcon } from "lucide-react"
 import { type ComponentType, useState } from "react"
 import { useInterval } from "usehooks-ts"
+
+import { Box } from "@/components/atoms/box"
+import { Flex } from "@/components/atoms/flex"
+import { P, Span } from "@/components/atoms/text"
 import { SearchBox } from "@/components/molecules/search-box"
 import Headline from "@/components/pages/headline"
 import { Page, PageHeader } from "@/components/pages/page"
 import { SSHKeyResults } from "@/components/ssh-key-result"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
+
 import { type SearchResponse, useSshKeys } from "@/hooks/use-ssh-keys"
 import { useStats } from "@/hooks/use-stats"
 
@@ -20,15 +25,15 @@ interface StatCardProps {
 
 function StatCard({ label, Icon, count }: StatCardProps) {
 	return (
-		<div className="flex flex-col items-center text-left text-muted-foreground">
-			<div className="flex flex-row items-center gap-2">
+		<Flex align="center" className="text-muted-foreground" direction="col" textAlign="left">
+			<Flex align="center" gap={2}>
 				<Icon className="h-5 w-5 text-accent" />
-				<p className="font-bold text-foreground text-xl md:text-2xl">
+				<P fontWeight="bold" textSize={{ md: "2xl", default: "xl" }}>
 					<NumberFlow value={count} />
-				</p>
-			</div>
-			<p className="text-sm md:text-md">{label}</p>
-		</div>
+				</P>
+			</Flex>
+			<P textSize={{ default: "sm", md: "base" }}>{label}</P>
+		</Flex>
 	)
 }
 
@@ -37,13 +42,13 @@ function Stats() {
 	useInterval(refetch, 10_000)
 
 	return (
-		<div className="flex items-center justify-center gap-4 md:gap-8">
+		<Flex align="center" gap={{ default: 4, md: 8 }} justify="center">
 			<StatCard count={data?.total_usernames || 0} Icon={UsersIcon} label="Usernames" />
-			<div className="h-12 w-px bg-border" />
+			<Box className="bg-border" h={12} w="px" />
 			<StatCard count={data?.total_keys || 0} Icon={KeyIcon} label="Key indexed" />
-			<div className="h-12 w-px bg-border" />
+			<Box className="bg-border" h={12} w="px" />
 			<StatCard count={data?.total_providers || 0} Icon={GitBranchIcon} label="Platforms" />
-		</div>
+		</Flex>
 	)
 }
 
@@ -75,7 +80,7 @@ export function Home() {
 				<SearchBox searchFn={search} searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
 				<ReassuringLine data={data} />
 			</PageHeader>
-			<div className="w-full max-w-4xl">
+			<Box maxW="4xl" w="full">
 				<SSHKeyResults
 					data={data}
 					searchFn={search}
@@ -83,7 +88,7 @@ export function Home() {
 					searchIsFetching={isFetching}
 					searchQuery={toSearchQuery}
 				/>
-			</div>
+			</Box>
 		</Page>
 	)
 }
@@ -92,96 +97,100 @@ interface ReassuringLineProps {
 	data?: SearchResponse | undefined
 }
 
+function FeatureDot() {
+	return <Box bg="accent" h={2} rounded="full" w={2} />
+}
+
 function ReassuringLine({ data }: ReassuringLineProps) {
 	return (
-		<div className="flex items-center justify-center gap-4 text-muted-foreground text-sm">
-			<div className="flex items-center gap-2">
-				<div className="h-2 w-2 rounded-full bg-accent" />
+		<Flex align="center" gap={4} justify="center" textColor="muted-foreground" textSize="sm">
+			<Flex align="center" gap={2}>
+				<FeatureDot />
 				<Tooltip>
 					<TooltipTrigger asChild className="cursor-pointer">
 						<span className="border-b-1 border-dotted">Fast Lookup</span>
 					</TooltipTrigger>
-					<TooltipContent className="max-w-sm text-left" side={"bottom"}>
-						<div className="space-y-2 text-xs">
-							<div>
-								<p>
-									<span className="font-bold">Last query duration: </span>
+					<TooltipContent className="max-w-sm text-left" side="bottom">
+						<Box spaceY={2} textSize="xs">
+							<Box>
+								<P>
+									<Span fontWeight="bold">Last query duration: </Span>
 									<code className="mr-2">
 										{data ? `${(data.duration / 1_000_000).toFixed(2)}ms` : "-"}
 									</code>
-								</p>
-							</div>
-						</div>
+								</P>
+							</Box>
+						</Box>
 					</TooltipContent>
 				</Tooltip>
-			</div>
-			<div className="flex items-center gap-2">
-				<div className="h-2 w-2 rounded-full bg-accent" />
+			</Flex>
+			<Flex align="center" gap={2}>
+				<FeatureDot />
 				<Tooltip>
 					<TooltipTrigger asChild className="cursor-pointer">
-						<span className={"border-b-1 border-dotted"}>Advanced Search</span>
+						<span className="border-b-1 border-dotted">Advanced Search</span>
 					</TooltipTrigger>
-					<TooltipContent className="max-w-sm text-left" side={"bottom"}>
-						<div className="space-y-2 text-xs">
-							<div>
-								<p className="font-semibold">Available Fields:</p>
-								<p className="text-muted-foreground">
+					<TooltipContent className="max-w-sm text-left" side="bottom">
+						<Box spaceY={2} textSize="xs">
+							<Box>
+								<P fontWeight="semibold">Available Fields:</P>
+								<P textColor="muted-foreground">
 									@username, @key, @source, @provider, @type, @comment, @id
-								</p>
-							</div>
-							<div>
-								<p className="font-semibold">Query Syntax:</p>
-								<p>
+								</P>
+							</Box>
+							<Box>
+								<P fontWeight="semibold">Query Syntax:</P>
+								<P>
 									<code className="mr-2">merlin</code>
-									<span className="font-bold">simple search</span>
-								</p>
-								<p>
+									<Span fontWeight="bold">simple search</Span>
+								</P>
+								<P>
 									<code className="mr-2">@username:{"{merlindorin}"}</code>
-									<span className="font-bold">exact match</span>
-								</p>
-								<p>
+									<Span fontWeight="bold">exact match</Span>
+								</P>
+								<P>
 									<code className="mr-2">@username:{"{merl*}"}</code>
-									<span className="font-bold">wildcard</span>
-								</p>
-								<p>
+									<Span fontWeight="bold">wildcard</Span>
+								</P>
+								<P>
 									<code className="mr-2">@source:{"{github|gitlab}"}</code>
-									<span className="font-bold">multiple values</span>
-								</p>
-							</div>
-						</div>
+									<Span fontWeight="bold">multiple values</Span>
+								</P>
+							</Box>
+						</Box>
 					</TooltipContent>
 				</Tooltip>
-			</div>
-			<div className="flex items-center gap-2">
-				<div className="h-2 w-2 rounded-full bg-accent" />
-				<span>Secure access</span>
-			</div>
-			<div className="flex items-center gap-2">
-				<div className="h-2 w-2 rounded-full bg-accent" />
+			</Flex>
+			<Flex align="center" gap={2}>
+				<FeatureDot />
+				<Span>Secure access</Span>
+			</Flex>
+			<Flex align="center" gap={2}>
+				<FeatureDot />
 				<Tooltip>
 					<TooltipTrigger asChild className="cursor-pointer">
 						<span className="border-b-1 border-dotted">Reverse Lookup</span>
 					</TooltipTrigger>
 					<TooltipContent className="max-w-sm text-left" side="bottom">
-						<div className="space-y-2 text-xs">
-							<div>
-								<p>
-									<span className="font-semibold">Just search the key:</span>
-								</p>
-								<p>
+						<Box spaceY={2} textSize="xs">
+							<Box>
+								<P>
+									<Span fontWeight="semibold">Just search the key:</Span>
+								</P>
+								<P>
 									<code className="mr-2">AAAAC3NzaC1lZD...</code>
-								</p>
-							</div>
-							<div>
-								<p className="font-semibold">And if you feel geeky</p>
-								<p>
+								</P>
+							</Box>
+							<Box>
+								<P fontWeight="semibold">And if you feel geeky</P>
+								<P>
 									<code className="mr-2">@key:{"{AAAAC3NzaC1lZD*}"}</code>
-								</p>
-							</div>
-						</div>
+								</P>
+							</Box>
+						</Box>
 					</TooltipContent>
 				</Tooltip>
-			</div>
-		</div>
+			</Flex>
+		</Flex>
 	)
 }

@@ -2,6 +2,10 @@
 
 import Link from "next/link"
 import type { JSX } from "react"
+import { Box } from "@/components/atoms/box"
+import { Flex } from "@/components/atoms/flex"
+import { Li, Ul } from "@/components/atoms/list"
+import { P, Span } from "@/components/atoms/text"
 import { Page, PageContent, PageHeaderHero } from "@/components/pages/page"
 import { cn } from "@/lib/utils"
 
@@ -36,26 +40,33 @@ function statusStyle(status: STATUS): string {
 
 function RoadmapItem({ index, status, description, title }: RoadmapItemProps): JSX.Element {
 	return (
-		<li className="flex gap-3">
-			<span
-				className={cn(
-					"flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full font-medium text-sm",
-					statusStyle(status),
-				)}>
+		<Flex as="li" gap={3}>
+			<Flex
+				align="center"
+				className={cn(statusStyle(status))}
+				fontWeight="medium"
+				h={6}
+				justify="center"
+				rounded="full"
+				shrink="false"
+				textSize="sm"
+				w={6}>
 				{index}
-			</span>
-			<div>
-				<div>
-					<span className="font-medium">{title}</span>
+			</Flex>
+			<Box>
+				<Box>
+					<Span fontWeight="medium">{title}</Span>
 					{status !== STATUS.Default && (
-						<span className={cn("ml-2 rounded-full px-2 py-0.5 text-xs", statusStyle(status))}>
+						<Span className={cn("ml-2", statusStyle(status))} px={2} py={0.5} rounded="full" textSize="xs">
 							{status}
-						</span>
+						</Span>
 					)}
-				</div>
-				<p className="mt-1 text-muted-foreground text-sm">{description}</p>
-			</div>
-		</li>
+				</Box>
+				<P mt={1} textColor="muted-foreground" textSize="sm">
+					{description}
+				</P>
+			</Box>
+		</Flex>
 	)
 }
 
@@ -96,24 +107,26 @@ export default function Roadmap() {
 				title="Roadmap"
 			/>
 			<PageContent>
-				<ol className="flex flex-col gap-6">
+				<Flex as="ol" direction="col" gap={6}>
 					{roadmapItems.map((item, i) => (
 						<RoadmapItem index={i} key={item.title} {...item} />
 					))}
-				</ol>
-				<div className="flex flex-col gap-4">
-					<p className="text-muted-foreground text-sm">And later...</p>
-					<ul className="list-inside list-disc space-y-2 text-muted-foreground text-sm">
-						<li>Add permalink for keys</li>
-						<li>Add authentication for manual key updates</li>
-						<li>Regroup accounts and certified keys</li>
-						<li>Key generation app</li>
-						<li>Sync keys across platforms</li>
-					</ul>
-				</div>
-				<div className="border-border border-t pt-4">
-					<p className="text-muted-foreground text-sm">
-						Have suggestions?
+				</Flex>
+				<Flex direction="col" gap={4}>
+					<P textColor="muted-foreground" textSize="sm">
+						And later...
+					</P>
+					<Ul className="list-inside list-disc" spaceY={2} textColor="muted-foreground" textSize="sm">
+						<Li>Add permalink for keys</Li>
+						<Li>Add authentication for manual key updates</Li>
+						<Li>Regroup accounts and certified keys</Li>
+						<Li>Key generation app</Li>
+						<Li>Sync keys across platforms</Li>
+					</Ul>
+				</Flex>
+				<Box borderColor="border" borderT={1} pt={4}>
+					<P textColor="muted-foreground" textSize="sm">
+						Have suggestions?{" "}
 						<Link
 							className="underline hover:text-foreground"
 							href="https://github.com/merlindorin"
@@ -121,8 +134,8 @@ export default function Roadmap() {
 							target="_blank">
 							Get in touch
 						</Link>
-					</p>
-				</div>
+					</P>
+				</Box>
 			</PageContent>
 		</Page>
 	)

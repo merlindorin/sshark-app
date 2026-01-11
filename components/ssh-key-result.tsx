@@ -1,5 +1,8 @@
 import { CopyIcon, ExternalLink, Key, LucideLoaderCircle, MoreHorizontalIcon } from "lucide-react"
 import { toast } from "sonner"
+import { Box } from "@/components/atoms/box"
+import { Flex } from "@/components/atoms/flex"
+import { P, Span } from "@/components/atoms/text"
 import { KeyPill } from "@/components/molecules/key-pill"
 import { ProviderPill } from "@/components/molecules/provider-pill"
 import { UserPill } from "@/components/molecules/user-pill"
@@ -32,8 +35,12 @@ export function SSHKeyResults({
 			<Card className="w-full border-border bg-card">
 				<CardContent className="py-12 text-center">
 					<Key className="mx-auto mb-4 h-12 w-12 text-muted-foreground" />
-					<p className="font-medium text-foreground text-lg">Oops</p>
-					<p className="mt-2 text-muted-foreground text-sm">Something goes wrong</p>
+					<P fontWeight="medium" textColor="foreground" textSize="lg">
+						Oops
+					</P>
+					<P mt={2} textColor="muted-foreground" textSize="sm">
+						Something goes wrong
+					</P>
 				</CardContent>
 			</Card>
 		)
@@ -44,7 +51,9 @@ export function SSHKeyResults({
 			<Card className="w-full border-border bg-card">
 				<CardContent className="py-12 text-center">
 					<LucideLoaderCircle className="mx-auto mb-4 h-12 w-12 animate-spin text-muted-foreground" />
-					<p className="font-medium text-foreground text-lg">Searching...</p>
+					<P fontWeight="medium" textColor="foreground" textSize="lg">
+						Searching...
+					</P>
 				</CardContent>
 			</Card>
 		)
@@ -59,10 +68,12 @@ export function SSHKeyResults({
 			<Card className="w-full border-border bg-card">
 				<CardContent className="py-12 text-center">
 					<Key className="mx-auto mb-4 h-12 w-12 text-muted-foreground" />
-					<p className="font-medium text-foreground text-lg">No SSH keys found</p>
-					<p className="mt-2 text-muted-foreground text-sm">
-						No public SSH keys found for query &#34;{searchQuery}&#34;
-					</p>
+					<P fontWeight="medium" textColor="foreground" textSize="lg">
+						No SSH keys found
+					</P>
+					<P mt={2} textColor="muted-foreground" textSize="sm">
+						No public SSH keys found for query &quot;{searchQuery}&quot;
+					</P>
 				</CardContent>
 			</Card>
 		)
@@ -75,21 +86,31 @@ export function SSHKeyResults({
 			<CardHeader>
 				<CardTitle className="flex items-center gap-2 text-xl">
 					<Key className="h-5 w-5" />
-					Public SSH Keys for <span className="font-mono text-primary">{searchQuery}</span>
+					Public SSH Keys for{" "}
+					<Span className="font-mono" textColor="primary">
+						{searchQuery}
+					</Span>
 				</CardTitle>
-				<p className="text-muted-foreground text-sm">
+				<P textColor="muted-foreground" textSize="sm">
 					Found {data?.entities.length} public SSH key
 					{data?.entities.length !== 1 ? "s" : ""} across platforms
-				</p>
+				</P>
 			</CardHeader>
 			<CardContent className="space-y-4">
 				{data?.entities.map((sshKey) => {
 					return (
-						<div
-							className="space-y-3 rounded-lg border border-border bg-background p-4 transition-colors hover:bg-muted/50"
-							key={sshKey.id}>
-							<div className="flex items-center justify-between gap-4">
-								<div className="flex grow flex-wrap items-center gap-1">
+						<Box
+							bg="background"
+							border={1}
+							borderColor="border"
+							className="transition-colors hover:bg-muted/50"
+							key={sshKey.id}
+							p={4}
+							rounded="lg"
+							spaceY={3}
+						>
+							<Flex align="center" gap={4} justify="between">
+								<Flex align="center" gap={1} grow="true" wrap="wrap">
 									<ProviderPill
 										onClick={() => searchFn(`@provider:{${sshKey.provider}}`)}
 										provider={sshKey.provider}
@@ -104,8 +125,8 @@ export function SSHKeyResults({
 										keyType={sshKey.type}
 										onClick={() => searchFn(`@type:{${sshKey.type.replaceAll("-", "\\-")}}`)}
 									/>
-								</div>
-								<div className="flex">
+								</Flex>
+								<Flex>
 									<ButtonGroup>
 										<DropdownMenu>
 											<DropdownMenuTrigger asChild>
@@ -114,25 +135,25 @@ export function SSHKeyResults({
 												</Button>
 											</DropdownMenuTrigger>
 											<DropdownMenuContent align="end">
-												<DropdownMenuItem
-													onClick={() => copyToClipboard(sshKey.key, sshKey.id)}>
+												<DropdownMenuItem onClick={() => copyToClipboard(sshKey.key, sshKey.id)}>
 													<CopyIcon className="mr-0 h-1 w-10" /> Copy
 												</DropdownMenuItem>
 												<DropdownMenuItem
-													onClick={() => window.open(sshKey.source, "_blank")?.focus()}>
+													onClick={() => window.open(sshKey.source, "_blank")?.focus()}
+												>
 													<ExternalLink className="mr-0 h-1 w-10" /> Source
 												</DropdownMenuItem>
 											</DropdownMenuContent>
 										</DropdownMenu>
 									</ButtonGroup>
-								</div>
-							</div>
-							<div className="overflow-x-auto">
+								</Flex>
+							</Flex>
+							<Box className="overflow-x-auto">
 								<code className="block break-all rounded bg-muted px-3 py-2 font-mono text-foreground text-xs">
 									{`${sshKey.type} ${sshKey.key}`}
 								</code>
-							</div>
-						</div>
+							</Box>
+						</Box>
 					)
 				})}
 			</CardContent>

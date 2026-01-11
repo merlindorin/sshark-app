@@ -1,12 +1,12 @@
 import "./globals.css"
 
+import { ClerkProvider } from "@clerk/nextjs"
 import { GoogleTagManager } from "@next/third-parties/google"
 import { Logo } from "components/atoms/logo"
 import { RootProvider } from "fumadocs-ui/provider/next"
 import type { Metadata } from "next"
 import { Geist, Geist_Mono } from "next/font/google"
 import type React from "react"
-
 import { links } from "@/app/links"
 import QueryProvider from "@/components/providers/query-provider"
 import ThemeProvider from "@/components/providers/theme-provider"
@@ -44,31 +44,33 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
 	return (
-		<html lang="en" suppressHydrationWarning>
-			{env === "production" && <GoogleTagManager gtmId="GTM-5M5K2Q5R" />}
-			<body className={"flex min-h-screen flex-col font-sans antialiased"}>
-				<RootProvider>
-					<ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
-						<QueryProvider>
-							<div className="flex min-h-screen flex-col bg-background">
-								<header className="border-border border-b">
-									<Navbar
-										links={links}
-										logoLink={{
-											href: "/",
-											label: "Welcome",
-											children: <Logo />,
-										}}
-									/>
-								</header>
-								{children}
-								<Footer />
-							</div>
-							<Toaster position="top-center" richColors={true} />
-						</QueryProvider>
-					</ThemeProvider>
-				</RootProvider>
-			</body>
-		</html>
+		<ClerkProvider>
+			<html lang="en" suppressHydrationWarning>
+				{env === "production" && <GoogleTagManager gtmId="GTM-5M5K2Q5R" />}
+				<body className={"flex min-h-screen flex-col font-sans antialiased"}>
+					<RootProvider>
+						<ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
+							<QueryProvider>
+								<div className="flex min-h-screen flex-col bg-background">
+									<header className="border-border border-b">
+										<Navbar
+											links={links}
+											logoLink={{
+												href: "/",
+												label: "Welcome",
+												children: <Logo />,
+											}}
+										/>
+									</header>
+									{children}
+									<Footer />
+								</div>
+								<Toaster position="top-center" richColors={true} />
+							</QueryProvider>
+						</ThemeProvider>
+					</RootProvider>
+				</body>
+			</html>
+		</ClerkProvider>
 	)
 }

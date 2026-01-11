@@ -3,6 +3,9 @@
 import { AlertCircle, CheckCircle, LoaderCircleIcon, Search } from "lucide-react"
 import type { ChangeEvent, FormEvent } from "react"
 import { useDebounce } from "use-debounce"
+import { Box } from "@/components/atoms/box"
+import { Flex } from "@/components/atoms/flex"
+import { P } from "@/components/atoms/text"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
@@ -33,8 +36,8 @@ export function SearchBox({ searchFn, searchQuery, setSearchQuery }: SearchBoxPr
 
 	return (
 		<form onSubmit={onSubmit}>
-			<div className="flex flex-col gap-2 md:flex-row">
-				<div className="relative flex-1">
+			<Flex direction={{ default: "col", md: "row" }} gap={2}>
+				<Box className="relative" grow="true">
 					<Search className="absolute top-1/2 left-4 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
 					<Input
 						className="h-14 border-border bg-card pr-12 pl-12 text-base"
@@ -45,7 +48,7 @@ export function SearchBox({ searchFn, searchQuery, setSearchQuery }: SearchBoxPr
 						value={searchQuery}
 					/>
 					{showValidation && (
-						<div className="absolute top-1/2 right-4 -translate-y-1/2">
+						<Box className="absolute top-1/2 right-4 -translate-y-1/2">
 							{isFetching && <LoaderCircleIcon className="h-5 w-5 animate-spin text-secondary" />}
 							{!isFetching && isValid && <CheckCircle className="h-5 w-5 text-green-500" />}
 							<TooltipProvider>
@@ -57,18 +60,18 @@ export function SearchBox({ searchFn, searchQuery, setSearchQuery }: SearchBoxPr
 									</TooltipTrigger>
 									<TooltipContent>
 										{isError && (
-											<p>{error && "error" in error ? error.error?.details : error?.message}</p>
+											<P>{error && "error" in error ? error.error?.details : error?.message}</P>
 										)}
 									</TooltipContent>
 								</Tooltip>
 							</TooltipProvider>
-						</div>
+						</Box>
 					)}
-				</div>
+				</Box>
 				<Button className="h-14 px-8" disabled={!isValid} size="lg" type="submit">
 					Search
 				</Button>
-			</div>
+			</Flex>
 		</form>
 	)
 }
