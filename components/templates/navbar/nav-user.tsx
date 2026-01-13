@@ -2,7 +2,8 @@
 
 import type { UserResource } from "@clerk/types"
 import type { VariantProps } from "class-variance-authority"
-import { LogOut } from "lucide-react"
+import { LogOut, Moon, Sun } from "lucide-react"
+import { useTheme } from "next-themes"
 import type * as React from "react"
 import { Flex } from "@/components/atoms/flex"
 import { P } from "@/components/atoms/text"
@@ -15,6 +16,9 @@ import {
 	DropdownMenuLabel,
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
+	DropdownMenuSub,
+	DropdownMenuSubContent,
+	DropdownMenuSubTrigger,
 } from "@/components/ui/dropdown-menu"
 import { cn } from "@/lib/utils"
 
@@ -24,6 +28,8 @@ interface UserNavProps extends React.ComponentProps<"button">, VariantProps<type
 }
 
 export function UserNav({ user, signout, className, ...props }: UserNavProps) {
+	const { setTheme } = useTheme()
+
 	const getInitials = (name: string | null) => {
 		if (!name) {
 			return ""
@@ -56,6 +62,25 @@ export function UserNav({ user, signout, className, ...props }: UserNavProps) {
 						</P>
 					</Flex>
 				</DropdownMenuLabel>
+				<DropdownMenuSeparator />
+				<DropdownMenuSub>
+					<DropdownMenuSubTrigger className="cursor-pointer">
+						<Sun className="mr-2 h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+						<Moon className="absolute mr-2 h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+						<span className="ml-6">Theme</span>
+					</DropdownMenuSubTrigger>
+					<DropdownMenuSubContent>
+						<DropdownMenuItem className="cursor-pointer" onClick={() => setTheme("light")}>
+							Light
+						</DropdownMenuItem>
+						<DropdownMenuItem className="cursor-pointer" onClick={() => setTheme("dark")}>
+							Dark
+						</DropdownMenuItem>
+						<DropdownMenuItem className="cursor-pointer" onClick={() => setTheme("system")}>
+							System
+						</DropdownMenuItem>
+					</DropdownMenuSubContent>
+				</DropdownMenuSub>
 				<DropdownMenuSeparator />
 				<DropdownMenuItem className="cursor-pointer text-destructive focus:text-destructive" onClick={signout}>
 					<LogOut className="mr-2 h-4 w-4" />

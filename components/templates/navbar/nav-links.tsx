@@ -21,13 +21,12 @@ export const NavLinks = ({ links, className, ...props }: NavLinksProps) => {
 	const pathname = usePathname()
 
 	return (
-		<Flex className={cn("items-center gap-1", className)} {...props}>
+		<div className={cn("flex gap-1", className)} {...props}>
 			{links.map(({ children, label, href, ...linkProps }) => (
 				<Link
 					className={cn(
 						navigationMenuTriggerStyle(),
-						"h-10 bg-transparent px-3 py-1.5 shadow-none transition-all",
-						pathname === href && "bg-primary/10 text-primary",
+						pathname === href && "bg-primary/10",
 					)}
 					href={href}
 					key={label}
@@ -35,6 +34,6 @@ export const NavLinks = ({ links, className, ...props }: NavLinksProps) => {
 					{children || label}
 				</Link>
 			))}
-		</Flex>
+		</div>
 	)
 }

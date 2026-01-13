@@ -2,6 +2,10 @@ import type { NavLinkProps } from "@/components/templates/navbar/nav-links"
 
 export const links: NavLinkProps[] = [
 	{
+		href: "/explore",
+		label: "Explore",
+	},
+	{
 		href: "/roadmap",
 		label: "Roadmap",
 	},
