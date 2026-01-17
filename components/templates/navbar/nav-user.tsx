@@ -2,7 +2,8 @@
 
 import type { UserResource } from "@clerk/types"
 import type { VariantProps } from "class-variance-authority"
-import { LogOut, Moon, Sun } from "lucide-react"
+import { LogOut, Moon, Sun, User } from "lucide-react"
+import Link from "next/link"
 import { useTheme } from "next-themes"
 import type * as React from "react"
 import { Flex } from "@/components/atoms/flex"
@@ -15,10 +16,10 @@ import {
 	DropdownMenuItem,
 	DropdownMenuLabel,
 	DropdownMenuSeparator,
-	DropdownMenuTrigger,
 	DropdownMenuSub,
 	DropdownMenuSubContent,
 	DropdownMenuSubTrigger,
+	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { cn } from "@/lib/utils"
 
@@ -63,6 +64,12 @@ export function UserNav({ user, signout, className, ...props }: UserNavProps) {
 					</Flex>
 				</DropdownMenuLabel>
 				<DropdownMenuSeparator />
+				<DropdownMenuItem asChild className="cursor-pointer">
+					<Link href="/profile">
+						<User className="mr-2 h-4 w-4" />
+						Profile
+					</Link>
+				</DropdownMenuItem>
 				<DropdownMenuSub>
 					<DropdownMenuSubTrigger className="cursor-pointer">
 						<Sun className="mr-2 h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />

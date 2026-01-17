@@ -4,7 +4,6 @@ import type { LinkProps } from "next/dist/client/link"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import type { ComponentProps, PropsWithChildren } from "react"
-import { Flex } from "@/components/atoms/flex"
 import { navigationMenuTriggerStyle } from "@/components/ui/navigation-menu"
 import { cn } from "@/lib/utils"
 
@@ -24,10 +23,7 @@ export const NavLinks = ({ links, className, ...props }: NavLinksProps) => {
 		<div className={cn("flex gap-1", className)} {...props}>
 			{links.map(({ children, label, href, ...linkProps }) => (
 				<Link
-					className={cn(
-						navigationMenuTriggerStyle(),
-						pathname === href && "bg-primary/10",
-					)}
+					className={cn(navigationMenuTriggerStyle(), pathname === href && "bg-primary/10")}
 					href={href}
 					key={label}
 					{...linkProps}>
