@@ -91,8 +91,8 @@ export default function Roadmap() {
 	return (
 		<Page>
 			<PageHeaderHero
-				description="Our vision extends to comprehensive public/private key management across all
-                    cryptographic key types. Here&apos;s what we&apos;re working on:"
+				badge={{ label: "🚀 What's next for SSHark", href: "/about" }}
+				description="Our vision extends to comprehensive public/private key management across all cryptographic key types. Here's what we're working on:"
 				title="Roadmap"
 			/>
 			<PageContent>

@@ -29,8 +29,9 @@ export default function About() {
 	return (
 		<Page>
 			<PageHeaderHero
+				badge={{ label: "📖 Learn more about SSHark", href: "/docs" }}
 				description="Advanced public key management for developers and security professionals."
-				title="About"
+				title="About SSHark"
 			/>
 			<PageContent>
 				<div className="space-y-6">
