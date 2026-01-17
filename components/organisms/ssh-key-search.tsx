@@ -16,22 +16,14 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
+import {
+	DEFAULT_RESULTS_PER_PAGE,
+	RESULTS_PER_PAGE_OPTIONS,
+	SEARCH_FIELDS,
+	type ResultsPerPage,
+	type SearchField,
+} from "@/lib/ssh-key-search-config"
 import { cn } from "@/lib/utils"
-
-export const SEARCH_FIELDS = [
-	{ id: "key", label: "Key" },
-	{ id: "username", label: "Username" },
-	{ id: "provider", label: "Provider" },
-	{ id: "type", label: "Type" },
-] as const
-
-export const RESULTS_PER_PAGE_OPTIONS = [10, 25, 50, 100] as const
-
-export type SearchField = (typeof SEARCH_FIELDS)[number]["id"]
-export type ResultsPerPage = (typeof RESULTS_PER_PAGE_OPTIONS)[number]
-
-export const DEFAULT_FIELDS: SearchField[] = ["key", "username", "provider", "type"]
-export const DEFAULT_RESULTS_PER_PAGE: ResultsPerPage = 25
 
 interface SSHKeySearchProps {
 	query: string
@@ -87,7 +79,6 @@ export function SSHKeySearch({
 	return (
 		<div className={cn("w-full", className)}>
 			<div className="flex items-center gap-2 rounded-lg border border-input bg-background p-1.5">
-				{/* Field selector - only shown when not in advanced mode */}
 				{!isAdvancedSearch && (
 					<DropdownMenu>
 						<DropdownMenuTrigger asChild>
@@ -112,7 +103,6 @@ export function SSHKeySearch({
 					</DropdownMenu>
 				)}
 
-				{/* Search input */}
 				<div className="relative flex-1">
 					<Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
 					<Input
@@ -150,7 +140,6 @@ export function SSHKeySearch({
 					</DropdownMenuContent>
 				</DropdownMenu>
 
-				{/* Advanced search toggle */}
 				<div className="flex shrink-0 items-center gap-2 border-border border-l pr-1 pl-3">
 					<Settings2 className="h-4 w-4 text-muted-foreground" />
 					<Label className="cursor-pointer text-muted-foreground text-sm" htmlFor="advanced-search">
@@ -159,7 +148,6 @@ export function SSHKeySearch({
 					<Switch checked={isAdvancedSearch} id="advanced-search" onCheckedChange={onAdvancedSearchChange} />
 				</div>
 
-				{/* Search button */}
 				<Button className="shrink-0" onClick={handleSearch} size="sm">
 					Search
 				</Button>
@@ -167,3 +155,5 @@ export function SSHKeySearch({
 		</div>
 	)
 }
+
+export { DEFAULT_RESULTS_PER_PAGE, RESULTS_PER_PAGE_OPTIONS, SEARCH_FIELDS, type ResultsPerPage, type SearchField }

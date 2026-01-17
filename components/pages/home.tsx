@@ -6,9 +6,6 @@ import { GitBranchIcon, KeyIcon, UsersIcon } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { type ComponentProps, type ComponentType, useState } from "react"
 import { useInterval } from "usehooks-ts"
-import { Box } from "@/components/atoms/box"
-import { Flex } from "@/components/atoms/flex"
-import { P } from "@/components/atoms/text"
 import { SearchBox } from "@/components/molecules/search-box"
 import { FAQ } from "@/components/templates/faq"
 import { Badge } from "@/components/ui/badge"
@@ -25,15 +22,15 @@ interface StatCardProps {
 
 function StatCard({ label, Icon, count }: StatCardProps) {
 	return (
-		<Flex className="flex-col items-center text-left text-muted-foreground">
-			<Flex className="items-center gap-2">
+		<div className="flex flex-col items-center text-left text-muted-foreground">
+			<div className="flex items-center gap-2">
 				<Icon className="size-5 text-accent" />
-				<P className="font-bold md:text-2xl">
+				<p className="font-bold md:text-2xl">
 					<NumberFlow value={count} />
-				</P>
-			</Flex>
-			<P className="text-sm md:text-base">{label}</P>
-		</Flex>
+				</p>
+			</div>
+			<p className="text-sm md:text-base">{label}</p>
+		</div>
 	)
 }
 
@@ -44,9 +41,9 @@ function Stats({ className }: ComponentProps<"div">) {
 	return (
 		<div className={cn("flex items-center justify-center gap-4 md:gap-8", className)}>
 			<StatCard count={data?.total_usernames || 0} Icon={UsersIcon} label="Usernames" />
-			<Box className="h-12 w-px bg-border" />
+			<div className="h-12 w-px bg-border" />
 			<StatCard count={data?.total_keys || 0} Icon={KeyIcon} label="Key indexed" />
-			<Box className="h-12 w-px bg-border" />
+			<div className="h-12 w-px bg-border" />
 			<StatCard count={data?.total_providers || 0} Icon={GitBranchIcon} label="Platforms" />
 		</div>
 	)
@@ -106,26 +103,30 @@ export function Home() {
 					</header>
 					<ul className="grid list-none grid-cols-1 gap-4 p-0 sm:grid-cols-2 lg:grid-cols-4">
 						<li>
-							<Card className="pt-0">
-								<CardContent className="relative aspect-16/10 overflow-hidden bg-[#F2F2F3] dark:bg-[#262529]">
-									<div className="absolute inset-0 flex items-center justify-center">
-										<SiGithub className="" size={60} />
-									</div>
-									<Badge className="absolute top-2 right-2">123,444 Keys</Badge>
-								</CardContent>
-								<CardFooter>Github</CardFooter>
-							</Card>
+							<a href="/explore/@provider:%7Bgithub%7D?fields=provider&advanced=true">
+								<Card className="cursor-pointer pt-0 transition-all hover:border-accent hover:shadow-md">
+									<CardContent className="relative aspect-16/10 overflow-hidden bg-[#F2F2F3] dark:bg-[#262529]">
+										<div className="absolute inset-0 flex items-center justify-center">
+											<SiGithub className="" size={60} />
+										</div>
+										<Badge className="absolute top-2 right-2">123,444 Keys</Badge>
+									</CardContent>
+									<CardFooter>Github</CardFooter>
+								</Card>
+							</a>
 						</li>
 						<li>
-							<Card className="pt-0">
-								<CardContent className="relative aspect-16/10 overflow-hidden bg-[#F2F2F3] dark:bg-[#262529]">
-									<div className="absolute inset-0 flex items-center justify-center">
-										<SiGitlab className="" size={60} />
-									</div>
-									<Badge className="absolute top-2 right-2">13,444 Keys</Badge>
-								</CardContent>
-								<CardFooter>Gitlab</CardFooter>
-							</Card>
+							<a href="/explore/@provider:%7Bgitlab%7D?fields=provider&advanced=true">
+								<Card className="cursor-pointer pt-0 transition-all hover:border-accent hover:shadow-md">
+									<CardContent className="relative aspect-16/10 overflow-hidden bg-[#F2F2F3] dark:bg-[#262529]">
+										<div className="absolute inset-0 flex items-center justify-center">
+											<SiGitlab className="" size={60} />
+										</div>
+										<Badge className="absolute top-2 right-2">13,444 Keys</Badge>
+									</CardContent>
+									<CardFooter>Gitlab</CardFooter>
+								</Card>
+							</a>
 						</li>
 					</ul>
 				</section>
@@ -150,7 +151,7 @@ export function Home() {
 }
 
 function FeatureDot() {
-	return <Box className="h-2 w-2 rounded-full bg-accent" />
+	return <div className="h-2 w-2 rounded-full bg-accent" />
 }
 
 function ReassuringLine({ className, ...props }: ComponentProps<"div">) {

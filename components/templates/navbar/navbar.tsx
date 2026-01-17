@@ -3,7 +3,7 @@
 import { SignInButton, SignUpButton, useAuth, useUser } from "@clerk/nextjs"
 import { MobileMenu } from "components/templates/navbar/mobile-menu"
 import type { PropsWithChildren } from "react"
-import { Skeleton } from "@/components/atoms/skeleton"
+import { Skeleton } from "@/components/ui/skeleton"
 import { ModeToggle } from "@/components/molecules/mode-toggle"
 import { type NavLinkProps, NavLinks } from "@/components/templates/navbar/nav-links"
 import { UserNav } from "@/components/templates/navbar/nav-user"

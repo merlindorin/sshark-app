@@ -1,6 +1,5 @@
 import type React from "react"
 import type { ComponentProps, PropsWithChildren } from "react"
-import { Box } from "@/components/atoms/box"
 import { cn } from "@/lib/utils"
 
 export function Page({ children, className, ...props }: React.PropsWithChildren & ComponentProps<"main">) {
@@ -27,7 +26,7 @@ export function PageHeaderHero({ title, description }: { title: string; descript
 				<h1 className="font-bold text-4xl tracking-tight">{title}</h1>
 				<p className="pt-2 text-muted-foreground text-xl">{description}</p>
 			</div>
-			<Box className="border-foreground/50 border-b border-dotted" />
+			<div className="border-foreground/50 border-b border-dotted" />
 		</HomeHeader>
 	)
 }

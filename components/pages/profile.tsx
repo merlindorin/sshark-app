@@ -3,9 +3,6 @@
 import { RedirectToSignIn, useUser } from "@clerk/nextjs"
 import { Calendar, Key, Mail, Shield, User } from "lucide-react"
 import type { ComponentType } from "react"
-import { Box } from "@/components/atoms/box"
-import { Flex } from "@/components/atoms/flex"
-import { P } from "@/components/atoms/text"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -31,15 +28,15 @@ function InfoItem({
 		return null
 	}
 	return (
-		<Flex className="items-center gap-3 rounded-lg border border-border/50 bg-background/50 px-4 py-3">
-			<Box className="flex h-10 w-10 items-center justify-center rounded-full bg-accent/10">
+		<div className="flex items-center gap-3 rounded-lg border border-border/50 bg-background/50 px-4 py-3">
+			<div className="flex h-10 w-10 items-center justify-center rounded-full bg-accent/10">
 				<Icon className="h-5 w-5 text-accent" />
-			</Box>
-			<Box>
-				<P className="text-muted-foreground text-xs uppercase tracking-wide">{label}</P>
-				<P className="font-medium">{value}</P>
-			</Box>
-		</Flex>
+			</div>
+			<div>
+				<p className="text-muted-foreground text-xs uppercase tracking-wide">{label}</p>
+				<p className="font-medium">{value}</p>
+			</div>
+		</div>
 	)
 }
 
@@ -53,11 +50,11 @@ function StatItem({
 	icon: ComponentType<{ className?: string }>
 }) {
 	return (
-		<Flex className="flex-col items-center gap-1 text-center">
+		<div className="flex flex-col items-center gap-1 text-center">
 			<Icon className="h-5 w-5 text-accent" />
-			<P className="font-bold text-2xl">{value}</P>
-			<P className="text-muted-foreground text-xs">{label}</P>
-		</Flex>
+			<p className="font-bold text-2xl">{value}</p>
+			<p className="text-muted-foreground text-xs">{label}</p>
+		</div>
 	)
 }
 
@@ -113,8 +110,8 @@ export default function Profile() {
 								<AvatarFallback className="text-4xl">{initials}</AvatarFallback>
 							</Avatar>
 							<h1 className="mt-6 font-bold text-3xl tracking-tight">{fullName || user.username}</h1>
-							{user.username && <P className="mt-1 text-lg text-muted-foreground">@{user.username}</P>}
-							<Flex className="mt-4 justify-center gap-2">
+							{user.username && <p className="mt-1 text-lg text-muted-foreground">@{user.username}</p>}
+							<div className="mt-4 flex justify-center gap-2">
 								<Badge variant="secondary">
 									<Shield className="mr-1 h-3 w-3" />
 									Verified
@@ -125,13 +122,13 @@ export default function Profile() {
 										Joined {formatDate(user.createdAt.getTime())}
 									</Badge>
 								)}
-							</Flex>
+							</div>
 						</div>
 
 						{/* Stats */}
 						<div className="mt-10 flex items-center justify-center gap-8 rounded-xl border border-border/50 bg-background/50 p-6">
 							<StatItem icon={Key} label="SSH Keys" value={0} />
-							<Box className="h-12 w-px bg-border" />
+							<div className="h-12 w-px bg-border" />
 							<StatItem icon={Shield} label="Providers" value={0} />
 						</div>
 

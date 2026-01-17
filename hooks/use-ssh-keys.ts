@@ -44,7 +44,7 @@ const useSshKeys = (search: string, limit?: number, offset?: number) => {
 	return useQuery({
 		queryKey: ["sshkeys", search, limit, offset],
 		queryFn: () => fetchSSHKeys(search, limit, offset),
-		enabled: search.length > 0,
+		enabled: true,
 		placeholderData: (prev) => prev,
 		retry: (_failureCount, error: APIError | Error): boolean => {
 			return !(

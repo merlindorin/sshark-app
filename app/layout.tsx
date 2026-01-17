@@ -2,7 +2,7 @@ import "./globals.css"
 
 import { ClerkProvider } from "@clerk/nextjs"
 import { GoogleTagManager } from "@next/third-parties/google"
-import { Logo } from "components/atoms/logo"
+import { Logo } from "components/ui/logo"
 import { RootProvider } from "fumadocs-ui/provider/next"
 import type { Metadata } from "next"
 import { Geist, Geist_Mono } from "next/font/google"

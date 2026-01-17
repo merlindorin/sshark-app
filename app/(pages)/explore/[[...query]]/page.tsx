@@ -1,7 +1,7 @@
 "use client"
 
 import { useParams, useRouter, useSearchParams } from "next/navigation"
-import { useCallback, useMemo, useState } from "react"
+import { useCallback, useEffect, useMemo, useState } from "react"
 import Explore from "@/components/pages/explore"
 import {
 	DEFAULT_FIELDS,
@@ -10,7 +10,7 @@ import {
 	type ResultsPerPage,
 	SEARCH_FIELDS,
 	type SearchField,
-} from "@/components/ssh-key-search"
+} from "@/lib/ssh-key-search-config"
 
 function parseFields(fieldsParam: string | null): SearchField[] {
 	if (!fieldsParam) {
@@ -35,6 +35,14 @@ function parseAdvanced(advancedParam: string | null): boolean {
 	return advancedParam === "true"
 }
 
+function parsePage(pageParam: string | null): number {
+	if (!pageParam) {
+		return 1
+	}
+	const parsed = Number(pageParam)
+	return Number.isNaN(parsed) || parsed < 1 ? 1 : parsed
+}
+
 export default function ExplorePage() {
 	const params = useParams<{ query?: string[] }>()
 	const searchParams = useSearchParams()
@@ -54,8 +62,20 @@ export default function ExplorePage() {
 		parseResultsPerPage(searchParams.get("limit")),
 	)
 
+	const currentPage = useMemo(() => parsePage(searchParams.get("page")), [searchParams])
+
+	useEffect(() => {
+		setLocalQuery(urlQuery)
+	}, [urlQuery])
+
+	useEffect(() => {
+		setLocalAdvanced(parseAdvanced(searchParams.get("advanced")))
+		setLocalFields(parseFields(searchParams.get("fields")))
+		setLocalResultsPerPage(parseResultsPerPage(searchParams.get("limit")))
+	}, [searchParams])
+
 	const updateUrl = useCallback(
-		(newQuery: string, newFields: SearchField[], newAdvanced: boolean, newLimit: ResultsPerPage) => {
+		(newQuery: string, newFields: SearchField[], newAdvanced: boolean, newLimit: ResultsPerPage, page = 1) => {
 			const urlParams = new URLSearchParams()
 
 			const fieldsChanged = JSON.stringify([...newFields].sort()) !== JSON.stringify([...DEFAULT_FIELDS].sort())
@@ -71,6 +91,10 @@ export default function ExplorePage() {
 				urlParams.set("limit", String(newLimit))
 			}
 
+			if (page > 1) {
+				urlParams.set("page", String(page))
+			}
+
 			const queryString = urlParams.toString()
 			const encodedQuery = newQuery ? encodeURIComponent(newQuery) : ""
 			const path = encodedQuery ? `/explore/${encodedQuery}` : "/explore"
@@ -82,19 +106,29 @@ export default function ExplorePage() {
 	)
 
 	const handleSearch = useCallback(() => {
-		updateUrl(localQuery, localFields, localAdvanced, localResultsPerPage)
+		updateUrl(localQuery, localFields, localAdvanced, localResultsPerPage, 1)
 	}, [localQuery, localFields, localAdvanced, localResultsPerPage, updateUrl])
+
+	const handlePageChange = useCallback(
+		(page: number) => {
+			updateUrl(localQuery, localFields, localAdvanced, localResultsPerPage, page)
+		},
+		[localQuery, localFields, localAdvanced, localResultsPerPage, updateUrl],
+	)
 
 	return (
 		<Explore
+			currentPage={currentPage}
 			isAdvancedSearch={localAdvanced}
 			onAdvancedSearchChange={setLocalAdvanced}
+			onPageChange={handlePageChange}
 			onQueryChange={setLocalQuery}
 			onResultsPerPageChange={setLocalResultsPerPage}
 			onSearch={handleSearch}
 			onSelectedFieldsChange={setLocalFields}
 			query={localQuery}
 			resultsPerPage={localResultsPerPage}
+			searchQuery={urlQuery}
 			selectedFields={localFields}
 		/>
 	)

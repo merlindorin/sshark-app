@@ -1,8 +1,5 @@
-import { Flex } from "@/components/atoms/flex"
-import { Span } from "@/components/atoms/text"
-
 export const Logo = () => (
-	<Flex className="items-center gap-2">
+	<div className="flex items-center gap-2">
 		<svg
 			className="h-5 w-auto"
 			style={{ fill: "var(--accent-foreground)" }}
@@ -18,6 +15,6 @@ export const Logo = () => (
 				fill="black"
 			/>
 		</svg>
-		<Span className="font-semibold">sshark</Span>
-	</Flex>
+		<span className="font-semibold">sshark</span>
+	</div>
 )
