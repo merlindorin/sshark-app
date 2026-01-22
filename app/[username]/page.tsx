@@ -78,7 +78,12 @@ export default function PublicProfilePage() {
 	}
 
 	const searchQuery = `@username:{${username}}`
-	const { data, isLoading, error } = useSshKeys(searchQuery, 100, 0)
+	const { data, isLoading, error } = useSshKeys({
+		search: searchQuery,
+		limit: 100,
+		offset: 0,
+		advanced: true,
+	})
 
 	const initials = username
 		.split(USERNAME_SPLIT_REGEX)
