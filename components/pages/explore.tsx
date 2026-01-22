@@ -1,105 +1,283 @@
 "use client"
 
-import { Database, GitBranch, Key, Search } from "lucide-react"
-import type { ComponentType } from "react"
-import { Box } from "@/components/atoms/box"
-import { Flex } from "@/components/atoms/flex"
-import { H3, P } from "@/components/atoms/text"
-import { Page, PageContent, PageHeaderHero } from "@/components/pages/page"
-import { Card, CardContent } from "@/components/ui/card"
-import { SiGithub, SiGitlab } from "@icons-pack/react-simple-icons"
+import {
+	ChevronLeft,
+	ChevronRight,
+	ChevronsLeft,
+	ChevronsRight,
+	Github,
+	Key,
+	Search,
+	Server,
+	Shield,
+	Sparkles,
+} from "lucide-react"
+import { useRouter } from "next/navigation"
+import type React from "react"
+import { useMemo } from "react"
+import { SSHKeyCard } from "@/components/organisms/ssh-key-card"
+import { type ResultsPerPage, type SearchField, SSHKeySearch } from "@/components/organisms/ssh-key-search"
+import { Page, PageSection } from "@/components/pages/page"
+import { Button } from "@/components/ui/button"
+import { useSshKeys } from "@/hooks/use-ssh-keys"
 
-interface StatCardProps {
-	Icon: ComponentType<{ className?: string; size?: number }>
+interface ExploreProps {
+	query: string
+	searchQuery: string
+	selectedFields: SearchField[]
+	isAdvancedSearch: boolean
+	resultsPerPage: ResultsPerPage
+	currentPage: number
+	onQueryChange: (query: string) => void
+	onSelectedFieldsChange: (fields: SearchField[]) => void
+	onAdvancedSearchChange: (isAdvanced: boolean) => void
+	onResultsPerPageChange: (resultsPerPage: ResultsPerPage) => void
+	onPageChange: (page: number) => void
+	onSearch: () => void
+}
+
+interface SearchSuggestion {
 	label: string
-	description: string
-	platform?: boolean
+	query: string
+	fields?: SearchField[]
+	isAdvanced?: boolean
+	icon: React.ReactNode
 }
 
-function ExploreCard({ Icon, label, description, platform = false }: StatCardProps) {
-	return (
-		<Card className="transition-all hover:shadow-md hover:border-accent">
-			<CardContent className="p-6">
-				<Flex className="gap-4 items-start">
-					<Box className="shrink-0">
-						{platform ? (
-							<Icon className="text-foreground" size={32} />
-						) : (
-							<Icon className="h-8 w-8 text-accent" />
-						)}
-					</Box>
-					<Box>
-						<H3 className="font-semibold mb-2">{label}</H3>
-						<P className="text-muted-foreground text-sm leading-relaxed">{description}</P>
-					</Box>
-				</Flex>
-			</CardContent>
-		</Card>
-	)
+const searchSuggestions: SearchSuggestion[] = [
+	{
+		label: "GitHub keys",
+		query: "github",
+		fields: ["provider"],
+		icon: <Github className="h-5 w-5" />,
+	},
+	{
+		label: "GitLab keys",
+		query: "gitlab",
+		fields: ["provider"],
+		icon: <Server className="h-5 w-5" />,
+	},
+	{
+		label: "RSA keys",
+		query: "ssh-rsa",
+		fields: ["type"],
+		icon: <Shield className="h-5 w-5" />,
+	},
+	{
+		label: "ED25519 keys",
+		query: "ssh-ed25519",
+		fields: ["type"],
+		icon: <Key className="h-5 w-5" />,
+	},
+	{
+		label: "Search by username",
+		query: "merlin",
+		fields: ["username"],
+		icon: <Search className="h-5 w-5" />,
+	},
+	{
+		label: "Advanced search",
+		query: "@type:{ssh-rsa} @provider:{github}",
+		isAdvanced: true,
+		icon: <Sparkles className="h-5 w-5" />,
+	},
+]
+
+function generatePageNumbers(current: number, total: number): (number | "...")[] {
+	if (total <= 7) {
+		return Array.from({ length: total }, (_, i) => i + 1)
+	}
+
+	if (current <= 3) {
+		return [1, 2, 3, 4, 5, "...", total]
+	}
+
+	if (current >= total - 2) {
+		return [1, "...", total - 4, total - 3, total - 2, total - 1, total]
+	}
+
+	return [1, "...", current - 1, current, current + 1, "...", total]
 }
 
-export default function Explore() {
+export default function Explore({
+	query,
+	searchQuery,
+	selectedFields,
+	isAdvancedSearch,
+	resultsPerPage,
+	currentPage,
+	onQueryChange,
+	onSelectedFieldsChange,
+	onAdvancedSearchChange,
+	onResultsPerPageChange,
+	onPageChange,
+	onSearch,
+}: ExploreProps) {
+	const router = useRouter()
+
+	const { data } = useSshKeys({
+		search: searchQuery,
+		limit: resultsPerPage,
+		offset: currentPage - 1,
+		fields: !isAdvancedSearch && selectedFields.length > 0 ? selectedFields : undefined,
+		advanced: isAdvancedSearch,
+	})
+
+	const sshKeys = useMemo(() => {
+		if (!data?.entities) {
+			return []
+		}
+		return data.entities.flat()
+	}, [data])
+
+	const totalResults = data?.total || 0
+	const totalPages = Math.ceil(totalResults / resultsPerPage)
+	const startResult = (currentPage - 1) * resultsPerPage + 1
+	const endResult = Math.min(currentPage * resultsPerPage, totalResults)
+
+	const handleSearchClick = (searchQuery: string) => {
+		router.push(`/explore/${encodeURIComponent(searchQuery)}?advanced=true`)
+	}
+
+	const handleSuggestionClick = (suggestion: SearchSuggestion) => {
+		const urlParams = new URLSearchParams()
+
+		if (suggestion.isAdvanced) {
+			urlParams.set("advanced", "true")
+		} else if (suggestion.fields) {
+			urlParams.set("fields", suggestion.fields.join(","))
+		}
+
+		const queryString = urlParams.toString()
+		const encodedQuery = encodeURIComponent(suggestion.query)
+		const url = queryString ? `/explore/${encodedQuery}?${queryString}` : `/explore/${encodedQuery}`
+
+		router.push(url)
+	}
+
 	return (
 		<Page>
-			<PageHeaderHero
-				description="Discover and search through indexed SSH keys from multiple platforms."
-				title="Explore SSH Keys"
-			/>
-			<PageContent>
-				<Box className="space-y-8">
-					<Box className="space-y-4">
-						<H3 className="font-semibold text-xl">Browse by Platform</H3>
-						<Box className="grid gap-4 sm:grid-cols-2">
-							<ExploreCard
-								description="Search through SSH keys indexed from GitHub users and organizations."
-								Icon={SiGithub}
-								label="GitHub"
-								platform
-							/>
-							<ExploreCard
-								description="Explore SSH keys from GitLab users and groups."
-								Icon={SiGitlab}
-								label="GitLab"
-								platform
-							/>
-						</Box>
-					</Box>
+			<PageSection>
+				<SSHKeySearch
+					isAdvancedSearch={isAdvancedSearch}
+					onAdvancedSearchChange={onAdvancedSearchChange}
+					onQueryChange={onQueryChange}
+					onResultsPerPageChange={onResultsPerPageChange}
+					onSearch={onSearch}
+					onSelectedFieldsChange={onSelectedFieldsChange}
+					query={query}
+					resultsPerPage={resultsPerPage}
+					selectedFields={selectedFields}
+				/>
 
-					<Box className="space-y-4">
-						<H3 className="font-semibold text-xl">Explore by Category</H3>
-						<Box className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-							<ExploreCard
-								description="Browse keys by encryption type: RSA, Ed25519, ECDSA, and more."
-								Icon={Key}
-								label="Key Types"
-							/>
-							<ExploreCard
-								description="Discover the most common SSH key formats and algorithms."
-								Icon={Database}
-								label="Popular Keys"
-							/>
-							<ExploreCard
-								description="View statistics and insights about indexed SSH keys."
-								Icon={GitBranch}
-								label="Statistics"
-							/>
-						</Box>
-					</Box>
+				{sshKeys.length === 0 ? (
+					<div className="mt-8 rounded-lg border border-border border-dashed">
+						<div className="flex flex-col items-center gap-6 p-8 text-center">
+							<div className="flex flex-col items-center gap-2">
+								<Key className="h-10 w-10 text-muted-foreground" />
+								<p className="font-medium text-foreground text-lg">
+									{searchQuery ? "No SSH keys found" : "Start searching for SSH keys"}
+								</p>
+								<p className="text-muted-foreground text-sm">Try one of these search suggestions</p>
+							</div>
 
-					<Box className="rounded-lg border border-dashed p-8 text-center">
-						<Flex className="flex-col items-center gap-4">
-							<Search className="h-12 w-12 text-muted-foreground" />
-							<Box>
-								<H3 className="font-semibold mb-2">Advanced Search Coming Soon</H3>
-								<P className="text-muted-foreground text-sm max-w-md mx-auto">
-									Filter and explore SSH keys with advanced search capabilities. Search by username, key
-									type, platform, and more.
-								</P>
-							</Box>
-						</Flex>
-					</Box>
-				</Box>
-			</PageContent>
+							<div className="grid w-full max-w-2xl grid-cols-2 gap-3 sm:grid-cols-3">
+								{searchSuggestions.map((suggestion) => (
+									<button
+										className="flex flex-col items-center gap-2 rounded-lg border border-border bg-background p-4 text-center transition-colors hover:border-primary hover:bg-muted/50"
+										key={suggestion.label}
+										onClick={() => handleSuggestionClick(suggestion)}
+										type="button">
+										<div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted text-muted-foreground">
+											{suggestion.icon}
+										</div>
+										<span className="font-medium text-foreground text-sm">{suggestion.label}</span>
+									</button>
+								))}
+							</div>
+						</div>
+					</div>
+				) : (
+					<div className="mt-8 space-y-4">
+						{sshKeys.map((sshKey) => (
+							<SSHKeyCard key={sshKey.id} onSearchClick={handleSearchClick} sshKey={sshKey} />
+						))}
+					</div>
+				)}
+
+				{/* Pagination */}
+				{totalResults > 0 && (
+					<div className="mt-4 flex items-center justify-between">
+						<p className="text-muted-foreground text-sm">
+							Showing <span className="font-medium">{startResult}</span> to{" "}
+							<span className="font-medium">{endResult}</span> of{" "}
+							<span className="font-medium">{totalResults}</span> results
+						</p>
+
+						<div className="flex items-center gap-1">
+							<Button
+								aria-label="First page"
+								className="h-8 w-8 bg-transparent"
+								disabled={currentPage === 1}
+								onClick={() => onPageChange(1)}
+								size="icon"
+								variant="outline">
+								<ChevronsLeft className="h-4 w-4" />
+							</Button>
+							<Button
+								aria-label="Previous page"
+								className="h-8 w-8 bg-transparent"
+								disabled={currentPage === 1}
+								onClick={() => onPageChange(currentPage - 1)}
+								size="icon"
+								variant="outline">
+								<ChevronLeft className="h-4 w-4" />
+							</Button>
+
+							{/* Page numbers */}
+							<div className="flex items-center gap-1 px-2">
+								{generatePageNumbers(currentPage, totalPages).map((page, index) =>
+									page === "..." ? (
+										<span
+											className="px-1 text-muted-foreground"
+											key={`ellipsis-${currentPage}-${index}`}>
+											...
+										</span>
+									) : (
+										<Button
+											className="h-8 w-8"
+											key={page}
+											onClick={() => onPageChange(page as number)}
+											size="icon"
+											variant={currentPage === page ? "default" : "outline"}>
+											{page}
+										</Button>
+									),
+								)}
+							</div>
+
+							<Button
+								aria-label="Next page"
+								className="h-8 w-8 bg-transparent"
+								disabled={currentPage === totalPages}
+								onClick={() => onPageChange(currentPage + 1)}
+								size="icon"
+								variant="outline">
+								<ChevronRight className="h-4 w-4" />
+							</Button>
+							<Button
+								aria-label="Last page"
+								className="h-8 w-8 bg-transparent"
+								disabled={currentPage === totalPages}
+								onClick={() => onPageChange(totalPages)}
+								size="icon"
+								variant="outline">
+								<ChevronsRight className="h-4 w-4" />
+							</Button>
+						</div>
+					</div>
+				)}
+			</PageSection>
 		</Page>
 	)
 }

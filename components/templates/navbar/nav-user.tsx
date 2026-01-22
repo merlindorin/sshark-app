@@ -2,11 +2,10 @@
 
 import type { UserResource } from "@clerk/types"
 import type { VariantProps } from "class-variance-authority"
-import { LogOut, Moon, Sun } from "lucide-react"
+import { LogOut, Moon, Sun, User } from "lucide-react"
+import Link from "next/link"
 import { useTheme } from "next-themes"
 import type * as React from "react"
-import { Flex } from "@/components/atoms/flex"
-import { P } from "@/components/atoms/text"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button, type buttonVariants } from "@/components/ui/button"
 import {
@@ -15,10 +14,10 @@ import {
 	DropdownMenuItem,
 	DropdownMenuLabel,
 	DropdownMenuSeparator,
-	DropdownMenuTrigger,
 	DropdownMenuSub,
 	DropdownMenuSubContent,
 	DropdownMenuSubTrigger,
+	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { cn } from "@/lib/utils"
 
@@ -55,14 +54,20 @@ export function UserNav({ user, signout, className, ...props }: UserNavProps) {
 			</DropdownMenuTrigger>
 			<DropdownMenuContent align="end" className="w-56" forceMount>
 				<DropdownMenuLabel className="font-normal">
-					<Flex className="flex-col space-y-1">
-						<P className="font-medium text-sm leading-none">{user?.username || "User"}</P>
-						<P className="text-muted-foreground text-xs leading-none">
+					<div className="flex flex-col space-y-1">
+						<p className="font-medium text-sm leading-none">{user?.username || "User"}</p>
+						<p className="text-muted-foreground text-xs leading-none">
 							{user?.primaryEmailAddress?.emailAddress || ""}
-						</P>
-					</Flex>
+						</p>
+					</div>
 				</DropdownMenuLabel>
 				<DropdownMenuSeparator />
+				<DropdownMenuItem asChild className="cursor-pointer">
+					<Link href="/profile">
+						<User className="mr-2 h-4 w-4" />
+						Profile
+					</Link>
+				</DropdownMenuItem>
 				<DropdownMenuSub>
 					<DropdownMenuSubTrigger className="cursor-pointer">
 						<Sun className="mr-2 h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />

@@ -1,42 +1,49 @@
-import {Box} from "@/components/atoms/box"
-import {cn} from "@/lib/utils"
 import type React from "react"
 import type { ComponentProps, PropsWithChildren } from "react"
+import { Badge } from "@/components/ui/badge"
+import { cn } from "@/lib/utils"
 
-export function Page({children, className, ...props}: React.PropsWithChildren & ComponentProps<"main">) {
-    return (
-        <main
-            className={cn("flex container mx-auto mt-12 max-w-3xl xl:max-w-6xl grow flex-col justify-center space-y-8 px-0 py-12 md:px-6", className)}
-            {...props}
-        >
-            {children}
-        </main>
-    )
+export function Page({ children, className, ...props }: React.PropsWithChildren & ComponentProps<"main">) {
+	return (
+		<main className={cn("mt-(--fd-nav-height) w-full pt-4", className)} {...props}>
+			{children}
+		</main>
+	)
 }
 
-export function HomeHeader({children, className}: PropsWithChildren & ComponentProps<"div">) {
-    return <div className={cn("mx-auto max-w-3xl px-4 text-center", className)}>{children}</div>
+interface PageHeaderHeroProps {
+	title: string
+	description?: string
+	badge?: {
+		label: string
+		href?: string
+	}
 }
 
-export function PageHeaderHero({title, description}: { title: string; description?: string; className?: string }) {
-    return (
-        <HomeHeader>
-            <div>
-                <h1 className="font-bold text-4xl tracking-tight">{title}</h1>
-                <p className="pt-2 text-muted-foreground text-xl">{description}</p>
-            </div>
-            <Box className="border-foreground/50 border-b border-dotted"/>
-        </HomeHeader>
-    )
+export function PageHeaderHero({ title, description, badge }: PageHeaderHeroProps) {
+	return (
+		<section className="relative mx-4 min-h-100 overflow-hidden rounded-2xl border border-accent bg-linear-to-b from-muted/30 to-muted/80 md:mx-6">
+			<div className="relative z-10 py-12 md:py-24">
+				<div className="mx-auto max-w-3xl px-4 text-center">
+					{badge && (
+						<a className="group mb-4 inline-block" href={badge.href || "#"}>
+							<Badge className="px-3 py-1.5 font-medium text-sm" variant="secondary">
+								<span className="sm:inline">{badge.label}</span>
+							</Badge>
+						</a>
+					)}
+					<h1 className="font-bold text-3xl text-foreground tracking-tight sm:text-4xl lg:text-5xl">
+						{title}
+					</h1>
+					{description && (
+						<p className="mx-auto mt-6 max-w-2xl font-semibold text-foreground text-xl">{description}</p>
+					)}
+				</div>
+			</div>
+		</section>
+	)
 }
 
-export function PageContent({children}: PropsWithChildren) {
-    return (
-        <div
-            className="mx-auto h-full w-full max-w-350 border-dashed min-[1400px]:border-x min-[1800px]:max-w-384 p-4 sm:p-8">
-            <div className="mt-(--fd-nav-height) w-full pt-4">
-                {children}
-            </div>
-        </div>
-    )
+export function PageContent({ children, className }: PropsWithChildren & ComponentProps<"div">) {
+	return <div className={cn("container space-y-16 py-12 md:py-20", className)}>{children}</div>
 }

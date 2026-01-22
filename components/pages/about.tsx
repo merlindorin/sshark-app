@@ -3,9 +3,6 @@
 import { ArrowRight, Globe, Key, Search, Zap } from "lucide-react"
 import Link from "next/link"
 import type { ComponentType } from "react"
-import { Box } from "@/components/atoms/box"
-import { Flex } from "@/components/atoms/flex"
-import { H2, H3, P } from "@/components/atoms/text"
 import { Page, PageContent, PageHeaderHero } from "@/components/pages/page"
 
 interface FeatureCardProps {
@@ -16,15 +13,15 @@ interface FeatureCardProps {
 
 function FeatureCard({ Icon, title, description }: FeatureCardProps) {
 	return (
-		<Flex className="gap-4">
-			<Box className="shrink-0">
+		<div className="flex gap-4">
+			<div className="shrink-0">
 				<Icon className="h-6 w-6 text-accent" />
-			</Box>
-			<Box>
-				<H3 className="font-medium">{title}</H3>
-				<P className="text-muted-foreground text-sm">{description}</P>
-			</Box>
-		</Flex>
+			</div>
+			<div>
+				<h3 className="font-medium">{title}</h3>
+				<p className="text-muted-foreground text-sm">{description}</p>
+			</div>
+		</div>
 	)
 }
 
@@ -32,26 +29,27 @@ export default function About() {
 	return (
 		<Page>
 			<PageHeaderHero
+				badge={{ label: "📖 Learn more about SSHark", href: "/docs" }}
 				description="Advanced public key management for developers and security professionals."
-				title="About"
+				title="About SSHark"
 			/>
 			<PageContent>
-				<Box className="space-y-6">
-					<H2 className="font-semibold text-2xl">What is sshark?</H2>
-					<P className="text-muted-foreground leading-relaxed">
+				<div className="space-y-6">
+					<h2 className="font-semibold text-2xl">What is sshark?</h2>
+					<p className="text-muted-foreground leading-relaxed">
 						sshark is a fast, indexed search engine for public SSH keys. It aggregates keys from major
 						platforms like GitHub, GitLab, and Bitbucket, enabling instant lookups by username, key
 						fingerprint, or even partial key content.
-					</P>
-					<P className="text-muted-foreground leading-relaxed">
+					</p>
+					<p className="text-muted-foreground leading-relaxed">
 						Whether you need to verify a colleague&apos;s SSH key, audit access across your infrastructure,
 						or simply explore the public key landscape, sshark provides the tools you need.
-					</P>
-				</Box>
+					</p>
+				</div>
 
-				<Box className="space-y-6">
-					<H2 className="font-semibold text-2xl">Current Features</H2>
-					<Box className="grid gap-6 sm:grid-cols-2">
+				<div className="space-y-6">
+					<h2 className="font-semibold text-2xl">Current Features</h2>
+					<div className="grid gap-6 sm:grid-cols-2">
 						<FeatureCard
 							description="Sub-millisecond queries powered by Redis Search across millions of keys."
 							Icon={Search}
@@ -72,10 +70,10 @@ export default function About() {
 							Icon={Zap}
 							title="Advanced Query Syntax"
 						/>
-					</Box>
-				</Box>
+					</div>
+				</div>
 
-				<Flex className="gap-6 pt-4">
+				<div className="flex gap-6 pt-4">
 					<Link
 						className="flex items-center gap-2 font-medium text-muted-foreground text-sm transition-colors hover:text-foreground"
 						href="/docs">
@@ -86,7 +84,7 @@ export default function About() {
 						href="/roadmap">
 						View roadmap <ArrowRight className="h-4 w-4" />
 					</Link>
-				</Flex>
+				</div>
 			</PageContent>
 		</Page>
 	)

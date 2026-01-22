@@ -23,8 +23,38 @@ interface SearchResponse {
 	duration: number
 }
 
-const fetchSSHKeys = async (search: string, limit = 10, offset = 0, timeout = 500): Promise<SearchResponse> => {
-	const response = fetch(`/api/v1/search/${encodeURIComponent(search)}?limit=${limit}&offset=${offset * limit}`)
+interface FetchSSHKeysOptions {
+	search: string
+	limit?: number
+	offset?: number
+	fields?: string[]
+	advanced?: boolean
+	timeout?: number
+}
+
+const fetchSSHKeys = async ({
+	search,
+	limit = 10,
+	offset = 0,
+	fields,
+	advanced,
+	timeout = 500,
+}: FetchSSHKeysOptions): Promise<SearchResponse> => {
+	const params = new URLSearchParams({
+		query: search,
+		limit: limit.toString(),
+		offset: (offset * limit).toString(),
+	})
+
+	if (fields && fields.length > 0) {
+		params.append("fields", fields.join(","))
+	}
+
+	if (advanced !== undefined) {
+		params.append("advanced", advanced.toString())
+	}
+
+	const response = fetch(`/api/v1/search?${params.toString()}`)
 	const wait = new Promise((resolve) => {
 		setTimeout(resolve, timeout)
 	})
@@ -40,11 +70,19 @@ const fetchSSHKeys = async (search: string, limit = 10, offset = 0, timeout = 50
 		})
 }
 
-const useSshKeys = (search: string, limit?: number, offset?: number) => {
+interface UseSSHKeysOptions {
+	search: string
+	limit?: number
+	offset?: number
+	fields?: string[]
+	advanced?: boolean
+}
+
+const useSshKeys = ({ search, limit, offset, fields, advanced }: UseSSHKeysOptions) => {
 	return useQuery({
-		queryKey: ["sshkeys", search, limit, offset],
-		queryFn: () => fetchSSHKeys(search, limit, offset),
-		enabled: search.length > 0,
+		queryKey: ["sshkeys", search, limit, offset, fields, advanced],
+		queryFn: () => fetchSSHKeys({ search, limit, offset, fields, advanced }),
+		enabled: Boolean(search?.trim()),
 		placeholderData: (prev) => prev,
 		retry: (_failureCount, error: APIError | Error): boolean => {
 			return !(
@@ -57,4 +95,4 @@ const useSshKeys = (search: string, limit?: number, offset?: number) => {
 }
 
 export { useSshKeys, fetchSSHKeys }
-export type { SSHKey, SearchResultItem, SearchResponse }
+export type { SSHKey, SearchResultItem, SearchResponse, UseSSHKeysOptions, FetchSSHKeysOptions }

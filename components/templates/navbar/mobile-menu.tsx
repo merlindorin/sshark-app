@@ -1,6 +1,5 @@
 import { MenuIcon } from "lucide-react"
 import Link from "next/link"
-import { Flex } from "@/components/atoms/flex"
 import type { NavLinkProps } from "@/components/templates/navbar/nav-links"
 import { Button } from "@/components/ui/button"
 import { Drawer, DrawerClose, DrawerContent, DrawerHeader, DrawerTitle, DrawerTrigger } from "@/components/ui/drawer"
@@ -20,8 +19,8 @@ export const MobileMenu = ({ links }: MobileMenuProps) => (
 			<DrawerHeader className="sr-only">
 				<DrawerTitle>Mobile Menu</DrawerTitle>
 			</DrawerHeader>
-			<Flex className="flex-col space-y-4 overflow-y-auto px-6 pt-8 pb-12">
-				<Flex className="flex-col gap-2">
+			<div className="flex flex-col space-y-4 overflow-y-auto px-6 pt-8 pb-12">
+				<div className="flex flex-col gap-2">
 					{links.map(({ href, label, ...props }) => (
 						<DrawerClose asChild key={label}>
 							<Link className="text-muted-foreground" href={href} key={label} {...props}>
@@ -29,8 +28,8 @@ export const MobileMenu = ({ links }: MobileMenuProps) => (
 							</Link>
 						</DrawerClose>
 					))}
-				</Flex>
-			</Flex>
+				</div>
+			</div>
 		</DrawerContent>
 	</Drawer>
 )
