@@ -1,27 +1,25 @@
+import type { SearchField } from "@/components/organisms/ssh-key-search"
 import { KeyPill, ProviderPill, UserPill } from "@/components/molecules/home-pill"
 
 interface SSHKeyCardHeaderProps {
 	username: string
 	provider: string
 	type: string
-	onSearchClick?: (query: string) => void
+	onSearchClick?: (query: string, field: SearchField) => void
 }
 
 export function SSHKeyCardHeader({ username, provider, type, onSearchClick }: SSHKeyCardHeaderProps) {
-	const handleSearchClick = (query: string) => {
+	const handleSearchClick = (query: string, field: SearchField) => {
 		if (onSearchClick) {
-			onSearchClick(query)
+			onSearchClick(query, field)
 		}
 	}
 
 	return (
-		<div className="grow flex flex-wrap items-center gap-1">
-			<ProviderPill onClick={() => handleSearchClick(`@provider:{${provider}}`)} provider={provider} />
-			<UserPill
-				onClick={() => handleSearchClick(`@username:{${username.replaceAll("-", "\\-")}}`)}
-				user={username}
-			/>
-			<KeyPill keyType={type} onClick={() => handleSearchClick(`@type:{${type.replaceAll("-", "\\-")}}`)} />
+		<div className="flex grow flex-wrap items-center gap-1">
+			<ProviderPill onClick={() => handleSearchClick(provider, "provider")} provider={provider} />
+			<UserPill onClick={() => handleSearchClick(username, "username")} user={username} />
+			<KeyPill keyType={type} onClick={() => handleSearchClick(type, "type")} />
 		</div>
 	)
 }

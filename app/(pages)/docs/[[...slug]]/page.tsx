@@ -2,7 +2,13 @@ import { DocsBody } from "fumadocs-ui/layouts/docs/page"
 import { createRelativeLink } from "fumadocs-ui/mdx"
 import type { Metadata } from "next"
 import { notFound } from "next/navigation"
-import { Page, PageContent, PageHeaderHero } from "@/components/pages/page"
+import {
+	Page,
+	PageHeaderHero,
+	PageHeaderHeroDescription,
+	PageHeaderHeroTitle,
+	PageSection,
+} from "@/components/pages/page"
 import { source } from "@/lib/source"
 import { getMDXComponents } from "@/mdx-components"
 
@@ -17,8 +23,11 @@ export default async function Doc(props: PageProps<"/docs/[[...slug]]">) {
 
 	return (
 		<Page>
-			<PageHeaderHero description={page.data.description} title={page.data.title} />
-			<PageContent>
+			<PageHeaderHero>
+				<PageHeaderHeroTitle>{page.data.title}</PageHeaderHeroTitle>
+				<PageHeaderHeroDescription>{page.data.description}</PageHeaderHeroDescription>
+			</PageHeaderHero>
+			<PageSection>
 				<DocsBody>
 					<MDX
 						components={getMDXComponents({
@@ -27,7 +36,7 @@ export default async function Doc(props: PageProps<"/docs/[[...slug]]">) {
 						})}
 					/>
 				</DocsBody>
-			</PageContent>
+			</PageSection>
 		</Page>
 	)
 }

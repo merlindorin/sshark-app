@@ -96,8 +96,7 @@ export default function ExplorePage() {
 			}
 
 			const queryString = urlParams.toString()
-			const encodedQuery = newQuery ? encodeURIComponent(newQuery) : ""
-			const path = encodedQuery ? `/explore/${encodedQuery}` : "/explore"
+			const path = newQuery ? `/explore/${newQuery}` : "/explore"
 			const url = queryString ? `${path}?${queryString}` : path
 
 			router.push(url)

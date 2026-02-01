@@ -2,17 +2,159 @@
 
 import { SiGithub, SiGitlab } from "@icons-pack/react-simple-icons"
 import NumberFlow from "@number-flow/react"
-import { GitBranchIcon, KeyIcon, UsersIcon } from "lucide-react"
+import { GitBranchIcon, KeyIcon, Lock, RotateCcw, Search, UsersIcon } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { type ComponentProps, type ComponentType, useState } from "react"
 import { useInterval } from "usehooks-ts"
 import { SearchBox } from "@/components/molecules/search-box"
+import {
+	Page,
+	PageHeaderHero,
+	PageHeaderHeroBadge,
+	PageHeaderHeroDescription,
+	PageHeaderHeroTitle,
+	PageSection,
+	PageSectionContent,
+	PageSectionHeader,
+	PageSectionParagraph,
+	PageSectionSRTitle,
+	PageSectionTitle,
+} from "@/components/pages/page"
 import { FAQ } from "@/components/templates/faq"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { useStats } from "@/hooks/use-stats"
 import { cn } from "@/lib/utils"
+
+export function Home() {
+	const [searchQuery, setSearchQuery] = useState("")
+	const router = useRouter()
+
+	const search = (query: string): void => {
+		router.push(`/explore/${query}`)
+	}
+
+	return (
+		<Page>
+			<PageHeaderHero>
+				<PageHeaderHeroBadge href="/explore">✨ Search across multiple platforms →</PageHeaderHeroBadge>
+				<PageHeaderHeroTitle>Find Public SSH Keys</PageHeaderHeroTitle>
+				<PageHeaderHeroDescription>
+					Search for any user&apos;s public SSH keys or reverse lookup who owns a key. Quick, secure, and
+					developer-friendly.
+				</PageHeaderHeroDescription>
+				<Stats className="mt-8" />
+				<SearchBox
+					className="mt-8"
+					searchFn={search}
+					searchQuery={searchQuery}
+					setSearchQuery={setSearchQuery}
+				/>
+				<ReassuringLine className="mt-8" />
+			</PageHeaderHero>
+			<PageSection divide={false}>
+				<div className="mx-auto mb-16 flex w-full max-w-5xl flex-col items-center gap-6">
+					<div>
+						<svg
+							className="w-full px-32 max-lg:hidden"
+							fill="none"
+							height="54"
+							viewBox="0 0 786 54"
+							width="786"
+							xmlns="http://www.w3.org/2000/svg">
+							<path
+								clipRule="evenodd"
+								d="M2.50004 48.0487C1.84768 48.1731 1.26519 48.5364 0.866448 49.0675C0.467704 49.5986 0.281373 50.2593 0.343881 50.9205C0.406389 51.5817 0.713242 52.1958 1.20445 52.6427C1.69566 53.0897 2.33591 53.3374 3.00004 53.3374C3.66416 53.3374 4.30441 53.0897 4.79562 52.6427C5.28683 52.1958 5.59369 51.5817 5.65619 50.9205C5.7187 50.2593 5.53237 49.5986 5.13363 49.0675C4.73488 48.5364 4.15239 48.1731 3.50004 48.0487V42.6687C3.50004 34.1087 10.44 27.1687 19 27.1687H377C384.716 27.1687 391.195 21.8727 393 14.7157C394.804 21.8717 401.284 27.1687 409 27.1687H767C775.56 27.1687 782.5 34.1087 782.5 42.6687V48.0487C781.848 48.1731 781.265 48.5364 780.866 49.0675C780.468 49.5986 780.281 50.2593 780.344 50.9205C780.406 51.5817 780.713 52.1958 781.204 52.6427C781.696 53.0897 782.336 53.3374 783 53.3374C783.664 53.3374 784.304 53.0897 784.796 52.6427C785.287 52.1958 785.594 51.5817 785.656 50.9205C785.719 50.2593 785.532 49.5986 785.134 49.0675C784.735 48.5364 784.152 48.1731 783.5 48.0487V42.6687C783.5 33.5567 776.113 26.1687 767 26.1687H409C400.44 26.1687 393.5 19.2287 393.5 10.6687V5.28867C394.152 5.16421 394.735 4.80092 395.134 4.26982C395.532 3.73873 395.719 3.078 395.656 2.41683C395.594 1.75565 395.287 1.14156 394.796 0.694599C394.304 0.247639 393.664 -5.72205e-05 393 -5.72205e-05C392.336 -5.72205e-05 391.696 0.247639 391.204 0.694599C390.713 1.14156 390.406 1.75565 390.344 2.41683C390.281 3.078 390.468 3.73873 390.866 4.26982C391.265 4.80092 391.848 5.16421 392.5 5.28867V10.6687C392.5 19.2287 385.56 26.1687 377 26.1687H19C9.88704 26.1687 2.50004 33.5567 2.50004 42.6687V48.0487ZM392.5 48.0487C391.848 48.1731 391.265 48.5364 390.866 49.0675C390.468 49.5986 390.281 50.2593 390.344 50.9205C390.406 51.5817 390.713 52.1958 391.204 52.6427C391.696 53.0897 392.336 53.3374 393 53.3374C393.664 53.3374 394.304 53.0897 394.796 52.6427C395.287 52.1958 395.594 51.5817 395.656 50.9205C395.719 50.2593 395.532 49.5986 395.134 49.0675C394.735 48.5364 394.152 48.1731 393.5 48.0487L393 14.7157L392.5 35.4874V48.0487Z"
+								fill="var(--border)"
+								fillRule="evenodd"
+							/>
+						</svg>
+					</div>
+					<div className="flex w-full flex-wrap items-center justify-center gap-8 max-md:flex-col lg:justify-between">
+						<div className="flex max-w-3xs flex-col items-center gap-3.5 text-center">
+							<Search className="stroke-[1.5]" size={32} />
+							<span className="font-semibold text-primary">Advanced Search</span>
+							<p className="text-muted-foreground">
+								Query with powerful syntax using tag fields like @username, @key, @source, and wildcards
+								for precise results.
+							</p>
+						</div>
+						<div className="flex max-w-3xs flex-col items-center gap-3.5 text-center">
+							<Lock className="stroke-[1.5]" size={32} />
+							<span className="font-semibold text-primary">Secure Access</span>
+							<p className="text-muted-foreground">
+								Search public SSH keys safely. All data is publicly available and accessed through
+								secure APIs.
+							</p>
+						</div>
+						<div className="flex max-w-3xs flex-col items-center gap-3.5 text-center">
+							<RotateCcw className="stroke-[1.5]" size={32} />
+							<span className="font-semibold text-primary">Reverse Lookup</span>
+							<p className="text-muted-foreground">
+								Find who owns a specific SSH key by searching the key content. Perfect for security
+								audits and key management.
+							</p>
+						</div>
+					</div>
+				</div>
+			</PageSection>
+			<PageSection>
+				<PageSectionSRTitle>Browse SSH Keys per-provider</PageSectionSRTitle>
+				<PageSectionHeader>
+					<PageSectionTitle>Browse by Platform</PageSectionTitle>
+					<PageSectionParagraph>
+						Explore SSH keys organized by platform. Quickly access keys from GitHub, GitLab, and other
+						supported platforms.
+					</PageSectionParagraph>
+				</PageSectionHeader>
+				<PageSectionContent>
+					<ul className="grid list-none grid-cols-1 gap-4 p-0 sm:grid-cols-2 lg:grid-cols-4">
+						<li>
+							<a href="/explore/@provider:%7Bgithub%7D?fields=provider&advanced=true">
+								<Card className="cursor-pointer pt-0 transition-all hover:border-accent hover:shadow-md">
+									<CardContent className="relative aspect-16/10 overflow-hidden bg-[#F2F2F3] dark:bg-[#262529]">
+										<div className="absolute inset-0 flex items-center justify-center">
+											<SiGithub className="" size={60} />
+										</div>
+										<Badge className="absolute top-2 right-2">123,444 Keys</Badge>
+									</CardContent>
+									<CardFooter>Github</CardFooter>
+								</Card>
+							</a>
+						</li>
+						<li>
+							<a href="/explore/@provider:%7Bgitlab%7D?fields=provider&advanced=true">
+								<Card className="cursor-pointer pt-0 transition-all hover:border-accent hover:shadow-md">
+									<CardContent className="relative aspect-16/10 overflow-hidden bg-[#F2F2F3] dark:bg-[#262529]">
+										<div className="absolute inset-0 flex items-center justify-center">
+											<SiGitlab className="" size={60} />
+										</div>
+										<Badge className="absolute top-2 right-2">13,444 Keys</Badge>
+									</CardContent>
+									<CardFooter>Gitlab</CardFooter>
+								</Card>
+							</a>
+						</li>
+					</ul>
+				</PageSectionContent>
+			</PageSection>
+			<PageSection className="py-8 sm:py-12 md:py-16">
+				<div className="mx-auto max-w-3xl px-4">
+					<header className="mb-6 text-center sm:mb-8 md:mb-10">
+						<h2 className="mb-2 font-bold text-2xl tracking-tight sm:mb-4 sm:text-3xl lg:text-4xl">
+							Frequently Asked Questions
+						</h2>
+						<p className="mx-auto max-w-2xl font-semibold text-base text-foreground sm:text-lg md:text-xl">
+							Everything you need to know about SSHark and searching public SSH keys.
+						</p>
+					</header>
+					<FAQ />
+				</div>
+			</PageSection>
+		</Page>
+	)
+}
 
 interface StatCardProps {
 	label: string
@@ -46,107 +188,6 @@ function Stats({ className }: ComponentProps<"div">) {
 			<div className="h-12 w-px bg-border" />
 			<StatCard count={data?.total_providers || 0} Icon={GitBranchIcon} label="Platforms" />
 		</div>
-	)
-}
-
-export function Home() {
-	const [searchQuery, setSearchQuery] = useState("")
-	const router = useRouter()
-
-	const search = (query: string): void => {
-		router.push(`/explore/${encodeURIComponent(query)}`)
-	}
-
-	return (
-		<main className="mt-(--fd-nav-height) w-full pt-4">
-			<section className="relative mx-4 min-h-100 overflow-hidden rounded-2xl border border-accent bg-linear-to-b from-muted/30 to-muted/80 md:mx-6">
-				<div className="relative z-10 py-12 md:py-24">
-					<div className="mx-auto max-w-3xl px-4 text-center">
-						<a className="group mb-4 inline-block" href="/about">
-							<Badge className="px-3 py-1.5 font-medium text-sm" variant="secondary">
-								<span className="sm:inline">✨ Search across multiple platforms →</span>
-							</Badge>
-						</a>
-						<h1 className="font-bold text-3xl text-foreground tracking-tight sm:text-4xl lg:text-5xl">
-							Find Public SSH Keys
-						</h1>
-						<p className="mx-auto mt-6 max-w-2xl font-semibold text-foreground text-xl">
-							Search for any user&apos;s public SSH keys or reverse lookup who owns a key. Quick, secure,
-							and developer-friendly.
-						</p>
-						<Stats className="mt-8" />
-						<SearchBox
-							className="mt-8"
-							searchFn={search}
-							searchQuery={searchQuery}
-							setSearchQuery={setSearchQuery}
-						/>
-						<ReassuringLine className="mt-8" />
-					</div>
-				</div>
-			</section>
-			<section className="container space-y-16 py-12 md:py-20">
-				<h2 className="sr-only" id="provider-heading">
-					Browse SSH Keys per-provider
-				</h2>
-				<section className="space-y-6">
-					<header className="flex items-center justify-between">
-						<div>
-							<h3 className="mb-2 font-bold text-2xl tracking-tight" id="category-platforms">
-								Browse by Platform
-							</h3>
-							<p className="max-w-4xl text-muted-foreground text-sm sm:text-base">
-								Explore SSH keys organized by platform. Quickly access keys from GitHub, GitLab, and
-								other supported platforms.
-							</p>
-						</div>
-					</header>
-					<ul className="grid list-none grid-cols-1 gap-4 p-0 sm:grid-cols-2 lg:grid-cols-4">
-						<li>
-							<a href="/explore/@provider:%7Bgithub%7D?fields=provider&advanced=true">
-								<Card className="cursor-pointer pt-0 transition-all hover:border-accent hover:shadow-md">
-									<CardContent className="relative aspect-16/10 overflow-hidden bg-[#F2F2F3] dark:bg-[#262529]">
-										<div className="absolute inset-0 flex items-center justify-center">
-											<SiGithub className="" size={60} />
-										</div>
-										<Badge className="absolute top-2 right-2">123,444 Keys</Badge>
-									</CardContent>
-									<CardFooter>Github</CardFooter>
-								</Card>
-							</a>
-						</li>
-						<li>
-							<a href="/explore/@provider:%7Bgitlab%7D?fields=provider&advanced=true">
-								<Card className="cursor-pointer pt-0 transition-all hover:border-accent hover:shadow-md">
-									<CardContent className="relative aspect-16/10 overflow-hidden bg-[#F2F2F3] dark:bg-[#262529]">
-										<div className="absolute inset-0 flex items-center justify-center">
-											<SiGitlab className="" size={60} />
-										</div>
-										<Badge className="absolute top-2 right-2">13,444 Keys</Badge>
-									</CardContent>
-									<CardFooter>Gitlab</CardFooter>
-								</Card>
-							</a>
-						</li>
-					</ul>
-				</section>
-				<div className="mx-auto max-w-350 px-4 md:px-6">
-					<section className="py-8 sm:py-12 md:py-16">
-						<div className="mx-auto max-w-3xl px-4">
-							<header className="mb-6 text-center sm:mb-8 md:mb-10">
-								<h2 className="mb-2 font-bold text-2xl tracking-tight sm:mb-4 sm:text-3xl lg:text-4xl">
-									Frequently Asked Questions
-								</h2>
-								<p className="mx-auto max-w-2xl font-semibold text-base text-foreground sm:text-lg md:text-xl">
-									Everything you need to know about SSHark and searching public SSH keys.
-								</p>
-								<FAQ className="pt-8" />
-							</header>
-						</div>
-					</section>
-				</div>
-			</section>
-		</main>
 	)
 }
 

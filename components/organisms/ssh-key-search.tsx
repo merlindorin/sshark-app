@@ -19,8 +19,8 @@ import { Switch } from "@/components/ui/switch"
 import {
 	DEFAULT_RESULTS_PER_PAGE,
 	RESULTS_PER_PAGE_OPTIONS,
-	SEARCH_FIELDS,
 	type ResultsPerPage,
+	SEARCH_FIELDS,
 	type SearchField,
 } from "@/lib/ssh-key-search-config"
 import { cn } from "@/lib/utils"

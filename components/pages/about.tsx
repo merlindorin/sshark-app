@@ -3,7 +3,14 @@
 import { ArrowRight, Globe, Key, Search, Zap } from "lucide-react"
 import Link from "next/link"
 import type { ComponentType } from "react"
-import { Page, PageContent, PageHeaderHero } from "@/components/pages/page"
+import {
+	Page,
+	PageHeaderHero,
+	PageHeaderHeroBadge,
+	PageHeaderHeroDescription,
+	PageHeaderHeroTitle,
+	PageSection,
+} from "@/components/pages/page"
 
 interface FeatureCardProps {
 	Icon: ComponentType<{ className?: string }>
@@ -28,12 +35,14 @@ function FeatureCard({ Icon, title, description }: FeatureCardProps) {
 export default function About() {
 	return (
 		<Page>
-			<PageHeaderHero
-				badge={{ label: "📖 Learn more about SSHark", href: "/docs" }}
-				description="Advanced public key management for developers and security professionals."
-				title="About SSHark"
-			/>
-			<PageContent>
+			<PageHeaderHero>
+				<PageHeaderHeroBadge href="/docs">📖 Learn more about SSHark</PageHeaderHeroBadge>
+				<PageHeaderHeroTitle>About SSHark</PageHeaderHeroTitle>
+				<PageHeaderHeroDescription>
+					Advanced public key management for developers and security professionals.
+				</PageHeaderHeroDescription>
+			</PageHeaderHero>
+			<PageSection divide={true}>
 				<div className="space-y-6">
 					<h2 className="font-semibold text-2xl">What is sshark?</h2>
 					<p className="text-muted-foreground leading-relaxed">
@@ -85,7 +94,7 @@ export default function About() {
 						View roadmap <ArrowRight className="h-4 w-4" />
 					</Link>
 				</div>
-			</PageContent>
+			</PageSection>
 		</Page>
 	)
 }
