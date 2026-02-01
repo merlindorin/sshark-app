@@ -50,7 +50,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
 					<RootProvider>
 						<ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
 							<QueryProvider>
-								<main className="flex flex-1 flex-col [--fd-layout-width:1400px]">
+								<main className="flex min-h-screen flex-col [--fd-layout-width:1400px]">
 									<header className="sticky top-0 z-40 h-14">
 										<Navbar
 											links={links}
@@ -61,13 +61,11 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
 											}}
 										/>
 									</header>
-									<div className="flex h-full w-full min-w-0 flex-col">
-										<main className="border-t border-dashed">
-											<div className="mx-auto h-full w-full max-w-350 border-dashed p-4 sm:p-8 min-[1800px]:max-w-384 min-[1400px]:border-x">
-												{children}
-											</div>
-										</main>
-									</div>
+									<main className="grow">
+										<div className="mx-auto max-w-350 border-dashed min-[1800px]:max-w-384 min-[1400px]:border-x">
+											{children}
+										</div>
+									</main>
 									<footer
 										aria-label="SSHark website footer"
 										className="flex w-full flex-col"

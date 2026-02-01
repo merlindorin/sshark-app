@@ -2,7 +2,14 @@
 
 import Link from "next/link"
 import type { JSX } from "react"
-import { Page, PageContent, PageHeaderHero } from "@/components/pages/page"
+import {
+	Page,
+	PageHeaderHero,
+	PageHeaderHeroBadge,
+	PageHeaderHeroDescription,
+	PageHeaderHeroTitle,
+	PageSection,
+} from "@/components/pages/page"
 import { cn } from "@/lib/utils"
 
 export const STATUS = {
@@ -90,12 +97,15 @@ const roadmapItems: RoadmapItem[] = [
 export default function Roadmap() {
 	return (
 		<Page>
-			<PageHeaderHero
-				badge={{ label: "🚀 What's next for SSHark", href: "/about" }}
-				description="Our vision extends to comprehensive public/private key management across all cryptographic key types. Here's what we're working on:"
-				title="Roadmap"
-			/>
-			<PageContent>
+			<PageHeaderHero>
+				<PageHeaderHeroBadge href="/about">🚀 What's next for SSHark</PageHeaderHeroBadge>
+				<PageHeaderHeroTitle>Roadmap</PageHeaderHeroTitle>
+				<PageHeaderHeroDescription>
+					Our vision extends to comprehensive public/private key management across all cryptographic key
+					types. Here's what we're working on:
+				</PageHeaderHeroDescription>
+			</PageHeaderHero>
+			<PageSection>
 				<ol className="flex flex-col gap-6">
 					{roadmapItems.map((item, i) => (
 						<RoadmapItem index={i} key={item.title} {...item} />
@@ -123,7 +133,7 @@ export default function Roadmap() {
 						</Link>
 					</p>
 				</div>
-			</PageContent>
+			</PageSection>
 		</Page>
 	)
 }

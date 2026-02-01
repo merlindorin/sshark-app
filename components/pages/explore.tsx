@@ -134,8 +134,8 @@ export default function Explore({
 	const startResult = (currentPage - 1) * resultsPerPage + 1
 	const endResult = Math.min(currentPage * resultsPerPage, totalResults)
 
-	const handleSearchClick = (searchQuery: string) => {
-		router.push(`/explore/${encodeURIComponent(searchQuery)}?advanced=true`)
+	const handleSearchClick = (searchQuery: string, field: SearchField) => {
+		router.push(`/explore/${searchQuery}?fields=${field}`)
 	}
 
 	const handleSuggestionClick = (suggestion: SearchSuggestion) => {
@@ -148,133 +148,128 @@ export default function Explore({
 		}
 
 		const queryString = urlParams.toString()
-		const encodedQuery = encodeURIComponent(suggestion.query)
-		const url = queryString ? `/explore/${encodedQuery}?${queryString}` : `/explore/${encodedQuery}`
+		const url = queryString ? `/explore/${suggestion.query}?${queryString}` : `/explore/${suggestion.query}`
 
 		router.push(url)
 	}
 
 	return (
-		<div>
+		<div className="px-4 py-8">
 			<SSHKeySearch
-					isAdvancedSearch={isAdvancedSearch}
-					onAdvancedSearchChange={onAdvancedSearchChange}
-					onQueryChange={onQueryChange}
-					onResultsPerPageChange={onResultsPerPageChange}
-					onSearch={onSearch}
-					onSelectedFieldsChange={onSelectedFieldsChange}
-					query={query}
-					resultsPerPage={resultsPerPage}
-					selectedFields={selectedFields}
-				/>
+				isAdvancedSearch={isAdvancedSearch}
+				onAdvancedSearchChange={onAdvancedSearchChange}
+				onQueryChange={onQueryChange}
+				onResultsPerPageChange={onResultsPerPageChange}
+				onSearch={onSearch}
+				onSelectedFieldsChange={onSelectedFieldsChange}
+				query={query}
+				resultsPerPage={resultsPerPage}
+				selectedFields={selectedFields}
+			/>
 
-				{sshKeys.length === 0 ? (
-					<div className="mt-8 rounded-lg border border-border border-dashed">
-						<div className="flex flex-col items-center gap-6 p-8 text-center">
-							<div className="flex flex-col items-center gap-2">
-								<Key className="h-10 w-10 text-muted-foreground" />
-								<p className="font-medium text-foreground text-lg">
-									{searchQuery ? "No SSH keys found" : "Start searching for SSH keys"}
-								</p>
-								<p className="text-muted-foreground text-sm">Try one of these search suggestions</p>
-							</div>
+			{sshKeys.length === 0 ? (
+				<div className="mt-8 rounded-lg border border-border border-dashed">
+					<div className="flex flex-col items-center gap-6 p-8 text-center">
+						<div className="flex flex-col items-center gap-2">
+							<Key className="h-10 w-10 text-muted-foreground" />
+							<p className="font-medium text-foreground text-lg">
+								{searchQuery ? "No SSH keys found" : "Start searching for SSH keys"}
+							</p>
+							<p className="text-muted-foreground text-sm">Try one of these search suggestions</p>
+						</div>
 
-							<div className="grid w-full max-w-2xl grid-cols-2 gap-3 sm:grid-cols-3">
-								{searchSuggestions.map((suggestion) => (
-									<button
-										className="flex flex-col items-center gap-2 rounded-lg border border-border bg-background p-4 text-center transition-colors hover:border-primary hover:bg-muted/50"
-										key={suggestion.label}
-										onClick={() => handleSuggestionClick(suggestion)}
-										type="button">
-										<div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted text-muted-foreground">
-											{suggestion.icon}
-										</div>
-										<span className="font-medium text-foreground text-sm">{suggestion.label}</span>
-									</button>
-								))}
-							</div>
+						<div className="grid w-full max-w-2xl grid-cols-2 gap-3 sm:grid-cols-3">
+							{searchSuggestions.map((suggestion) => (
+								<button
+									className="flex flex-col items-center gap-2 rounded-lg border border-border bg-background p-4 text-center transition-colors hover:border-primary hover:bg-muted/50"
+									key={suggestion.label}
+									onClick={() => handleSuggestionClick(suggestion)}
+									type="button">
+									<div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted text-muted-foreground">
+										{suggestion.icon}
+									</div>
+									<span className="font-medium text-foreground text-sm">{suggestion.label}</span>
+								</button>
+							))}
 						</div>
 					</div>
-				) : (
-					<div className="mt-8 space-y-4">
-						{sshKeys.map((sshKey) => (
-							<SSHKeyCard key={sshKey.id} onSearchClick={handleSearchClick} sshKey={sshKey} />
-						))}
-					</div>
-				)}
+				</div>
+			) : (
+				<div className="mt-8 space-y-4">
+					{sshKeys.map((sshKey) => (
+						<SSHKeyCard key={sshKey.id} onSearchClick={handleSearchClick} sshKey={sshKey} />
+					))}
+				</div>
+			)}
 
-				{/* Pagination */}
-				{totalResults > 0 && (
-					<div className="mt-4 flex items-center justify-between">
-						<p className="text-muted-foreground text-sm">
-							Showing <span className="font-medium">{startResult}</span> to{" "}
-							<span className="font-medium">{endResult}</span> of{" "}
-							<span className="font-medium">{totalResults}</span> results
-						</p>
+			{totalResults > 0 && (
+				<div className="mt-4 flex items-center justify-between">
+					<p className="text-muted-foreground text-sm">
+						Showing <span className="font-medium">{startResult}</span> to{" "}
+						<span className="font-medium">{endResult}</span> of{" "}
+						<span className="font-medium">{totalResults}</span> results
+					</p>
 
-						<div className="flex items-center gap-1">
-							<Button
-								aria-label="First page"
-								className="h-8 w-8 bg-transparent"
-								disabled={currentPage === 1}
-								onClick={() => onPageChange(1)}
-								size="icon"
-								variant="outline">
-								<ChevronsLeft className="h-4 w-4" />
-							</Button>
-							<Button
-								aria-label="Previous page"
-								className="h-8 w-8 bg-transparent"
-								disabled={currentPage === 1}
-								onClick={() => onPageChange(currentPage - 1)}
-								size="icon"
-								variant="outline">
-								<ChevronLeft className="h-4 w-4" />
-							</Button>
+					<div className="flex items-center gap-1">
+						<Button
+							aria-label="First page"
+							className="h-8 w-8 bg-transparent"
+							disabled={currentPage === 1}
+							onClick={() => onPageChange(1)}
+							size="icon"
+							variant="outline">
+							<ChevronsLeft className="h-4 w-4" />
+						</Button>
+						<Button
+							aria-label="Previous page"
+							className="h-8 w-8 bg-transparent"
+							disabled={currentPage === 1}
+							onClick={() => onPageChange(currentPage - 1)}
+							size="icon"
+							variant="outline">
+							<ChevronLeft className="h-4 w-4" />
+						</Button>
 
-							{/* Page numbers */}
-							<div className="flex items-center gap-1 px-2">
-								{generatePageNumbers(currentPage, totalPages).map((page, index) =>
-									page === "..." ? (
-										<span
-											className="px-1 text-muted-foreground"
-											key={`ellipsis-${currentPage}-${index}`}>
-											...
-										</span>
-									) : (
-										<Button
-											className="h-8 w-8"
-											key={page}
-											onClick={() => onPageChange(page as number)}
-											size="icon"
-											variant={currentPage === page ? "default" : "outline"}>
-											{page}
-										</Button>
-									),
-								)}
-							</div>
-
-							<Button
-								aria-label="Next page"
-								className="h-8 w-8 bg-transparent"
-								disabled={currentPage === totalPages}
-								onClick={() => onPageChange(currentPage + 1)}
-								size="icon"
-								variant="outline">
-								<ChevronRight className="h-4 w-4" />
-							</Button>
-							<Button
-								aria-label="Last page"
-								className="h-8 w-8 bg-transparent"
-								disabled={currentPage === totalPages}
-								onClick={() => onPageChange(totalPages)}
-								size="icon"
-								variant="outline">
-								<ChevronsRight className="h-4 w-4" />
-							</Button>
+						<div className="flex items-center gap-1 px-2">
+							{generatePageNumbers(currentPage, totalPages).map((page, index) =>
+								page === "..." ? (
+									<span className="px-1 text-muted-foreground" key={`ellipsis-${currentPage}-${index}`}>
+										...
+									</span>
+								) : (
+									<Button
+										className="h-8 w-8"
+										key={page}
+										onClick={() => onPageChange(page as number)}
+										size="icon"
+										variant={currentPage === page ? "default" : "outline"}>
+										{page}
+									</Button>
+								),
+							)}
 						</div>
+
+						<Button
+							aria-label="Next page"
+							className="h-8 w-8 bg-transparent"
+							disabled={currentPage === totalPages}
+							onClick={() => onPageChange(currentPage + 1)}
+							size="icon"
+							variant="outline">
+							<ChevronRight className="h-4 w-4" />
+						</Button>
+						<Button
+							aria-label="Last page"
+							className="h-8 w-8 bg-transparent"
+							disabled={currentPage === totalPages}
+							onClick={() => onPageChange(totalPages)}
+							size="icon"
+							variant="outline">
+							<ChevronsRight className="h-4 w-4" />
+						</Button>
 					</div>
-				)}
+				</div>
+			)}
 		</div>
 	)
 }

@@ -70,9 +70,9 @@ export function UserNav({ user, signout, className, ...props }: UserNavProps) {
 				</DropdownMenuItem>
 				<DropdownMenuSub>
 					<DropdownMenuSubTrigger className="cursor-pointer">
-						<Sun className="mr-2 h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-						<Moon className="absolute mr-2 h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-						<span className="ml-6">Theme</span>
+						<Sun className="mr-2 h-4 w-4 dark:hidden" />
+						<Moon className="mr-2 hidden h-4 w-4 dark:block" />
+						Theme
 					</DropdownMenuSubTrigger>
 					<DropdownMenuSubContent>
 						<DropdownMenuItem className="cursor-pointer" onClick={() => setTheme("light")}>

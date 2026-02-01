@@ -1,6 +1,7 @@
-import { SSHKeyCodeBlock } from "@/components/molecules/ssh-key-code-block"
+import type { SearchField } from "@/components/organisms/ssh-key-search"
 import { SSHKeyCardActions } from "@/components/molecules/ssh-key-card-actions"
 import { SSHKeyCardHeader } from "@/components/molecules/ssh-key-card-header"
+import { SSHKeyCodeBlock } from "@/components/molecules/ssh-key-code-block"
 
 export interface SSHKey {
 	id: string
@@ -16,7 +17,7 @@ export interface SSHKey {
 
 interface SSHKeyCardProps {
 	sshKey: SSHKey
-	onSearchClick?: (query: string) => void
+	onSearchClick?: (query: string, field: SearchField) => void
 }
 
 export function SSHKeyCard({ sshKey, onSearchClick }: SSHKeyCardProps) {
