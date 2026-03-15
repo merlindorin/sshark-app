@@ -1,24 +1,33 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { isReservedUsername } from "@/lib/reserved-usernames"
 
+interface Source {
+	id?: string
+	provider: string
+	user_id?: string
+	username: string
+	uri?: string
+}
+
 interface SSHKey {
 	id: string
-	username: string
-	source: string
-	provider: string
-	key: string
-	options: string[]
-	comment: string
-	type: string
+	fingerprint: string
+	key_data: string
+	algorithm: string
+	comment?: string
+	key_bits?: number
+	created_at: string
 	updated_at: string
+	source?: Source
 }
 
 interface SearchResponse {
-	entities: SSHKey[][]
+	entities: SSHKey[]
 	total: number
 	limit: number
 	offset: number
 	duration: number
+	query: string
 }
 
 export async function GET(_request: NextRequest, context: { params: Promise<Record<string, string>> }) {
@@ -30,9 +39,14 @@ export async function GET(_request: NextRequest, context: { params: Promise<Reco
 	}
 
 	try {
-		const searchQuery = `@username:{${username}}`
+		const searchQuery = `@source.username:{${username}}`
 		const apiBaseUrl = process.env.API_URL || "http://localhost:8080"
-		const apiUrl = `${apiBaseUrl}/api/v1/search/${encodeURIComponent(searchQuery)}?limit=100&offset=0`
+		const params = new URLSearchParams({
+			q: searchQuery,
+			limit: "100",
+			offset: "0",
+		})
+		const apiUrl = `${apiBaseUrl}/api/v1/ssh/search?${params.toString()}`
 
 		const response = await fetch(apiUrl)
 
@@ -41,13 +55,11 @@ export async function GET(_request: NextRequest, context: { params: Promise<Reco
 		}
 
 		const data: SearchResponse = await response.json()
-		const sshKeys = data.entities.flat()
 
-		const authorizedKeys = sshKeys
+		const authorizedKeys = data.entities
 			.map((key) => {
-				const optionsStr = key.options.length > 0 ? `${key.options.join(",")} ` : ""
 				const comment = key.comment ? ` ${key.comment}` : ""
-				return `${optionsStr}${key.type} ${key.key}${comment}`
+				return `${key.algorithm} ${key.key_data}${comment}`
 			})
 			.join("\n")
 

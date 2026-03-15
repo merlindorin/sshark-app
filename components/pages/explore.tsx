@@ -47,36 +47,36 @@ const searchSuggestions: SearchSuggestion[] = [
 	{
 		label: "GitHub keys",
 		query: "github",
-		fields: ["provider"],
+		fields: ["source.provider"],
 		icon: <Github className="h-5 w-5" />,
 	},
 	{
 		label: "GitLab keys",
 		query: "gitlab",
-		fields: ["provider"],
+		fields: ["source.provider"],
 		icon: <Server className="h-5 w-5" />,
 	},
 	{
 		label: "RSA keys",
 		query: "ssh-rsa",
-		fields: ["type"],
+		fields: ["algorithm"],
 		icon: <Shield className="h-5 w-5" />,
 	},
 	{
 		label: "ED25519 keys",
 		query: "ssh-ed25519",
-		fields: ["type"],
+		fields: ["algorithm"],
 		icon: <Key className="h-5 w-5" />,
 	},
 	{
 		label: "Search by username",
 		query: "merlin",
-		fields: ["username"],
+		fields: ["source.username"],
 		icon: <Search className="h-5 w-5" />,
 	},
 	{
 		label: "Advanced search",
-		query: "@type:{ssh-rsa} @provider:{github}",
+		query: "@algorithm:{ssh-rsa} @source.provider:{github}",
 		isAdvanced: true,
 		icon: <Sparkles className="h-5 w-5" />,
 	},
@@ -126,7 +126,7 @@ export default function Explore({
 		if (!data?.entities) {
 			return []
 		}
-		return data.entities.flat()
+		return data.entities
 	}, [data])
 
 	const totalResults = data?.total || 0
@@ -233,7 +233,9 @@ export default function Explore({
 						<div className="flex items-center gap-1 px-2">
 							{generatePageNumbers(currentPage, totalPages).map((page, index) =>
 								page === "..." ? (
-									<span className="px-1 text-muted-foreground" key={`ellipsis-${currentPage}-${index}`}>
+									<span
+										className="px-1 text-muted-foreground"
+										key={`ellipsis-${currentPage}-${index}`}>
 										...
 									</span>
 								) : (

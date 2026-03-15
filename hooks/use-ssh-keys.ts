@@ -1,26 +1,33 @@
 import { useQuery } from "@tanstack/react-query"
 import type { APIError } from "@/hooks/errors"
 
-interface SSHKey {
-	id: string
-	username: string
-	source: string
+interface Source {
+	id?: string
 	provider: string
-	key: string
-	options: string[]
-	comment: string
-	type: string
-	updated_at: string
+	user_id?: string
+	username: string
+	uri?: string
 }
 
-type SearchResultItem = SSHKey[]
+interface SSHKey {
+	id: string
+	fingerprint: string
+	key_data: string
+	algorithm: string
+	comment?: string
+	key_bits?: number
+	created_at: string
+	updated_at: string
+	source?: Source
+}
 
 interface SearchResponse {
-	entities: SearchResultItem
+	entities: SSHKey[]
 	total: number
 	limit: number
 	offset: number
 	duration: number
+	query: string
 }
 
 interface FetchSSHKeysOptions {
@@ -40,21 +47,22 @@ const fetchSSHKeys = async ({
 	advanced,
 	timeout = 500,
 }: FetchSSHKeysOptions): Promise<SearchResponse> => {
-	const params = new URLSearchParams({
-		query: search,
-		limit: limit.toString(),
-		offset: (offset * limit).toString(),
-	})
+	const params = new URLSearchParams()
 
-	if (fields && fields.length > 0) {
-		params.append("fields", fields.join(","))
+	if (advanced) {
+		params.set("q", search)
+	} else {
+		params.set("query", search)
 	}
 
-	if (advanced !== undefined) {
-		params.append("advanced", advanced.toString())
+	params.set("limit", limit.toString())
+	params.set("offset", (offset * limit).toString())
+
+	if (!advanced && fields && fields.length > 0) {
+		params.set("fields", fields.join(","))
 	}
 
-	const response = fetch(`/api/v1/search?${params.toString()}`)
+	const response = fetch(`/api/v1/ssh/search?${params.toString()}`)
 	const wait = new Promise((resolve) => {
 		setTimeout(resolve, timeout)
 	})
@@ -95,4 +103,4 @@ const useSshKeys = ({ search, limit, offset, fields, advanced }: UseSSHKeysOptio
 }
 
 export { useSshKeys, fetchSSHKeys }
-export type { SSHKey, SearchResultItem, SearchResponse, UseSSHKeysOptions, FetchSSHKeysOptions }
+export type { SSHKey, Source, SearchResponse, UseSSHKeysOptions, FetchSSHKeysOptions }

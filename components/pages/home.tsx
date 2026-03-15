@@ -76,8 +76,8 @@ export function Home() {
 							<Search className="stroke-[1.5]" size={32} />
 							<span className="font-semibold text-primary">Advanced Search</span>
 							<p className="text-muted-foreground">
-								Query with powerful syntax using tag fields like @username, @key, @source, and wildcards
-								for precise results.
+								Query with powerful syntax using tag fields like @source.username, @fingerprint,
+								@source.provider, and wildcards for precise results.
 							</p>
 						</div>
 						<div className="flex max-w-3xs flex-col items-center gap-3.5 text-center">
@@ -111,7 +111,7 @@ export function Home() {
 				<PageSectionContent>
 					<ul className="grid list-none grid-cols-1 gap-4 p-0 sm:grid-cols-2 lg:grid-cols-4">
 						<li>
-							<a href="/explore/@provider:%7Bgithub%7D?fields=provider&advanced=true">
+							<a href="/explore/@source.provider:%7Bgithub%7D?advanced=true">
 								<Card className="cursor-pointer pt-0 transition-all hover:border-accent hover:shadow-md">
 									<CardContent className="relative aspect-16/10 overflow-hidden bg-[#F2F2F3] dark:bg-[#262529]">
 										<div className="absolute inset-0 flex items-center justify-center">
@@ -124,7 +124,7 @@ export function Home() {
 							</a>
 						</li>
 						<li>
-							<a href="/explore/@provider:%7Bgitlab%7D?fields=provider&advanced=true">
+							<a href="/explore/@source.provider:%7Bgitlab%7D?advanced=true">
 								<Card className="cursor-pointer pt-0 transition-all hover:border-accent hover:shadow-md">
 									<CardContent className="relative aspect-16/10 overflow-hidden bg-[#F2F2F3] dark:bg-[#262529]">
 										<div className="absolute inset-0 flex items-center justify-center">
@@ -217,7 +217,7 @@ function ReassuringLine({ className, ...props }: ComponentProps<"div">) {
 							<div>
 								<p className="font-semibold">Available Fields:</p>
 								<p className="text-muted-foreground">
-									@username, @key, @source, @provider, @type, @comment, @id
+									@source.username, @fingerprint, @source.provider, @algorithm, @comment, @id
 								</p>
 							</div>
 							<div>
@@ -227,15 +227,15 @@ function ReassuringLine({ className, ...props }: ComponentProps<"div">) {
 									<span className="font-bold">simple search</span>
 								</p>
 								<p>
-									<code className="mr-2">@username:{"{merlindorin}"}</code>
+									<code className="mr-2">@source.username:{"{merlindorin}"}</code>
 									<span className="font-bold">exact match</span>
 								</p>
 								<p>
-									<code className="mr-2">@username:{"{merl*}"}</code>
+									<code className="mr-2">@source.username:{"{merl*}"}</code>
 									<span className="font-bold">wildcard</span>
 								</p>
 								<p>
-									<code className="mr-2">@source:{"{github|gitlab}"}</code>
+									<code className="mr-2">@source.provider:{"{github|gitlab}"}</code>
 									<span className="font-bold">multiple values</span>
 								</p>
 							</div>
@@ -259,16 +259,16 @@ function ReassuringLine({ className, ...props }: ComponentProps<"div">) {
 						<div className="space-y-2 text-xs">
 							<div>
 								<p>
-									<span className="font-semibold">Just search the key:</span>
+									<span className="font-semibold">Just search the fingerprint:</span>
 								</p>
 								<p>
-									<code className="mr-2">AAAAC3NzaC1lZD...</code>
+									<code className="mr-2">SHA256:abc...</code>
 								</p>
 							</div>
 							<div>
 								<p className="font-semibold">And if you feel geeky</p>
 								<p>
-									<code className="mr-2">@key:{"{AAAAC3NzaC1lZD*}"}</code>
+									<code className="mr-2">@fingerprint:{"{SHA256:abc*}"}</code>
 								</p>
 							</div>
 						</div>

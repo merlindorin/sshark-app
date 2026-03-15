@@ -7,19 +7,19 @@ First off, thank you for using `sshark.app`
 
 ## Basic Search
 
-Simply type a username or key content to search:
+Simply type a username or search term:
 ```
 merlindorin
 ```
 
-This automatically expands to `@username:{merlindorin*} | @key:{merlindorin*}`
+By default, this searches across `source.username` and `source.provider` fields.
 
 ## Field-Specific Search
 
 Use field prefixes with curly braces to search specific attributes:
 
-- `@username:{merlindorin}` — Search by username
-- `@key:{AAAAC3NzaC1lZD*}` — Reverse lookup by key content
+- `@source.username:{merlindorin}` — Search by username
+- `@fingerprint:{SHA256:abc*}` — Reverse lookup by fingerprint
 - `@comment:{work}` — Search in key comments
 
 ## Available Fields
@@ -29,36 +29,47 @@ All fields are **tag fields** and use curly brace syntax:
 | Field | Description |
 |-------|-------------|
 | `@id` | Key identifier (UUID) |
-| `@username` | Owner username |
-| `@source` | Platform: github, gitlab, etc. |
-| `@provider` | Provider name |
-| `@type` | ssh-rsa, ssh-ed25519, ecdsa-sha2-nistp256 |
-| `@key` | Key content (base64) |
+| `@fingerprint` | Key fingerprint (SHA256:...) |
+| `@algorithm` | ssh-rsa, ssh-ed25519, ecdsa-sha2-nistp256 |
 | `@comment` | Key comment |
+| `@key_bits` | Key size in bits |
+| `@source.username` | Owner username |
+| `@source.provider` | Platform: github, gitlab, etc. |
+| `@source.user_id` | Provider user ID |
+| `@source.uri` | Source URL |
 
 ## Tag Filters
 
-Filter by source platform or key type:
+Filter by source platform or key algorithm:
 
-- `@source:{github}` — Only keys from GitHub
-- `@source:{github|gitlab}` — Keys from GitHub or GitLab
-- `@type:{ssh-ed25519}` — Only Ed25519 keys
+- `@source.provider:{github}` — Only keys from GitHub
+- `@source.provider:{github|gitlab}` — Keys from GitHub or GitLab
+- `@algorithm:{ssh-ed25519}` — Only Ed25519 keys
+
+## Query Operators
+
+Combine filters with operators:
+
+- `@source.username:{foo} | @source.provider:{bar}` — OR
+- `@source.username:{foo} & @source.provider:{bar}` — AND
+- `@source.username:{foo} & (@source.provider:{github} | @source.provider:{gitlab})` — Grouped
 
 ## Wildcards
 
 | Pattern | Description |
 |---------|-------------|
-| `@username:{merl*}` | Wildcard — matches merlindorin, merlin, etc. |
-| `@username:{merlindorin}` | Exact match |
+| `@source.username:{merl*}` | Prefix wildcard — matches merlindorin, merlin, etc. |
+| `@source.username:{*bar*}` | Contains wildcard |
+| `@source.username:{merlindorin}` | Exact match |
 
 ## Reverse Lookup
 
-Have a key and want to find who owns it? Just paste the key content directly in the search box:
+Have a key and want to find who owns it? Search by fingerprint:
 ```
-AAAAC3NzaC1lZDI1NTE5AAAAI...
+SHA256:abcdef1234567890
 ```
 
 Or use the field syntax for more control:
 ```
-@key:{AAAAC3NzaC1lZD*}
+@fingerprint:{SHA256:abc*}
 ```

@@ -35,7 +35,11 @@ public/               # Static assets
 ### API Integration
 - The app proxies API requests to an external `sshark-api` service at `/api/v1/*`
 - In Kubernetes, the ingress routes `/api` to the backend service configured in `helm/sshark-app/values.yaml`
-- Search endpoint: `/api/v1/search/{query}` with pagination via `limit` and `offset` query params
+- SSH Search endpoint: `/api/v1/ssh/search` with query params:
+  - `q` - Advanced search query (Redis Query Engine syntax)
+  - `query` - Basic search term (searches default fields)
+  - `fields` - Fields to search in basic mode (comma-separated)
+  - `limit` and `offset` - Pagination
 
 ### Component Structure
 Components follow atomic design principles:
@@ -52,29 +56,31 @@ Components follow atomic design principles:
 - Custom hooks in `hooks/` directory:
   - `use-ssh-keys.ts` - Search SSH keys with pagination
   - `use-stats.ts` - Fetch platform statistics
-  - `use-validate-query.ts` - Query validation
   - `errors.ts` - Error handling utilities
 
 ### Search Query Syntax
 The backend uses Redis Query Engine syntax with **tag fields only**.
 
-**Simple search:**
-- `merlin` → automatically expands to `@username:{merlin*} | @key:{merlin*}`
+**Basic mode** (using `query` param):
+- `merlin` - Searches across default fields (source.username, source.provider)
+
+**Advanced mode** (using `q` param):
+- `@source.username:{torvalds}` - Exact match
+- `@source.username:{linus*}` - Prefix wildcard
+- `@source.username:{*bar*}` - Contains wildcard
+- `@source.username:{foo} | @source.provider:{bar}` - OR
+- `@source.username:{foo} & @source.provider:{bar}` - AND
 
 **Available tag fields:**
 - `@id` - Key identifier (UUID)
-- `@username` - Owner username
-- `@source` - Platform (github, gitlab, etc.)
-- `@provider` - Provider name
-- `@type` - Key type (ssh-rsa, ssh-ed25519, ecdsa-sha2-nistp256)
-- `@key` - Key content (base64)
+- `@fingerprint` - Key fingerprint (SHA256:...)
+- `@algorithm` - Key algorithm (ssh-rsa, ssh-ed25519, ecdsa-sha2-nistp256)
 - `@comment` - Key comment
-
-**Tag field syntax (use curly braces):**
-- `@username:{merlindorin}` - Exact match
-- `@username:{merl*}` - Wildcard match
-- `@source:{github|gitlab}` - Multiple values (OR)
-- `@key:{AAAAC3NzaC1lZD*}` - Reverse lookup by key content
+- `@key_bits` - Key size in bits
+- `@source.username` - Owner username
+- `@source.provider` - Platform (github, gitlab, etc.)
+- `@source.user_id` - Provider user ID
+- `@source.uri` - Source URL
 
 ## Release Workflow
 

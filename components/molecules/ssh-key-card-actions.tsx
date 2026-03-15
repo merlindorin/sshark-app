@@ -7,10 +7,10 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 interface SSHKeyCardActionsProps {
 	keyId: string
 	keyContent: string
-	source: string
+	sourceUri?: string
 }
 
-export function SSHKeyCardActions({ keyId, keyContent, source }: SSHKeyCardActionsProps) {
+export function SSHKeyCardActions({ keyId, keyContent, sourceUri }: SSHKeyCardActionsProps) {
 	const copyToClipboard = (key: string, _id: string) => {
 		navigator.clipboard.writeText(key)
 		toast.success("Copied to clipboard")
@@ -29,9 +29,11 @@ export function SSHKeyCardActions({ keyId, keyContent, source }: SSHKeyCardActio
 						<DropdownMenuItem onClick={() => copyToClipboard(keyContent, keyId)}>
 							<CopyIcon className="mr-0 h-1 w-10" /> Copy
 						</DropdownMenuItem>
-						<DropdownMenuItem onClick={() => window.open(source, "_blank")?.focus()}>
-							<ExternalLink className="mr-0 h-1 w-10" /> Source
-						</DropdownMenuItem>
+						{sourceUri && (
+							<DropdownMenuItem onClick={() => window.open(sourceUri, "_blank")?.focus()}>
+								<ExternalLink className="mr-0 h-1 w-10" /> Source
+							</DropdownMenuItem>
+						)}
 					</DropdownMenuContent>
 				</DropdownMenu>
 			</ButtonGroup>

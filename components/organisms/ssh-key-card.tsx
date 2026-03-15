@@ -1,19 +1,10 @@
-import type { SearchField } from "@/components/organisms/ssh-key-search"
 import { SSHKeyCardActions } from "@/components/molecules/ssh-key-card-actions"
 import { SSHKeyCardHeader } from "@/components/molecules/ssh-key-card-header"
 import { SSHKeyCodeBlock } from "@/components/molecules/ssh-key-code-block"
+import type { SearchField } from "@/components/organisms/ssh-key-search"
+import type { SSHKey } from "@/hooks/use-ssh-keys"
 
-export interface SSHKey {
-	id: string
-	username: string
-	source: string
-	provider: string
-	key: string
-	options: string[]
-	comment: string
-	type: string
-	updated_at: string
-}
+export type { SSHKey }
 
 interface SSHKeyCardProps {
 	sshKey: SSHKey
@@ -25,14 +16,14 @@ export function SSHKeyCard({ sshKey, onSearchClick }: SSHKeyCardProps) {
 		<div className="space-y-3 rounded-lg border border-border bg-background p-4 transition-colors hover:bg-muted/50">
 			<div className="flex items-center justify-between gap-4">
 				<SSHKeyCardHeader
+					algorithm={sshKey.algorithm}
 					onSearchClick={onSearchClick}
-					provider={sshKey.provider}
-					type={sshKey.type}
-					username={sshKey.username}
+					provider={sshKey.source?.provider}
+					username={sshKey.source?.username}
 				/>
-				<SSHKeyCardActions keyContent={sshKey.key} keyId={sshKey.id} source={sshKey.source} />
+				<SSHKeyCardActions keyContent={sshKey.key_data} keyId={sshKey.id} sourceUri={sshKey.source?.uri} />
 			</div>
-			<SSHKeyCodeBlock keyContent={sshKey.key} type={sshKey.type} />
+			<SSHKeyCodeBlock algorithm={sshKey.algorithm} keyContent={sshKey.key_data} />
 		</div>
 	)
 }

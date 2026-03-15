@@ -77,7 +77,7 @@ export default function PublicProfilePage() {
 		notFound()
 	}
 
-	const searchQuery = `@username:{${username}}`
+	const searchQuery = `@source.username:{${username}}`
 	const { data, isLoading, error } = useSshKeys({
 		search: searchQuery,
 		limit: 100,
@@ -97,7 +97,7 @@ export default function PublicProfilePage() {
 		if (!data?.entities) {
 			return new Set<string>()
 		}
-		return new Set(data.entities.flat().map((key) => key.provider))
+		return new Set(data.entities.map((key) => key.source?.provider).filter(Boolean) as string[])
 	}, [data])
 
 	if (isLoading) {
@@ -108,7 +108,7 @@ export default function PublicProfilePage() {
 		notFound()
 	}
 
-	const sshKeys = data.entities.flat()
+	const sshKeys = data.entities
 	const totalKeys = data.total
 
 	return (

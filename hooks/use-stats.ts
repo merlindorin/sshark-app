@@ -2,6 +2,8 @@ import { useQuery } from "@tanstack/react-query"
 
 interface Stats {
 	total_keys: number
+	total_ssh_keys: number
+	total_gpg_keys: number
 	total_usernames: number
 	total_providers: number
 }
