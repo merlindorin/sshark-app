@@ -76,7 +76,7 @@ const searchSuggestions: SearchSuggestion[] = [
 	},
 	{
 		label: "Advanced search",
-		query: "@algorithm:{ssh-rsa} @source.provider:{github}",
+		query: "@algorithm:{ssh-rsa} & @source.provider:{github}",
 		isAdvanced: true,
 		icon: <Sparkles className="h-5 w-5" />,
 	},

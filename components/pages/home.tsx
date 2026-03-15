@@ -2,9 +2,9 @@
 
 import { SiGithub, SiGitlab } from "@icons-pack/react-simple-icons"
 import NumberFlow from "@number-flow/react"
-import { GitBranchIcon, KeyIcon, Lock, RotateCcw, Search, UsersIcon } from "lucide-react"
+import { GitBranchIcon, Key, KeyIcon, Lock, RotateCcw, Search, Server, Shield, UsersIcon } from "lucide-react"
 import { useRouter } from "next/navigation"
-import { type ComponentProps, type ComponentType, useState } from "react"
+import { type ComponentProps, type ComponentType, type ReactNode, useState } from "react"
 import { useInterval } from "usehooks-ts"
 import { SearchBox } from "@/components/molecules/search-box"
 import {
@@ -24,8 +24,36 @@ import { FAQ } from "@/components/templates/faq"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
-import { useStats } from "@/hooks/use-stats"
+import { getFacetCount, getFacetData, getFacetTotal, useStats } from "@/hooks/use-stats"
 import { cn } from "@/lib/utils"
+
+const PROVIDER_ICONS: Record<string, ReactNode> = {
+	github: <SiGithub size={60} />,
+	gitlab: <SiGitlab size={60} />,
+}
+
+const ALGORITHM_ICONS: Record<string, ReactNode> = {
+	"ssh-ed25519": <Shield className="h-12 w-12" />,
+	"ssh-rsa": <Key className="h-12 w-12" />,
+	"ecdsa-sha2-nistp256": <Lock className="h-12 w-12" />,
+	"ecdsa-sha2-nistp384": <Lock className="h-12 w-12" />,
+	"ecdsa-sha2-nistp521": <Lock className="h-12 w-12" />,
+}
+
+
+function formatCount(count: number): string {
+	if (count >= 1_000_000) {
+		return `${(count / 1_000_000).toFixed(1)}M`
+	}
+	if (count >= 1000) {
+		return `${(count / 1000).toFixed(1)}K`
+	}
+	return count.toLocaleString()
+}
+
+function capitalizeFirst(str: string): string {
+	return str.charAt(0).toUpperCase() + str.slice(1)
+}
 
 export function Home() {
 	const [searchQuery, setSearchQuery] = useState("")
@@ -99,46 +127,8 @@ export function Home() {
 					</div>
 				</div>
 			</PageSection>
-			<PageSection>
-				<PageSectionSRTitle>Browse SSH Keys per-provider</PageSectionSRTitle>
-				<PageSectionHeader>
-					<PageSectionTitle>Browse by Platform</PageSectionTitle>
-					<PageSectionParagraph>
-						Explore SSH keys organized by platform. Quickly access keys from GitHub, GitLab, and other
-						supported platforms.
-					</PageSectionParagraph>
-				</PageSectionHeader>
-				<PageSectionContent>
-					<ul className="grid list-none grid-cols-1 gap-4 p-0 sm:grid-cols-2 lg:grid-cols-4">
-						<li>
-							<a href="/explore/github?fields=source.provider">
-								<Card className="cursor-pointer pt-0 transition-all hover:border-accent hover:shadow-md">
-									<CardContent className="relative aspect-16/10 overflow-hidden bg-[#F2F2F3] dark:bg-[#262529]">
-										<div className="absolute inset-0 flex items-center justify-center">
-											<SiGithub className="" size={60} />
-										</div>
-										<Badge className="absolute top-2 right-2">123,444 Keys</Badge>
-									</CardContent>
-									<CardFooter>Github</CardFooter>
-								</Card>
-							</a>
-						</li>
-						<li>
-							<a href="/explore/gitlab?fields=source.provider">
-								<Card className="cursor-pointer pt-0 transition-all hover:border-accent hover:shadow-md">
-									<CardContent className="relative aspect-16/10 overflow-hidden bg-[#F2F2F3] dark:bg-[#262529]">
-										<div className="absolute inset-0 flex items-center justify-center">
-											<SiGitlab className="" size={60} />
-										</div>
-										<Badge className="absolute top-2 right-2">13,444 Keys</Badge>
-									</CardContent>
-									<CardFooter>Gitlab</CardFooter>
-								</Card>
-							</a>
-						</li>
-					</ul>
-				</PageSectionContent>
-			</PageSection>
+			<BrowseByProvider />
+			<BrowseByAlgorithm />
 			<PageSection className="py-8 sm:py-12 md:py-16">
 				<div className="mx-auto max-w-3xl px-4">
 					<header className="mb-6 text-center sm:mb-8 md:mb-10">
@@ -180,13 +170,17 @@ function Stats({ className }: ComponentProps<"div">) {
 	const { data, refetch } = useStats()
 	useInterval(refetch, 10_000)
 
+	const totalUsernames = getFacetCount(data, "source.username")
+	const totalKeys = getFacetTotal(data, "algorithm")
+	const totalProviders = getFacetCount(data, "source.provider")
+
 	return (
 		<div className={cn("flex items-center justify-center gap-4 md:gap-8", className)}>
-			<StatCard count={data?.total_usernames || 0} Icon={UsersIcon} label="Usernames" />
+			<StatCard count={totalUsernames} Icon={UsersIcon} label="Usernames" />
 			<div className="h-12 w-px bg-border" />
-			<StatCard count={data?.total_keys || 0} Icon={KeyIcon} label="Key indexed" />
+			<StatCard count={totalKeys} Icon={KeyIcon} label="Keys indexed" />
 			<div className="h-12 w-px bg-border" />
-			<StatCard count={data?.total_providers || 0} Icon={GitBranchIcon} label="Platforms" />
+			<StatCard count={totalProviders} Icon={GitBranchIcon} label="Platforms" />
 		</div>
 	)
 }
@@ -278,3 +272,90 @@ function ReassuringLine({ className, ...props }: ComponentProps<"div">) {
 		</div>
 	)
 }
+
+function BrowseByProvider() {
+	const { data } = useStats()
+	const providers = getFacetData(data, "source.provider")
+
+	if (providers.length === 0) {
+		return null
+	}
+
+	return (
+		<PageSection>
+			<PageSectionSRTitle>Browse SSH Keys by Provider</PageSectionSRTitle>
+			<PageSectionHeader>
+				<PageSectionTitle>Browse by Platform</PageSectionTitle>
+				<PageSectionParagraph>
+					Explore SSH keys organized by platform. Quickly access keys from GitHub, GitLab, and other supported
+					platforms.
+				</PageSectionParagraph>
+			</PageSectionHeader>
+			<PageSectionContent>
+				<ul className="grid list-none grid-cols-1 gap-4 p-0 sm:grid-cols-2 lg:grid-cols-4">
+					{providers.map((provider) => (
+						<li key={provider.value}>
+							<a href={`/explore/${provider.value}?fields=source.provider`}>
+								<Card className="cursor-pointer pt-0 transition-all hover:border-accent hover:shadow-md">
+									<CardContent className="relative aspect-16/10 overflow-hidden bg-[#F2F2F3] dark:bg-[#262529]">
+										<div className="absolute inset-0 flex items-center justify-center">
+											{PROVIDER_ICONS[provider.value] || <Server className="h-12 w-12" />}
+										</div>
+										<Badge className="absolute top-2 right-2">
+											{formatCount(provider.count)} Keys
+										</Badge>
+									</CardContent>
+									<CardFooter>{capitalizeFirst(provider.value)}</CardFooter>
+								</Card>
+							</a>
+						</li>
+					))}
+				</ul>
+			</PageSectionContent>
+		</PageSection>
+	)
+}
+
+function BrowseByAlgorithm() {
+	const { data } = useStats()
+	const algorithms = getFacetData(data, "algorithm")
+
+	if (algorithms.length === 0) {
+		return null
+	}
+
+	return (
+		<PageSection>
+			<PageSectionSRTitle>Browse SSH Keys by Algorithm</PageSectionSRTitle>
+			<PageSectionHeader>
+				<PageSectionTitle>Browse by Algorithm</PageSectionTitle>
+				<PageSectionParagraph>
+					Explore SSH keys organized by cryptographic algorithm. Find Ed25519, RSA, ECDSA, and other key
+					types.
+				</PageSectionParagraph>
+			</PageSectionHeader>
+			<PageSectionContent>
+				<ul className="grid list-none grid-cols-1 gap-4 p-0 sm:grid-cols-2 lg:grid-cols-4">
+					{algorithms.map((algorithm) => (
+						<li key={algorithm.value}>
+							<a href={`/explore/${algorithm.value}?fields=algorithm`}>
+								<Card className="cursor-pointer pt-0 transition-all hover:border-accent hover:shadow-md">
+									<CardContent className="relative aspect-16/10 overflow-hidden bg-[#F2F2F3] dark:bg-[#262529]">
+										<div className="absolute inset-0 flex items-center justify-center">
+											{ALGORITHM_ICONS[algorithm.value] || <Key className="h-12 w-12" />}
+										</div>
+										<Badge className="absolute top-2 right-2">
+											{formatCount(algorithm.count)} Keys
+										</Badge>
+									</CardContent>
+									<CardFooter>{algorithm.value}</CardFooter>
+								</Card>
+							</a>
+						</li>
+					))}
+				</ul>
+			</PageSectionContent>
+		</PageSection>
+	)
+}
+

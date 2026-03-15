@@ -1,11 +1,32 @@
 import { useQuery } from "@tanstack/react-query"
 
+interface FacetValue {
+	value: string
+	count: number
+}
+
+interface Facet {
+	type: "value"
+	data: FacetValue[]
+}
+
 interface Stats {
-	total_keys: number
-	total_ssh_keys: number
-	total_gpg_keys: number
-	total_usernames: number
-	total_providers: number
+	facets: Record<string, Facet[]>
+}
+
+function getFacetData(stats: Stats | undefined, facetName: string): FacetValue[] {
+	if (!stats?.facets?.[facetName]?.[0]?.data) {
+		return []
+	}
+	return stats.facets[facetName][0].data
+}
+
+function getFacetTotal(stats: Stats | undefined, facetName: string): number {
+	return getFacetData(stats, facetName).reduce((sum, item) => sum + item.count, 0)
+}
+
+function getFacetCount(stats: Stats | undefined, facetName: string): number {
+	return getFacetData(stats, facetName).length
 }
 
 const fetchStats = async (): Promise<Stats> => {
@@ -27,4 +48,5 @@ const useStats = () => {
 	})
 }
 
-export { useStats, fetchStats }
+export { useStats, fetchStats, getFacetData, getFacetTotal, getFacetCount }
+export type { Stats, Facet, FacetValue }
