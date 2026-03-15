@@ -111,7 +111,7 @@ export function Home() {
 				<PageSectionContent>
 					<ul className="grid list-none grid-cols-1 gap-4 p-0 sm:grid-cols-2 lg:grid-cols-4">
 						<li>
-							<a href="/explore/@source.provider:%7Bgithub%7D?advanced=true">
+							<a href="/explore/github?fields=source.provider">
 								<Card className="cursor-pointer pt-0 transition-all hover:border-accent hover:shadow-md">
 									<CardContent className="relative aspect-16/10 overflow-hidden bg-[#F2F2F3] dark:bg-[#262529]">
 										<div className="absolute inset-0 flex items-center justify-center">
@@ -124,7 +124,7 @@ export function Home() {
 							</a>
 						</li>
 						<li>
-							<a href="/explore/@source.provider:%7Bgitlab%7D?advanced=true">
+							<a href="/explore/gitlab?fields=source.provider">
 								<Card className="cursor-pointer pt-0 transition-all hover:border-accent hover:shadow-md">
 									<CardContent className="relative aspect-16/10 overflow-hidden bg-[#F2F2F3] dark:bg-[#262529]">
 										<div className="absolute inset-0 flex items-center justify-center">
