@@ -29,6 +29,12 @@ function getFacetCount(stats: Stats | undefined, facetName: string): number {
 	return getFacetData(stats, facetName).length
 }
 
+function getFacetValueCount(stats: Stats | undefined, facetName: string, value: string): number {
+	const data = getFacetData(stats, facetName)
+	const entry = data.find((item) => item.value === value)
+	return entry?.count ?? 0
+}
+
 const fetchStats = async (): Promise<Stats> => {
 	const response = await fetch("/api/v1/stats")
 
@@ -48,5 +54,5 @@ const useStats = () => {
 	})
 }
 
-export { useStats, fetchStats, getFacetData, getFacetTotal, getFacetCount }
+export { useStats, fetchStats, getFacetData, getFacetTotal, getFacetCount, getFacetValueCount }
 export type { Stats, Facet, FacetValue }

@@ -24,7 +24,7 @@ import { FAQ } from "@/components/templates/faq"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
-import { getFacetCount, getFacetData, getFacetTotal, useStats } from "@/hooks/use-stats"
+import { getFacetCount, getFacetData, getFacetTotal, getFacetValueCount, useStats } from "@/hooks/use-stats"
 import { cn } from "@/lib/utils"
 
 const PROVIDER_ICONS: Record<string, ReactNode> = {
@@ -170,7 +170,7 @@ function Stats({ className }: ComponentProps<"div">) {
 	const { data, refetch } = useStats()
 	useInterval(refetch, 10_000)
 
-	const totalUsernames = getFacetCount(data, "source.username")
+	const totalUsernames = getFacetValueCount(data, "source.username", "total")
 	const totalKeys = getFacetTotal(data, "algorithm")
 	const totalProviders = getFacetCount(data, "source.provider")
 
