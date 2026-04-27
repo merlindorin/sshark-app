@@ -24,6 +24,7 @@ import { FAQ } from "@/components/templates/faq"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
+import { useSources } from "@/hooks/use-sources"
 import { getFacetCount, getFacetData, getFacetTotal, getFacetValueCount, useStats } from "@/hooks/use-stats"
 import { cn } from "@/lib/utils"
 
@@ -39,7 +40,6 @@ const ALGORITHM_ICONS: Record<string, ReactNode> = {
 	"ecdsa-sha2-nistp384": <Lock className="h-12 w-12" />,
 	"ecdsa-sha2-nistp521": <Lock className="h-12 w-12" />,
 }
-
 
 function formatCount(count: number): string {
 	if (count >= 1_000_000) {
@@ -129,6 +129,7 @@ export function Home() {
 			</PageSection>
 			<BrowseByProvider />
 			<BrowseByAlgorithm />
+			<LatestUsers />
 			<PageSection className="py-8 sm:py-12 md:py-16">
 				<div className="mx-auto max-w-3xl px-4">
 					<header className="mb-6 text-center sm:mb-8 md:mb-10">
@@ -359,3 +360,108 @@ function BrowseByAlgorithm() {
 	)
 }
 
+function avatarFor(provider: string, username: string): string | undefined {
+	if (provider === "github") {
+		return `https://github.com/${username}.png`
+	}
+	if (provider === "gitlab") {
+		return `https://gitlab.com/${username}.png`
+	}
+	return undefined
+}
+
+const RELATIVE_TIME_FORMATTER = new Intl.RelativeTimeFormat("en", { numeric: "auto" })
+const TIME_UNITS: [Intl.RelativeTimeFormatUnit, number][] = [
+	["year", 365 * 24 * 3600],
+	["month", 30 * 24 * 3600],
+	["week", 7 * 24 * 3600],
+	["day", 24 * 3600],
+	["hour", 3600],
+	["minute", 60],
+]
+
+function relativeTime(iso: string): string {
+	const diffSec = (Date.parse(iso) - Date.now()) / 1000
+	for (const [unit, secs] of TIME_UNITS) {
+		if (Math.abs(diffSec) >= secs) {
+			return RELATIVE_TIME_FORMATTER.format(Math.round(diffSec / secs), unit)
+		}
+	}
+	return RELATIVE_TIME_FORMATTER.format(Math.round(diffSec), "second")
+}
+
+function LatestUsers() {
+	const { data } = useSources(8)
+	const sources = data?.entities ?? []
+
+	if (sources.length === 0) {
+		return null
+	}
+
+	return (
+		<PageSection>
+			<PageSectionSRTitle>Recently indexed users</PageSectionSRTitle>
+			<PageSectionHeader>
+				<PageSectionTitle>Latest Users</PageSectionTitle>
+				<PageSectionParagraph>
+					The most recently indexed users. Click any card to see all of their public SSH and GPG keys.
+				</PageSectionParagraph>
+			</PageSectionHeader>
+			<PageSectionContent>
+				<ul className="grid list-none grid-cols-1 gap-4 p-0 sm:grid-cols-2 lg:grid-cols-4">
+					{sources.map((source) => {
+						const avatar = avatarFor(source.provider, source.username)
+						return (
+							<li key={source.id}>
+								<a href={`/sources/${source.provider}/${source.username}`}>
+									<Card className="cursor-pointer pt-0 transition-all hover:border-accent hover:shadow-md">
+										<CardContent className="relative aspect-16/10 overflow-hidden bg-[#F2F2F3] dark:bg-[#262529]">
+											{avatar ? (
+												// biome-ignore lint/performance/noImgElement: external avatar URL, no Next domain config
+												<img
+													alt=""
+													aria-hidden="true"
+													className="absolute inset-0 h-full w-full scale-110 object-cover opacity-20 blur-md"
+													height={400}
+													loading="lazy"
+													src={avatar}
+													width={400}
+												/>
+											) : null}
+											<div className="absolute inset-0 flex items-center justify-center">
+												{avatar ? (
+													// biome-ignore lint/performance/noImgElement: external avatar URL, no Next domain config
+													<img
+														alt={`${source.username} avatar`}
+														className="h-32 w-32 rounded-full border-4 border-background shadow-lg"
+														height={128}
+														loading="lazy"
+														src={avatar}
+														width={128}
+													/>
+												) : (
+													<UsersIcon className="h-20 w-20" />
+												)}
+											</div>
+											<Badge className="absolute top-2 right-2 gap-1">
+												{source.provider === "github" ? <SiGithub size={12} /> : null}
+												{source.provider === "gitlab" ? <SiGitlab size={12} /> : null}
+												{capitalizeFirst(source.provider)}
+											</Badge>
+										</CardContent>
+										<CardFooter className="flex items-center justify-between">
+											<span className="truncate font-medium">@{source.username}</span>
+											<span className="text-muted-foreground text-xs">
+												{relativeTime(source.created_at)}
+											</span>
+										</CardFooter>
+									</Card>
+								</a>
+							</li>
+						)
+					})}
+				</ul>
+			</PageSectionContent>
+		</PageSection>
+	)
+}
