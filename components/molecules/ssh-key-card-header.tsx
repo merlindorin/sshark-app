@@ -1,3 +1,4 @@
+import Link from "next/link"
 import { KeyPill, ProviderPill, UserPill } from "@/components/molecules/home-pill"
 import type { SearchField } from "@/components/organisms/ssh-key-search"
 
@@ -15,12 +16,20 @@ export function SSHKeyCardHeader({ username, provider, algorithm, onSearchClick 
 		}
 	}
 
+	const userPill = username ? <UserPill user={username} /> : null
+
 	return (
 		<div className="flex grow flex-wrap items-center gap-1">
 			{provider && (
 				<ProviderPill onClick={() => handleSearchClick(provider, "source.provider")} provider={provider} />
 			)}
-			{username && <UserPill onClick={() => handleSearchClick(username, "source.username")} user={username} />}
+			{userPill && provider ? (
+				<Link aria-label={`View ${username} on ${provider}`} href={`/sources/${provider}/${username}`}>
+					{userPill}
+				</Link>
+			) : (
+				userPill
+			)}
 			<KeyPill keyType={algorithm} onClick={() => handleSearchClick(algorithm, "algorithm")} />
 		</div>
 	)
