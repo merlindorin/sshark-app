@@ -123,6 +123,17 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
 														target="_blank"
 														title="Merlindorin - Software Engineer">
 														Merlindorin
+													</a>{" "}
+													<span aria-hidden="true">·</span>{" "}
+													<span>See also</span>{" "}
+													<a
+														aria-label="OpenOtters - OCI-style build and runtime for AI agents (opens in new tab)"
+														className="font-medium text-foreground transition-all hover:text-primary hover:underline"
+														href="https://github.com/openotters/openotters"
+														rel="noopener noreferrer"
+														target="_blank"
+														title="OpenOtters - OCI-style build and runtime for AI agents">
+														OpenOtters
 													</a>
 												</p>
 											</div>
