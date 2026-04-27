@@ -44,14 +44,16 @@ spec:
             - name: http
               containerPort: 3000
               protocol: TCP
-          {{- if .Values.clerk.secretName }}
           env:
+            - name: API_URL
+              value: "http://{{ .Values.api.name }}.{{ .Values.api.namespace }}.svc.cluster.local:{{ .Values.api.port }}"
+            {{- if .Values.clerk.secretName }}
             - name: CLERK_SECRET_KEY
               valueFrom:
                 secretKeyRef:
                   name: {{ .Values.clerk.secretName }}
                   key: {{ .Values.clerk.secretKey }}
-          {{- end }}
+            {{- end }}
           {{- with .Values.livenessProbe }}
           livenessProbe:
             {{- toYaml . | nindent 12 }}
