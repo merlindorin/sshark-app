@@ -82,20 +82,24 @@ const searchSuggestions: SearchSuggestion[] = [
 	},
 ]
 
-function generatePageNumbers(current: number, total: number): (number | "...")[] {
+const formatCount = (value: number) => value.toLocaleString("en-US")
+
+type PageItem = number | "ellipsis-start" | "ellipsis-end"
+
+function generatePageNumbers(current: number, total: number): PageItem[] {
 	if (total <= 7) {
 		return Array.from({ length: total }, (_, i) => i + 1)
 	}
 
 	if (current <= 3) {
-		return [1, 2, 3, 4, 5, "...", total]
+		return [1, 2, 3, 4, 5, "ellipsis-end", total]
 	}
 
 	if (current >= total - 2) {
-		return [1, "...", total - 4, total - 3, total - 2, total - 1, total]
+		return [1, "ellipsis-start", total - 4, total - 3, total - 2, total - 1, total]
 	}
 
-	return [1, "...", current - 1, current, current + 1, "...", total]
+	return [1, "ellipsis-start", current - 1, current, current + 1, "ellipsis-end", total]
 }
 
 export default function Explore({
@@ -203,14 +207,14 @@ export default function Explore({
 			)}
 
 			{totalResults > 0 && (
-				<div className="mt-4 flex items-center justify-between">
+				<div className="mt-4 flex flex-col items-center justify-between gap-3 sm:flex-row">
 					<p className="text-muted-foreground text-sm">
-						Showing <span className="font-medium">{startResult}</span> to{" "}
-						<span className="font-medium">{endResult}</span> of{" "}
-						<span className="font-medium">{totalResults}</span> results
+						Showing <span className="font-medium tabular-nums">{formatCount(startResult)}</span> to{" "}
+						<span className="font-medium tabular-nums">{formatCount(endResult)}</span> of{" "}
+						<span className="font-medium tabular-nums">{formatCount(totalResults)}</span> results
 					</p>
 
-					<div className="flex items-center gap-1">
+					<div className="flex flex-wrap items-center justify-center gap-1">
 						<Button
 							aria-label="First page"
 							className="h-8 w-8 bg-transparent"
@@ -231,21 +235,19 @@ export default function Explore({
 						</Button>
 
 						<div className="flex items-center gap-1 px-2">
-							{generatePageNumbers(currentPage, totalPages).map((page, index) =>
-								page === "..." ? (
-									<span
-										className="px-1 text-muted-foreground"
-										key={`ellipsis-${currentPage}-${index}`}>
+							{generatePageNumbers(currentPage, totalPages).map((page) =>
+								typeof page === "string" ? (
+									<span className="px-1 text-muted-foreground" key={page}>
 										...
 									</span>
 								) : (
 									<Button
-										className="h-8 w-8"
+										className="h-8 min-w-8 px-2 tabular-nums"
 										key={page}
-										onClick={() => onPageChange(page as number)}
-										size="icon"
+										onClick={() => onPageChange(page)}
+										size="sm"
 										variant={currentPage === page ? "default" : "outline"}>
-										{page}
+										{formatCount(page)}
 									</Button>
 								),
 							)}
