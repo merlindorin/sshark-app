@@ -26,6 +26,7 @@ import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { useSources } from "@/hooks/use-sources"
 import { getFacetCount, getFacetData, getFacetTotal, getFacetValueCount, useStats } from "@/hooks/use-stats"
+import { resolveSearchInput } from "@/lib/ssh-public-key"
 import { cn } from "@/lib/utils"
 
 const PROVIDER_ICONS: Record<string, ReactNode> = {
@@ -59,8 +60,12 @@ export function Home() {
 	const [searchQuery, setSearchQuery] = useState("")
 	const router = useRouter()
 
-	const search = (query: string): void => {
-		router.push(`/explore/${query}`)
+	const search = async (query: string): Promise<void> => {
+		// Pasting a public key looks up its owner by fingerprint instead of searching the text.
+		const resolved = await resolveSearchInput(query, false)
+		const suffix = resolved.isAdvanced ? "?advanced=true" : ""
+
+		router.push(`/explore/${encodeURIComponent(resolved.query)}${suffix}`)
 	}
 
 	return (

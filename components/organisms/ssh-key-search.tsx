@@ -1,7 +1,8 @@
 "use client"
 
-import { ChevronDown, Search, Settings2 } from "lucide-react"
+import { ChevronDown, Fingerprint, Search, Settings2 } from "lucide-react"
 import type React from "react"
+import { useMemo } from "react"
 import { Button } from "@/components/ui/button"
 import {
 	DropdownMenu,
@@ -23,6 +24,7 @@ import {
 	SEARCH_FIELDS,
 	type SearchField,
 } from "@/lib/ssh-key-search-config"
+import { parsePublicKey } from "@/lib/ssh-public-key"
 import { cn } from "@/lib/utils"
 
 interface SSHKeySearchProps {
@@ -50,6 +52,8 @@ export function SSHKeySearch({
 	onSearch,
 	className,
 }: SSHKeySearchProps) {
+	const pastedKey = useMemo(() => parsePublicKey(query), [query])
+
 	const handleFieldToggle = (field: SearchField) => {
 		const newFields = selectedFields.includes(field)
 			? selectedFields.filter((f) => f !== field)
@@ -109,7 +113,11 @@ export function SSHKeySearch({
 						className="border-0 bg-transparent pl-10 shadow-none focus-visible:ring-0"
 						onChange={(e) => onQueryChange(e.target.value)}
 						onKeyDown={handleKeyDown}
-						placeholder={isAdvancedSearch ? "Enter advanced search query..." : "Search SSH keys..."}
+						placeholder={
+							isAdvancedSearch
+								? "Enter advanced search query..."
+								: "Search SSH keys or paste a public key..."
+						}
 						type="text"
 						value={query}
 					/>
@@ -152,6 +160,16 @@ export function SSHKeySearch({
 					Search
 				</Button>
 			</div>
+
+			{pastedKey && (
+				<p className="mt-2 flex items-center gap-1.5 text-muted-foreground text-sm">
+					<Fingerprint className="h-4 w-4 shrink-0 text-primary" />
+					<span>
+						<span className="font-medium text-foreground">{pastedKey.algorithm}</span> public key detected —
+						searching by fingerprint
+					</span>
+				</p>
+			)}
 		</div>
 	)
 }

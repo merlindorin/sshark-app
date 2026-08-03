@@ -11,6 +11,7 @@ import {
 	SEARCH_FIELDS,
 	type SearchField,
 } from "@/lib/ssh-key-search-config"
+import { resolveSearchInput } from "@/lib/ssh-public-key"
 
 function parseFields(fieldsParam: string | null): SearchField[] {
 	if (!fieldsParam) {
@@ -104,8 +105,16 @@ export default function ExplorePage() {
 		[router],
 	)
 
-	const handleSearch = useCallback(() => {
-		updateUrl(localQuery, localFields, localAdvanced, localResultsPerPage, 1)
+	const handleSearch = useCallback(async () => {
+		// A pasted public key is resolved to a fingerprint lookup before it hits the URL.
+		const resolved = await resolveSearchInput(localQuery, localAdvanced)
+
+		if (resolved.fingerprint) {
+			setLocalQuery(resolved.query)
+			setLocalAdvanced(true)
+		}
+
+		updateUrl(resolved.query, localFields, resolved.isAdvanced, localResultsPerPage, 1)
 	}, [localQuery, localFields, localAdvanced, localResultsPerPage, updateUrl])
 
 	const handlePageChange = useCallback(

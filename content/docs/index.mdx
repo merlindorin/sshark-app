@@ -64,7 +64,16 @@ Combine filters with operators:
 
 ## Reverse Lookup
 
-Have a key and want to find who owns it? Search by fingerprint:
+Have a key and want to find who owns it? Paste the whole public key — the line
+you would put in `authorized_keys`:
+```
+ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIExampleKeyDataHere merlin@example.com
+```
+
+The fingerprint is computed in your browser and the key itself is never sent
+anywhere; only the resulting `@fingerprint:{...}` query reaches the API.
+
+You can also search by fingerprint directly:
 ```
 SHA256:abcdef1234567890
 ```

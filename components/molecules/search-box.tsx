@@ -36,7 +36,7 @@ export function SearchBox({ className, searchFn, searchQuery, setSearchQuery }: 
 						className="h-14 border-border bg-card pl-12 text-base"
 						name="searchquery"
 						onChange={onChange}
-						placeholder="Enter username..."
+						placeholder="Enter a username or paste a public key..."
 						type="text"
 						value={searchQuery}
 					/>
