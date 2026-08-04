@@ -1,13 +1,17 @@
 "use client"
 
 import { RedirectToSignIn, useUser } from "@clerk/nextjs"
-import { Calendar, Copy, Key, Mail, Plus, Shield, Trash2, User } from "lucide-react"
+import { Calendar, Copy, ExternalLink, Key, Mail, Plus, Shield, ShieldCheck, Trash2 } from "lucide-react"
 import type { ComponentType } from "react"
 import { useState } from "react"
 import { toast } from "sonner"
+import { ProviderIcon } from "@/components/molecules/provider-icon"
+import { ConnectedAccountsSection } from "@/components/organisms/connected-accounts-section"
+import { DeleteAccountSection } from "@/components/organisms/delete-account-section"
+import { MyKeysSection } from "@/components/organisms/my-keys-section"
+import { UsernameSection } from "@/components/organisms/username-section"
 import {
 	Page,
-	PageHeaderHero,
 	PageSection,
 	PageSectionContent,
 	PageSectionHeader,
@@ -33,6 +37,9 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Textarea } from "@/components/ui/textarea"
 import { useApiKeys, useCreateApiKey, useDeleteApiKey } from "@/hooks/use-api-keys"
+import { useConnectedAccounts } from "@/hooks/use-connected-accounts"
+import { useMe } from "@/hooks/use-me"
+import { useMyKeys } from "@/hooks/use-my-keys"
 
 function formatDate(timestamp: number): string {
 	return new Date(timestamp).toLocaleDateString("en-US", {
@@ -52,46 +59,112 @@ function formatUnixTimestamp(timestamp: number): string {
 	})
 }
 
-function InfoItem({
-	icon: Icon,
+function StatTile({
 	label,
 	value,
+	icon: Icon,
 }: {
-	icon: ComponentType<{ className?: string }>
 	label: string
-	value: string | null | undefined
+	value: number
+	icon: ComponentType<{ className?: string }>
 }) {
-	if (!value) {
-		return null
-	}
 	return (
-		<div className="flex items-center gap-3 rounded-lg border border-border/50 bg-background/50 px-4 py-3">
-			<div className="flex h-10 w-10 items-center justify-center rounded-full bg-accent/10">
-				<Icon className="h-5 w-5 text-accent" />
-			</div>
-			<div>
-				<p className="text-muted-foreground text-xs uppercase tracking-wide">{label}</p>
-				<p className="font-medium">{value}</p>
+		<div className="flex items-center gap-3 rounded-lg border border-border/60 bg-background/60 px-4 py-3">
+			<Icon className="h-4 w-4 shrink-0 text-accent" />
+			<div className="leading-tight">
+				<p className="font-semibold text-xl tabular-nums">{value}</p>
+				<p className="text-muted-foreground text-xs">{label}</p>
 			</div>
 		</div>
 	)
 }
 
-function StatItem({
-	label,
-	value,
-	icon: Icon,
-}: {
-	label: string
-	value: string | number
-	icon: ComponentType<{ className?: string }>
-}) {
+/**
+ * Identity on the left, what SSHark holds for you on the right. The previous layout centred a
+ * huge avatar in a tall empty box and repeated the name three times over; this keeps the same
+ * information within one screenful.
+ */
+function ProfileHeader() {
+	const { user } = useUser()
+	const { primaryAccount } = useConnectedAccounts()
+	const { data: keys } = useMyKeys()
+	const { data: me } = useMe()
+
+	if (!user) {
+		return null
+	}
+
+	const handle = primaryAccount?.username
+	const fullName = [user.firstName, user.lastName].filter(Boolean).join(" ")
+	const displayName = fullName || me?.username || handle || "Your profile"
+	const initials =
+		[user.firstName?.[0], user.lastName?.[0]].filter(Boolean).join("").toUpperCase() ||
+		(me?.username ?? handle)?.[0]?.toUpperCase() ||
+		"U"
+
 	return (
-		<div className="flex flex-col items-center gap-1 text-center">
-			<Icon className="h-5 w-5 text-accent" />
-			<p className="font-bold text-2xl">{value}</p>
-			<p className="text-muted-foreground text-xs">{label}</p>
-		</div>
+		<PageSection>
+			<div className="rounded-2xl border border-border bg-linear-to-br from-muted/40 to-muted/10 p-6 md:p-8">
+				<div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+					<div className="flex min-w-0 flex-1 items-center gap-5">
+						<Avatar className="h-20 w-20 shrink-0 border-2 border-background shadow-md md:h-24 md:w-24">
+							<AvatarImage alt={displayName} src={user.imageUrl} />
+							<AvatarFallback className="text-2xl">{initials}</AvatarFallback>
+						</Avatar>
+
+						<div className="min-w-0 space-y-2">
+							<h1 className="truncate font-bold text-2xl tracking-tight md:text-3xl">{displayName}</h1>
+
+							<div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-muted-foreground text-sm">
+								{me?.profile_url && (
+									<a
+										className="inline-flex items-center gap-1 font-medium text-foreground hover:text-primary hover:underline"
+										href={me.profile_url}
+										rel="noopener"
+										target="_blank">
+										{me.profile_url}
+										<ExternalLink className="h-3 w-3" />
+									</a>
+								)}
+								{handle && primaryAccount && (
+									<span className="inline-flex items-center gap-1">
+										<ProviderIcon className="h-3.5 w-3.5" provider={primaryAccount.provider} />@
+										{handle}
+									</span>
+								)}
+								{user.primaryEmailAddress?.emailAddress && (
+									<span className="inline-flex items-center gap-1">
+										<Mail className="h-3.5 w-3.5" />
+										{user.primaryEmailAddress.emailAddress}
+									</span>
+								)}
+							</div>
+
+							<div className="flex flex-wrap items-center gap-2">
+								{primaryAccount && (
+									<Badge variant="secondary">
+										<Shield className="mr-1 h-3 w-3" />
+										Verified
+									</Badge>
+								)}
+								{user.createdAt && (
+									<Badge variant="outline">
+										<Calendar className="mr-1 h-3 w-3" />
+										Joined {formatDate(user.createdAt.getTime())}
+									</Badge>
+								)}
+							</div>
+						</div>
+					</div>
+
+					<div className="grid shrink-0 grid-cols-3 gap-3">
+						<StatTile icon={Key} label="SSH keys" value={keys?.ssh_keys.length ?? 0} />
+						<StatTile icon={ShieldCheck} label="GPG keys" value={keys?.gpg_keys.length ?? 0} />
+						<StatTile icon={Shield} label="Providers" value={keys?.accounts.length ?? 0} />
+					</div>
+				</div>
+			</div>
+		</PageSection>
 	)
 }
 
@@ -381,49 +454,14 @@ export default function Profile() {
 		return <ProfileNotAuthenticated />
 	}
 
-	const fullName = [user.firstName, user.lastName].filter(Boolean).join(" ")
-	const initials = [user.firstName?.[0], user.lastName?.[0]].filter(Boolean).join("").toUpperCase() || "U"
-
 	return (
 		<Page>
-			<PageHeaderHero>
-				<div className="text-center">
-					<Avatar className="mx-auto h-32 w-32 border-4 border-background shadow-xl">
-						<AvatarImage alt={fullName || user.username || "User"} src={user.imageUrl} />
-						<AvatarFallback className="text-4xl">{initials}</AvatarFallback>
-					</Avatar>
-					<h1 className="mt-6 font-bold text-3xl tracking-tight">{fullName || user.username}</h1>
-					{user.username && <p className="mt-1 text-lg text-muted-foreground">@{user.username}</p>}
-					<div className="mt-4 flex justify-center gap-2">
-						<Badge variant="secondary">
-							<Shield className="mr-1 h-3 w-3" />
-							Verified
-						</Badge>
-						{user.createdAt && (
-							<Badge variant="outline">
-								<Calendar className="mr-1 h-3 w-3" />
-								Joined {formatDate(user.createdAt.getTime())}
-							</Badge>
-						)}
-					</div>
-				</div>
-
-				{/* Stats */}
-				<div className="mt-10 flex items-center justify-center gap-8 rounded-xl border border-border/50 bg-background/50 p-6">
-					<StatItem icon={Key} label="SSH Keys" value={0} />
-					<div className="h-12 w-px bg-border" />
-					<StatItem icon={Shield} label="Providers" value={0} />
-				</div>
-
-				{/* Info Grid */}
-				<div className="mt-6 grid gap-4 sm:grid-cols-2">
-					<InfoItem icon={Mail} label="Email" value={user.primaryEmailAddress?.emailAddress} />
-					<InfoItem icon={User} label="Username" value={user.username} />
-					<InfoItem icon={User} label="First Name" value={user.firstName} />
-					<InfoItem icon={User} label="Last Name" value={user.lastName} />
-				</div>
-			</PageHeaderHero>
+			<ProfileHeader />
+			<UsernameSection />
+			<ConnectedAccountsSection />
+			<MyKeysSection />
 			<ApiKeysSection />
+			<DeleteAccountSection />
 		</Page>
 	)
 }

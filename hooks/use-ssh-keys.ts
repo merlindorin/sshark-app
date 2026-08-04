@@ -84,13 +84,19 @@ interface UseSSHKeysOptions {
 	offset?: number
 	fields?: string[]
 	advanced?: boolean
+	/**
+	 * Run the search even with an empty term, which the API answers with every key, newest
+	 * first. Off by default so a page that is waiting on a username does not accidentally ask
+	 * for the whole index.
+	 */
+	browseAll?: boolean
 }
 
-const useSshKeys = ({ search, limit, offset, fields, advanced }: UseSSHKeysOptions) => {
+const useSshKeys = ({ search, limit, offset, fields, advanced, browseAll = false }: UseSSHKeysOptions) => {
 	return useQuery({
 		queryKey: ["sshkeys", search, limit, offset, fields, advanced],
 		queryFn: () => fetchSSHKeys({ search, limit, offset, fields, advanced }),
-		enabled: Boolean(search?.trim()),
+		enabled: browseAll || Boolean(search?.trim()),
 		placeholderData: (prev) => prev,
 		retry: (_failureCount, error: APIError | Error): boolean => {
 			return !(

@@ -1,6 +1,6 @@
 "use client"
 
-import { ChevronDown, Fingerprint, Search, Settings2 } from "lucide-react"
+import { AlertCircle, ChevronDown, Fingerprint, LoaderCircle, Search, Settings2 } from "lucide-react"
 import type React from "react"
 import { useMemo } from "react"
 import { Button } from "@/components/ui/button"
@@ -32,6 +32,9 @@ interface SSHKeySearchProps {
 	selectedFields: SearchField[]
 	isAdvancedSearch: boolean
 	resultsPerPage: ResultsPerPage
+	/** A search is in flight. Results already on screen are the previous ones until it lands. */
+	isSearching?: boolean
+	searchError?: string
 	onQueryChange: (query: string) => void
 	onSelectedFieldsChange: (fields: SearchField[]) => void
 	onAdvancedSearchChange: (isAdvanced: boolean) => void
@@ -45,6 +48,8 @@ export function SSHKeySearch({
 	selectedFields,
 	isAdvancedSearch,
 	resultsPerPage,
+	isSearching = false,
+	searchError,
 	onQueryChange,
 	onSelectedFieldsChange,
 	onAdvancedSearchChange,
@@ -108,7 +113,11 @@ export function SSHKeySearch({
 				)}
 
 				<div className="relative flex-1">
-					<Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+					{isSearching ? (
+						<LoaderCircle className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 animate-spin text-primary" />
+					) : (
+						<Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+					)}
 					<Input
 						className="border-0 bg-transparent pl-10 shadow-none focus-visible:ring-0"
 						onChange={(e) => onQueryChange(e.target.value)}
@@ -156,10 +165,22 @@ export function SSHKeySearch({
 					<Switch checked={isAdvancedSearch} id="advanced-search" onCheckedChange={onAdvancedSearchChange} />
 				</div>
 
-				<Button className="shrink-0" onClick={handleSearch} size="sm">
-					Search
+				<Button className="shrink-0" disabled={isSearching} onClick={handleSearch} size="sm">
+					{isSearching && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}
+					{isSearching ? "Searching..." : "Search"}
 				</Button>
 			</div>
+
+			<output aria-live="polite" className="sr-only">
+				{isSearching ? `Searching for ${query}` : ""}
+			</output>
+
+			{searchError && (
+				<p className="mt-2 flex items-center gap-1.5 text-destructive text-sm">
+					<AlertCircle className="h-4 w-4 shrink-0" />
+					<span>{searchError}</span>
+				</p>
+			)}
 
 			{pastedKey && (
 				<p className="mt-2 flex items-center gap-1.5 text-muted-foreground text-sm">

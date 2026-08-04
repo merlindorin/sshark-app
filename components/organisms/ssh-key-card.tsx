@@ -1,3 +1,4 @@
+import { SourceProfileLink } from "@/components/molecules/source-profile-link"
 import { SSHKeyCardActions } from "@/components/molecules/ssh-key-card-actions"
 import { SSHKeyCardHeader } from "@/components/molecules/ssh-key-card-header"
 import { SSHKeyCodeBlock } from "@/components/molecules/ssh-key-code-block"
@@ -21,9 +22,14 @@ export function SSHKeyCard({ sshKey, onSearchClick }: SSHKeyCardProps) {
 					provider={sshKey.source?.provider}
 					username={sshKey.source?.username}
 				/>
-				<SSHKeyCardActions keyContent={sshKey.key_data} keyId={sshKey.id} sourceUri={sshKey.source?.uri} />
+				<div className="flex shrink-0 items-center gap-1">
+					{sshKey.source?.username && sshKey.source?.provider && (
+						<SourceProfileLink provider={sshKey.source.provider} username={sshKey.source.username} />
+					)}
+					<SSHKeyCardActions keyContent={sshKey.key_data} keyId={sshKey.id} sourceUri={sshKey.source?.uri} />
+				</div>
 			</div>
-			<SSHKeyCodeBlock algorithm={sshKey.algorithm} keyContent={sshKey.key_data} />
+			<SSHKeyCodeBlock keyContent={sshKey.key_data} />
 		</div>
 	)
 }

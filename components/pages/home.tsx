@@ -2,7 +2,19 @@
 
 import { SiGithub, SiGitlab } from "@icons-pack/react-simple-icons"
 import NumberFlow from "@number-flow/react"
-import { GitBranchIcon, Key, KeyIcon, Lock, RotateCcw, Search, Server, Shield, UsersIcon } from "lucide-react"
+import {
+	ArrowRight,
+	GitBranchIcon,
+	Key,
+	KeyIcon,
+	Lock,
+	RotateCcw,
+	Search,
+	Server,
+	Shield,
+	UsersIcon,
+} from "lucide-react"
+import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { type ComponentProps, type ComponentType, type ReactNode, useState } from "react"
 import { useInterval } from "usehooks-ts"
@@ -22,10 +34,12 @@ import {
 } from "@/components/pages/page"
 import { FAQ } from "@/components/templates/faq"
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { useSources } from "@/hooks/use-sources"
 import { getFacetCount, getFacetData, getFacetTotal, getFacetValueCount, useStats } from "@/hooks/use-stats"
+import { providerProfileUrl } from "@/lib/providers"
 import { resolveSearchInput } from "@/lib/ssh-public-key"
 import { cn } from "@/lib/utils"
 
@@ -406,11 +420,19 @@ function LatestUsers() {
 	return (
 		<PageSection>
 			<PageSectionSRTitle>Recently indexed users</PageSectionSRTitle>
-			<PageSectionHeader>
-				<PageSectionTitle>Latest Users</PageSectionTitle>
-				<PageSectionParagraph>
-					The most recently indexed users. Click any card to see all of their public SSH and GPG keys.
-				</PageSectionParagraph>
+			<PageSectionHeader className="flex flex-wrap items-end justify-between gap-4">
+				<div>
+					<PageSectionTitle>Latest Users</PageSectionTitle>
+					<PageSectionParagraph>
+						The most recently indexed users. Click any card to see all of their public SSH and GPG keys.
+					</PageSectionParagraph>
+				</div>
+				<Button asChild className="shrink-0" variant="outline">
+					<Link href="/explore">
+						Browse all
+						<ArrowRight className="ml-2 h-4 w-4" />
+					</Link>
+				</Button>
 			</PageSectionHeader>
 			<PageSectionContent>
 				<ul className="grid list-none grid-cols-1 gap-4 p-0 sm:grid-cols-2 lg:grid-cols-4">
@@ -418,7 +440,10 @@ function LatestUsers() {
 						const avatar = avatarFor(source.provider, source.username)
 						return (
 							<li key={source.id}>
-								<a href={`/sources/${source.provider}/${source.username}`}>
+								<a
+									href={providerProfileUrl(source.provider, source.username) ?? "#"}
+									rel="noopener noreferrer"
+									target="_blank">
 									<Card className="cursor-pointer pt-0 transition-all hover:border-accent hover:shadow-md">
 										<CardContent className="relative aspect-16/10 overflow-hidden bg-[#F2F2F3] dark:bg-[#262529]">
 											{avatar ? (

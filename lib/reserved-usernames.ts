@@ -48,6 +48,13 @@ export const RESERVED_USERNAMES = [
 	"robots.txt",
 	"sitemap.xml",
 	"_next",
+	"keys",
+	"gpg",
+	"sources",
+	"users",
+	"user",
+	"me",
+	"sshark",
 ] as const
 
 export type ReservedUsername = (typeof RESERVED_USERNAMES)[number]
