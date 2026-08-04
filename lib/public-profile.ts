@@ -11,6 +11,7 @@ export interface ProfileAccount {
 	provider: string
 	username: string
 	uri?: string
+	profile_username?: string
 }
 
 export interface ProfileKey {

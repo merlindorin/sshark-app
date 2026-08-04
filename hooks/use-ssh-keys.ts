@@ -7,6 +7,11 @@ interface Source {
 	user_id?: string
 	username: string
 	uri?: string
+	/**
+	 * Username of the SSHark account that proved it owns this provider account. Absent for the
+	 * many indexed sources nobody has claimed.
+	 */
+	profile_username?: string
 }
 
 interface SSHKey {

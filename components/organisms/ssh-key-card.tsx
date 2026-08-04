@@ -23,9 +23,7 @@ export function SSHKeyCard({ sshKey, onSearchClick }: SSHKeyCardProps) {
 					username={sshKey.source?.username}
 				/>
 				<div className="flex shrink-0 items-center gap-1">
-					{sshKey.source?.username && sshKey.source?.provider && (
-						<SourceProfileLink provider={sshKey.source.provider} username={sshKey.source.username} />
-					)}
+					{sshKey.source?.profile_username && <SourceProfileLink username={sshKey.source.profile_username} />}
 					<SSHKeyCardActions keyContent={sshKey.key_data} keyId={sshKey.id} sourceUri={sshKey.source?.uri} />
 				</div>
 			</div>

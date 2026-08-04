@@ -78,6 +78,7 @@ function KeySection({
 	downloadName,
 	emptyLabel,
 	kind,
+	profileUsername,
 }: {
 	title: string
 	entries: ProfileKey[]
@@ -85,6 +86,7 @@ function KeySection({
 	downloadName: string
 	emptyLabel: string
 	kind: "ssh" | "gpg"
+	profileUsername: string
 }) {
 	return (
 		<section className="mt-8">
@@ -108,6 +110,7 @@ function KeySection({
 			) : (
 				<ProfileKeyList
 					gpgKeys={kind === "gpg" ? (entries as GPGKey[]) : undefined}
+					profileUsername={profileUsername}
 					sshKeys={kind === "ssh" ? (entries as unknown as SSHKey[]) : undefined}
 				/>
 			)}
@@ -177,6 +180,7 @@ export function AccountProfileView({ profile }: { profile: PublicProfile }) {
 					emptyLabel="This account has no public SSH keys."
 					entries={profile.ssh_keys}
 					kind="ssh"
+					profileUsername={profile.username}
 					title="SSH Keys"
 				/>
 				<KeySection
@@ -185,6 +189,7 @@ export function AccountProfileView({ profile }: { profile: PublicProfile }) {
 					emptyLabel="This account has no public GPG keys."
 					entries={profile.gpg_keys}
 					kind="gpg"
+					profileUsername={profile.username}
 					title="GPG Keys"
 				/>
 

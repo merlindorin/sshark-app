@@ -10,8 +10,21 @@ import type { SSHKey } from "@/hooks/use-ssh-keys"
  * Renders a profile's keys with the same cards Explore uses, so a key looks and behaves the
  * same wherever you meet it — including the pills, which search here too.
  */
-export function ProfileKeyList({ sshKeys, gpgKeys }: { sshKeys?: SSHKey[]; gpgKeys?: GPGKey[] }) {
+export function ProfileKeyList({
+	sshKeys,
+	gpgKeys,
+	profileUsername,
+}: {
+	sshKeys?: SSHKey[]
+	gpgKeys?: GPGKey[]
+	profileUsername: string
+}) {
 	const router = useRouter()
+
+	// Every key on a profile page belongs to that profile by construction, so the badge is
+	// stamped here rather than relying on the search-time lookup.
+	const withOwner = <T extends SSHKey | GPGKey>(key: T): T =>
+		key.source ? { ...key, source: { ...key.source, profile_username: profileUsername } } : key
 
 	const handleSearchClick = (query: string, field: SearchField) => {
 		router.push(`/explore/${query}?fields=${field}`)
@@ -20,7 +33,7 @@ export function ProfileKeyList({ sshKeys, gpgKeys }: { sshKeys?: SSHKey[]; gpgKe
 	return (
 		<div className="space-y-4">
 			{sshKeys?.map((sshKey) => (
-				<SSHKeyCard key={sshKey.id} onSearchClick={handleSearchClick} sshKey={sshKey} />
+				<SSHKeyCard key={sshKey.id} onSearchClick={handleSearchClick} sshKey={withOwner(sshKey)} />
 			))}
 			{gpgKeys?.map((gpgKey) => (
 				<GPGKeyCard gpgKey={gpgKey} key={gpgKey.id} />
