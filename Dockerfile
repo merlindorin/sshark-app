@@ -6,8 +6,12 @@ WORKDIR /app
 # Build args for Clerk (needed for static generation)
 ARG NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
 ARG CLERK_SECRET_KEY
+# Baked in at build time: NEXT_PUBLIC_* values are inlined into the bundle, so this cannot be
+# supplied at run time. Empty for local builds, which simply omit the hash from the footer.
+ARG NEXT_PUBLIC_COMMIT_SHA=""
 ENV NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=$NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
 ENV CLERK_SECRET_KEY=$CLERK_SECRET_KEY
+ENV NEXT_PUBLIC_COMMIT_SHA=$NEXT_PUBLIC_COMMIT_SHA
 
 # Copy package files
 COPY package.json package-lock.json ./

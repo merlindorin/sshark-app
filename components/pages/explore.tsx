@@ -87,6 +87,25 @@ const searchSuggestions: SearchSuggestion[] = [
 
 const formatCount = (value: number) => value.toLocaleString("en-US")
 
+const NANOSECONDS_PER_MS = 1_000_000
+const MS_PER_SECOND = 1000
+
+/**
+ * Renders how long the search took. The API reports nanoseconds; a sub-millisecond result
+ * still deserves a number rather than rounding to a bare "0ms".
+ */
+function formatDuration(nanoseconds: number): string {
+	const milliseconds = nanoseconds / NANOSECONDS_PER_MS
+
+	if (milliseconds >= MS_PER_SECOND) {
+		return `${(milliseconds / MS_PER_SECOND).toFixed(2)}s`
+	}
+	if (milliseconds < 1) {
+		return `${milliseconds.toFixed(2)}ms`
+	}
+	return `${Math.round(milliseconds)}ms`
+}
+
 type PageItem = number | "ellipsis-start" | "ellipsis-end"
 
 function generatePageNumbers(current: number, total: number): PageItem[] {
@@ -250,6 +269,7 @@ export default function Explore({
 		return data.entities
 	}, [data])
 
+	const searchDuration = data?.duration
 	const totalResults = data?.total || 0
 	const totalPages = Math.ceil(totalResults / resultsPerPage)
 	const startResult = (currentPage - 1) * resultsPerPage + 1
@@ -305,6 +325,12 @@ export default function Explore({
 						Showing <span className="font-medium tabular-nums">{formatCount(startResult)}</span> to{" "}
 						<span className="font-medium tabular-nums">{formatCount(endResult)}</span> of{" "}
 						<span className="font-medium tabular-nums">{formatCount(totalResults)}</span> results
+						{searchDuration !== undefined && (
+							<>
+								{" in "}
+								<span className="font-medium tabular-nums">{formatDuration(searchDuration)}</span>
+							</>
+						)}
 					</p>
 
 					<div className="flex flex-wrap items-center justify-center gap-1">

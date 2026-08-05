@@ -12,6 +12,7 @@ import QueryProvider from "@/components/providers/query-provider"
 import ThemeProvider from "@/components/providers/theme-provider"
 import { Navbar } from "@/components/templates/navbar/navbar"
 import { Toaster } from "@/components/ui/sonner"
+import { commitShortSha } from "@/lib/build-info"
 
 const _geist = Geist({ subsets: ["latin"] })
 const _geistMono = Geist_Mono({ subsets: ["latin"] })
@@ -42,6 +43,8 @@ export const metadata: Metadata = {
 }
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+	const commitSha = commitShortSha()
+
 	return (
 		<ClerkProvider>
 			<html lang="en" suppressHydrationWarning>
@@ -111,6 +114,16 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
 														title="SSHark - Search Public SSH Keys">
 														SSHark
 													</a>{" "}
+													{commitSha && (
+														<>
+															<span
+																aria-label={`Build ${commitSha}`}
+																className="font-mono text-sm"
+																title={`Built from commit ${commitSha}`}>
+																#{commitSha}
+															</span>{" "}
+														</>
+													)}
 													<span aria-label="Disclaimer">• Free SSH key lookup, forever</span>
 												</p>
 												<p className="text-base">
@@ -124,8 +137,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
 														title="Merlindorin - Software Engineer">
 														Merlindorin
 													</a>{" "}
-													<span aria-hidden="true">·</span>{" "}
-													<span>See also</span>{" "}
+													<span aria-hidden="true">·</span> <span>See also</span>{" "}
 													<a
 														aria-label="OpenOtters - OCI-style build and runtime for AI agents (opens in new tab)"
 														className="font-medium text-foreground transition-all hover:text-primary hover:underline"
