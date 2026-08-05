@@ -15,21 +15,25 @@ import {
 import { useRouter } from "next/navigation"
 import type React from "react"
 import { useMemo } from "react"
+import { GPGKeyCard } from "@/components/organisms/gpg-key-card"
+import { KeySearch, type ResultsPerPage, type SearchField } from "@/components/organisms/key-search"
 import { SSHKeyCard } from "@/components/organisms/ssh-key-card"
-import { type ResultsPerPage, type SearchField, SSHKeySearch } from "@/components/organisms/ssh-key-search"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
-import type { SSHKey } from "@/hooks/use-ssh-keys"
-import { useSshKeys } from "@/hooks/use-ssh-keys"
+import type { GPGKey, SSHKey } from "@/hooks/use-keys"
+import { useKeys } from "@/hooks/use-keys"
+import { DEFAULT_KEY_TYPE, type KeyType, type SSHSearchField } from "@/lib/key-search-config"
 import { cn } from "@/lib/utils"
 
 interface ExploreProps {
+	keyType: KeyType
 	query: string
 	searchQuery: string
 	selectedFields: SearchField[]
 	isAdvancedSearch: boolean
 	resultsPerPage: ResultsPerPage
 	currentPage: number
+	onKeyTypeChange: (keyType: KeyType) => void
 	onQueryChange: (query: string) => void
 	onSelectedFieldsChange: (fields: SearchField[]) => void
 	onAdvancedSearchChange: (isAdvanced: boolean) => void
@@ -41,9 +45,10 @@ interface ExploreProps {
 interface SearchSuggestion {
 	label: string
 	query: string
-	fields?: SearchField[]
+	fields?: SSHSearchField[]
 	isAdvanced?: boolean
 	icon: React.ReactNode
+	keyType?: KeyType
 }
 
 const searchSuggestions: SearchSuggestion[] = [
@@ -52,24 +57,28 @@ const searchSuggestions: SearchSuggestion[] = [
 		query: "github",
 		fields: ["source.provider"],
 		icon: <Github className="h-5 w-5" />,
+		keyType: "ssh",
 	},
 	{
 		label: "GitLab keys",
 		query: "gitlab",
 		fields: ["source.provider"],
 		icon: <Server className="h-5 w-5" />,
+		keyType: "ssh",
 	},
 	{
 		label: "RSA keys",
 		query: "ssh-rsa",
 		fields: ["algorithm"],
 		icon: <Shield className="h-5 w-5" />,
+		keyType: "ssh",
 	},
 	{
 		label: "ED25519 keys",
 		query: "ssh-ed25519",
 		fields: ["algorithm"],
 		icon: <Key className="h-5 w-5" />,
+		keyType: "ssh",
 	},
 	{
 		label: "Search by username",
@@ -82,6 +91,7 @@ const searchSuggestions: SearchSuggestion[] = [
 		query: "@algorithm:{ssh-rsa} & @source.provider:{github}",
 		isAdvanced: true,
 		icon: <Sparkles className="h-5 w-5" />,
+		keyType: "ssh",
 	},
 ]
 
@@ -148,25 +158,30 @@ function SearchSkeleton({ count }: { count: number }) {
 }
 
 function EmptyResults({
+	keyType,
 	hasSearchQuery,
 	onSuggestionClick,
 }: {
+	keyType: KeyType
 	hasSearchQuery: boolean
 	onSuggestionClick: (suggestion: SearchSuggestion) => void
 }) {
+	const keyTypeLabel = keyType === "ssh" ? "SSH keys" : "GPG keys"
+	const filteredSuggestions = searchSuggestions.filter((s) => !s.keyType || s.keyType === keyType)
+
 	return (
 		<div className="mt-8 rounded-lg border border-border border-dashed">
 			<div className="flex flex-col items-center gap-6 p-8 text-center">
 				<div className="flex flex-col items-center gap-2">
 					<Key className="h-10 w-10 text-muted-foreground" />
 					<p className="font-medium text-foreground text-lg">
-						{hasSearchQuery ? "No SSH keys found" : "Start searching for SSH keys"}
+						{hasSearchQuery ? `No ${keyTypeLabel} found` : `Start searching for ${keyTypeLabel}`}
 					</p>
 					<p className="text-muted-foreground text-sm">Try one of these search suggestions</p>
 				</div>
 
 				<div className="grid w-full max-w-2xl grid-cols-2 gap-3 sm:grid-cols-3">
-					{searchSuggestions.map((suggestion) => (
+					{filteredSuggestions.map((suggestion) => (
 						<button
 							className="flex flex-col items-center gap-2 rounded-lg border border-border bg-background p-4 text-center transition-colors hover:border-primary hover:bg-muted/50"
 							key={suggestion.label}
@@ -185,28 +200,30 @@ function EmptyResults({
 }
 
 function ExploreResults({
-	sshKeys,
+	keyType,
+	keys,
 	isSearching,
 	hasSearchQuery,
 	resultsPerPage,
 	onSearchClick,
 	onSuggestionClick,
 }: {
-	sshKeys: SSHKey[]
+	keyType: KeyType
+	keys: (SSHKey | GPGKey)[]
 	isSearching: boolean
 	hasSearchQuery: boolean
 	resultsPerPage: ResultsPerPage
-	onSearchClick: (query: string, field: SearchField) => void
+	onSearchClick: (query: string, field: SSHSearchField) => void
 	onSuggestionClick: (suggestion: SearchSuggestion) => void
 }) {
 	// With nothing to show yet, the empty state would claim there are no keys while the search
 	// is still running. Placeholders say "working on it" instead.
-	if (isSearching && sshKeys.length === 0) {
+	if (isSearching && keys.length === 0) {
 		return <SearchSkeleton count={Math.min(SKELETON_CARDS, resultsPerPage)} />
 	}
 
-	if (sshKeys.length === 0) {
-		return <EmptyResults hasSearchQuery={hasSearchQuery} onSuggestionClick={onSuggestionClick} />
+	if (keys.length === 0) {
+		return <EmptyResults hasSearchQuery={hasSearchQuery} keyType={keyType} onSuggestionClick={onSuggestionClick} />
 	}
 
 	// Previous results stay on screen while the next search runs, so fade them to make clear
@@ -218,20 +235,26 @@ function ExploreResults({
 				"mt-8 space-y-4 transition-opacity duration-200",
 				isSearching && "pointer-events-none opacity-50",
 			)}>
-			{sshKeys.map((sshKey) => (
-				<SSHKeyCard key={sshKey.id} onSearchClick={onSearchClick} sshKey={sshKey} />
-			))}
+			{keys.map((key) =>
+				keyType === "ssh" ? (
+					<SSHKeyCard key={key.id} onSearchClick={onSearchClick} sshKey={key as SSHKey} />
+				) : (
+					<GPGKeyCard gpgKey={key as GPGKey} key={key.id} />
+				),
+			)}
 		</div>
 	)
 }
 
 export default function Explore({
+	keyType,
 	query,
 	searchQuery,
 	selectedFields,
 	isAdvancedSearch,
 	resultsPerPage,
 	currentPage,
+	onKeyTypeChange,
 	onQueryChange,
 	onSelectedFieldsChange,
 	onAdvancedSearchChange,
@@ -243,7 +266,8 @@ export default function Explore({
 
 	// Landing on /explore with no term browses the whole index rather than showing an empty
 	// page. The API orders every search by created_at descending, so that is newest first.
-	const { data, isFetching, error } = useSshKeys({
+	const { data, isFetching, error } = useKeys({
+		keyType,
 		search: searchQuery,
 		limit: resultsPerPage,
 		offset: currentPage - 1,
@@ -262,7 +286,7 @@ export default function Explore({
 		return "Something went wrong while searching. Please try again."
 	}, [error])
 
-	const sshKeys = useMemo(() => {
+	const keys = useMemo(() => {
 		if (!data?.entities) {
 			return []
 		}
@@ -275,12 +299,16 @@ export default function Explore({
 	const startResult = (currentPage - 1) * resultsPerPage + 1
 	const endResult = Math.min(currentPage * resultsPerPage, totalResults)
 
-	const handleSearchClick = (searchQuery: string, field: SearchField) => {
+	const handleSearchClick = (searchQuery: string, field: SSHSearchField) => {
 		router.push(`/explore/${searchQuery}?fields=${field}`)
 	}
 
 	const handleSuggestionClick = (suggestion: SearchSuggestion) => {
 		const urlParams = new URLSearchParams()
+
+		if (suggestion.keyType && suggestion.keyType !== DEFAULT_KEY_TYPE) {
+			urlParams.set("type", suggestion.keyType)
+		}
 
 		if (suggestion.isAdvanced) {
 			urlParams.set("advanced", "true")
@@ -296,10 +324,12 @@ export default function Explore({
 
 	return (
 		<div className="px-4 py-8">
-			<SSHKeySearch
+			<KeySearch
 				isAdvancedSearch={isAdvancedSearch}
 				isSearching={isFetching}
+				keyType={keyType}
 				onAdvancedSearchChange={onAdvancedSearchChange}
+				onKeyTypeChange={onKeyTypeChange}
 				onQueryChange={onQueryChange}
 				onResultsPerPageChange={onResultsPerPageChange}
 				onSearch={onSearch}
@@ -313,10 +343,11 @@ export default function Explore({
 			<ExploreResults
 				hasSearchQuery={Boolean(searchQuery)}
 				isSearching={isFetching}
+				keys={keys}
+				keyType={keyType}
 				onSearchClick={handleSearchClick}
 				onSuggestionClick={handleSuggestionClick}
 				resultsPerPage={resultsPerPage}
-				sshKeys={sshKeys}
 			/>
 
 			{totalResults > 0 && (

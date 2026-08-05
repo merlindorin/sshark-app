@@ -4,21 +4,33 @@ import { useParams, useRouter, useSearchParams } from "next/navigation"
 import { useCallback, useEffect, useMemo, useState } from "react"
 import Explore from "@/components/pages/explore"
 import {
-	DEFAULT_FIELDS,
+	DEFAULT_KEY_TYPE,
 	DEFAULT_RESULTS_PER_PAGE,
+	getDefaultFieldsForKeyType,
+	getSearchFieldsForKeyType,
+	type KeyType,
 	RESULTS_PER_PAGE_OPTIONS,
 	type ResultsPerPage,
-	SEARCH_FIELDS,
 	type SearchField,
-} from "@/lib/ssh-key-search-config"
+} from "@/lib/key-search-config"
 import { resolveSearchInput } from "@/lib/ssh-public-key"
 
-function parseFields(fieldsParam: string | null): SearchField[] {
-	if (!fieldsParam) {
-		return DEFAULT_FIELDS
+function parseKeyType(typeParam: string | null): KeyType {
+	if (typeParam === "ssh" || typeParam === "gpg") {
+		return typeParam
 	}
-	const fields = fieldsParam.split(",").filter((f): f is SearchField => SEARCH_FIELDS.some((sf) => sf.id === f))
-	return fields.length > 0 ? fields : DEFAULT_FIELDS
+	return DEFAULT_KEY_TYPE
+}
+
+function parseFields(fieldsParam: string | null, keyType: KeyType): SearchField[] {
+	const defaultFields = getDefaultFieldsForKeyType(keyType)
+	const searchFields = getSearchFieldsForKeyType(keyType)
+
+	if (!fieldsParam) {
+		return defaultFields
+	}
+	const fields = fieldsParam.split(",").filter((f): f is SearchField => searchFields.some((sf) => sf.id === f))
+	return fields.length > 0 ? fields : defaultFields
 }
 
 function parseResultsPerPage(limitParam: string | null): ResultsPerPage {
@@ -56,8 +68,11 @@ export default function ExplorePage() {
 		return decodeURIComponent(params.query.join("/"))
 	}, [params.query])
 
+	const [localKeyType, setLocalKeyType] = useState<KeyType>(() => parseKeyType(searchParams.get("type")))
 	const [localQuery, setLocalQuery] = useState(urlQuery)
-	const [localFields, setLocalFields] = useState<SearchField[]>(() => parseFields(searchParams.get("fields")))
+	const [localFields, setLocalFields] = useState<SearchField[]>(() =>
+		parseFields(searchParams.get("fields"), localKeyType),
+	)
 	const [localAdvanced, setLocalAdvanced] = useState(() => parseAdvanced(searchParams.get("advanced")))
 	const [localResultsPerPage, setLocalResultsPerPage] = useState<ResultsPerPage>(() =>
 		parseResultsPerPage(searchParams.get("limit")),
@@ -70,16 +85,30 @@ export default function ExplorePage() {
 	}, [urlQuery])
 
 	useEffect(() => {
+		const newKeyType = parseKeyType(searchParams.get("type"))
+		setLocalKeyType(newKeyType)
 		setLocalAdvanced(parseAdvanced(searchParams.get("advanced")))
-		setLocalFields(parseFields(searchParams.get("fields")))
+		setLocalFields(parseFields(searchParams.get("fields"), newKeyType))
 		setLocalResultsPerPage(parseResultsPerPage(searchParams.get("limit")))
 	}, [searchParams])
 
 	const updateUrl = useCallback(
-		(newQuery: string, newFields: SearchField[], newAdvanced: boolean, newLimit: ResultsPerPage, page = 1) => {
+		(
+			newKeyType: KeyType,
+			newQuery: string,
+			newFields: SearchField[],
+			newAdvanced: boolean,
+			newLimit: ResultsPerPage,
+			page = 1,
+		) => {
 			const urlParams = new URLSearchParams()
 
-			const fieldsChanged = JSON.stringify([...newFields].sort()) !== JSON.stringify([...DEFAULT_FIELDS].sort())
+			if (newKeyType !== DEFAULT_KEY_TYPE) {
+				urlParams.set("type", newKeyType)
+			}
+
+			const defaultFields = getDefaultFieldsForKeyType(newKeyType)
+			const fieldsChanged = JSON.stringify([...newFields].sort()) !== JSON.stringify([...defaultFields].sort())
 			if (fieldsChanged) {
 				urlParams.set("fields", newFields.join(","))
 			}
@@ -106,29 +135,45 @@ export default function ExplorePage() {
 	)
 
 	const handleSearch = useCallback(async () => {
-		// A pasted public key is resolved to a fingerprint lookup before it hits the URL.
-		const resolved = await resolveSearchInput(localQuery, localAdvanced)
+		// A pasted public key is resolved to a fingerprint lookup before it hits the URL (SSH only).
+		const resolved =
+			localKeyType === "ssh"
+				? await resolveSearchInput(localQuery, localAdvanced)
+				: { query: localQuery, isAdvanced: localAdvanced }
 
 		if (resolved.fingerprint) {
 			setLocalQuery(resolved.query)
 			setLocalAdvanced(true)
 		}
 
-		updateUrl(resolved.query, localFields, resolved.isAdvanced, localResultsPerPage, 1)
-	}, [localQuery, localFields, localAdvanced, localResultsPerPage, updateUrl])
+		updateUrl(localKeyType, resolved.query, localFields, resolved.isAdvanced, localResultsPerPage, 1)
+	}, [localKeyType, localQuery, localFields, localAdvanced, localResultsPerPage, updateUrl])
 
 	const handlePageChange = useCallback(
 		(page: number) => {
-			updateUrl(localQuery, localFields, localAdvanced, localResultsPerPage, page)
+			updateUrl(localKeyType, localQuery, localFields, localAdvanced, localResultsPerPage, page)
 		},
-		[localQuery, localFields, localAdvanced, localResultsPerPage, updateUrl],
+		[localKeyType, localQuery, localFields, localAdvanced, localResultsPerPage, updateUrl],
+	)
+
+	const handleKeyTypeChange = useCallback(
+		(newKeyType: KeyType) => {
+			// Reset fields to defaults for the new key type
+			const newDefaultFields = getDefaultFieldsForKeyType(newKeyType)
+			setLocalKeyType(newKeyType)
+			setLocalFields(newDefaultFields)
+			updateUrl(newKeyType, localQuery, newDefaultFields, localAdvanced, localResultsPerPage, 1)
+		},
+		[localQuery, localAdvanced, localResultsPerPage, updateUrl],
 	)
 
 	return (
 		<Explore
 			currentPage={currentPage}
 			isAdvancedSearch={localAdvanced}
+			keyType={localKeyType}
 			onAdvancedSearchChange={setLocalAdvanced}
+			onKeyTypeChange={handleKeyTypeChange}
 			onPageChange={handlePageChange}
 			onQueryChange={setLocalQuery}
 			onResultsPerPageChange={setLocalResultsPerPage}
