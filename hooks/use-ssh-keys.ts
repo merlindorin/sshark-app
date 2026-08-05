@@ -41,7 +41,6 @@ interface FetchSSHKeysOptions {
 	offset?: number
 	fields?: string[]
 	advanced?: boolean
-	timeout?: number
 }
 
 const fetchSSHKeys = async ({
@@ -50,7 +49,6 @@ const fetchSSHKeys = async ({
 	offset = 0,
 	fields,
 	advanced,
-	timeout = 500,
 }: FetchSSHKeysOptions): Promise<SearchResponse> => {
 	const params = new URLSearchParams()
 
@@ -67,20 +65,17 @@ const fetchSSHKeys = async ({
 		params.set("fields", fields.join(","))
 	}
 
-	const response = fetch(`/api/v1/ssh/search?${params.toString()}`)
-	const wait = new Promise((resolve) => {
-		setTimeout(resolve, timeout)
-	})
+	// No artificial floor on how fast this can return. There used to be a 500ms wait here to
+	// keep the spinner from flashing; the search now has a skeleton state that handles that,
+	// so the wait only made every search half a second slower than it had to be.
+	const response = await fetch(`/api/v1/ssh/search?${params.toString()}`)
+	const payload = await response.json()
 
-	return await Promise.all([wait, response])
-		.then((v) => Promise.all([v[1], v[1].json()]))
-		.then((v) => {
-			if (v[0].status !== 200) {
-				throw v[1]
-			}
+	if (response.status !== 200) {
+		throw payload
+	}
 
-			return v[1]
-		})
+	return payload
 }
 
 interface UseSSHKeysOptions {
