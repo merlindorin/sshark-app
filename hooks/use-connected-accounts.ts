@@ -17,7 +17,18 @@ type OAuthStrategy = Parameters<ClerkUser["createExternalAccount"]>[0]["strategy
  * be a dead end, and a provider SSHark scrapes but Clerk has not enabled surfaces a clear error
  * when connecting instead of silently disappearing.
  */
-const SUPPORTED_PROVIDERS = [
+interface SupportedProvider {
+	provider: string
+	strategy: string
+	label: string
+	/**
+	 * Scopes beyond the sign-in grant. Left undefined when none are needed — an empty array is
+	 * not the same thing to Clerk, which forwards the value into the provider's authorize URL.
+	 */
+	additionalScopes?: readonly string[]
+}
+
+const SUPPORTED_PROVIDERS: readonly SupportedProvider[] = [
 	{
 		provider: "github",
 		strategy: "oauth_github",
@@ -32,11 +43,10 @@ const SUPPORTED_PROVIDERS = [
 		provider: "gitlab",
 		strategy: "oauth_gitlab",
 		label: "GitLab",
-		additionalScopes: [],
+		// SShark reads GitLab keys from the public API and cannot revoke them, so the default
+		// grant is enough and no additional scope is requested.
 	},
-] as const
-
-type SupportedProvider = (typeof SUPPORTED_PROVIDERS)[number]
+]
 
 interface ConnectedAccount {
 	id: string
@@ -89,6 +99,23 @@ function clerkErrorMessage(error: unknown, fallback: string): string {
 		return error.message
 	}
 	return fallback
+}
+
+/**
+ * Builds the parameters for linking a provider.
+ *
+ * additionalScopes is omitted rather than sent as an empty array: Clerk forwards the value into
+ * the provider's authorize URL, and an empty `additional_scope` is not the same as asking for
+ * nothing extra — GitLab rejects the round trip, which surfaces as "You did not grant access to
+ * your account".
+ */
+function linkParams(candidate: SupportedProvider, redirectUrl: string) {
+	const scopes = candidate.additionalScopes
+	if (!scopes || scopes.length === 0) {
+		return { strategy: candidate.strategy as OAuthStrategy, redirectUrl }
+	}
+
+	return { strategy: candidate.strategy as OAuthStrategy, redirectUrl, additionalScopes: [...scopes] }
 }
 
 /**
@@ -152,11 +179,9 @@ function useConnectedAccounts() {
 			setPendingProvider(candidate.provider)
 
 			try {
-				const externalAccount = await user.createExternalAccount({
-					strategy: candidate.strategy as OAuthStrategy,
-					redirectUrl: `${window.location.origin}/profile`,
-					additionalScopes: [...candidate.additionalScopes],
-				})
+				const externalAccount = await user.createExternalAccount(
+					linkParams(candidate, `${window.location.origin}/profile`),
+				)
 
 				const redirectUrl = externalAccount.verification?.externalVerificationRedirectURL
 				if (!redirectUrl) {
@@ -194,10 +219,11 @@ function useConnectedAccounts() {
 		setPendingProvider(account.provider)
 
 		try {
-			const reauthorized = await account.resource.reauthorize({
-				redirectUrl: `${window.location.origin}/profile`,
-				additionalScopes: [...candidate.additionalScopes],
-			})
+			const { strategy: _strategy, ...reauthorizeParams } = linkParams(
+				candidate,
+				`${window.location.origin}/profile`,
+			)
+			const reauthorized = await account.resource.reauthorize(reauthorizeParams)
 
 			const redirectUrl = reauthorized.verification?.externalVerificationRedirectURL
 			if (!redirectUrl) {
