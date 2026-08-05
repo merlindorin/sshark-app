@@ -1,6 +1,6 @@
 ---
 title: Quickstart
-description: Learn how to search and query SSH keys effectively.
+description: Learn how to search and query SSH and GPG keys effectively.
 ---
 
 First off, thank you for using `sshark.app`
@@ -20,11 +20,14 @@ Use field prefixes with curly braces to search specific attributes:
 
 - `@source.username:{merlindorin}` — Search by username
 - `@fingerprint:{SHA256:abc*}` — Reverse lookup by fingerprint
-- `@comment:{work}` — Search in key comments
+- `@comment:{work}` — Search in SSH key comments
+- `@user_ids:{email@example.com}` — Search GPG key user IDs
 
 ## Available Fields
 
 All fields are **tag fields** and use curly brace syntax:
+
+### SSH Key Fields
 
 | Field | Description |
 |-------|-------------|
@@ -33,6 +36,21 @@ All fields are **tag fields** and use curly brace syntax:
 | `@algorithm` | ssh-rsa, ssh-ed25519, ecdsa-sha2-nistp256 |
 | `@comment` | Key comment |
 | `@key_bits` | Key size in bits |
+| `@source.username` | Owner username |
+| `@source.provider` | Platform: github, gitlab, etc. |
+| `@source.user_id` | Provider user ID |
+| `@source.uri` | Source URL |
+
+### GPG Key Fields
+
+| Field | Description |
+|-------|-------------|
+| `@id` | Key identifier (UUID) |
+| `@fingerprint` | Key fingerprint |
+| `@algorithm` | RSA, DSA, ECDSA, EdDSA |
+| `@key_bits` | Key size in bits |
+| `@user_ids` | User IDs (email/name) |
+| `@capabilities` | Key capabilities (sign, cert, encrypt, auth) |
 | `@source.username` | Owner username |
 | `@source.provider` | Platform: github, gitlab, etc. |
 | `@source.user_id` | Provider user ID |

@@ -1,42 +1,77 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [
-`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# SSHark Web Application
+
+> Modern web interface for searching SSH and GPG public keys. Built with Next.js 16, React 19, and Tailwind CSS 4.
+
+## Features
+
+- Real-time SSH and GPG key search
+- Advanced query syntax with field filtering
+- Responsive design with shadcn/ui components
+- Type-safe API integration with TanStack Query
+- Component library via Storybook
+
+## Requirements
+
+- Node.js 20+
+- Running SSHark API backend (see `../api/README.md`)
 
 ## Getting Started
 
-First, run the development server:
+Install dependencies:
+
+```bash
+npm install
+```
+
+Run the development server:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) to view the application.
 
-You can start editing the page by modifying `app/home.tsx`. The page auto-updates as you edit the file.
+## Development
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically
-optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Available Commands
 
-## Learn More
+- `npm run dev` - Start development server (port 3000)
+- `npm run build` - Build for production
+- `npm run storybook` - Launch component library (port 6006)
+- `npm run lint` - Run Biome linter
 
-To learn more about Next.js, take a look at the following resources:
+### Code Quality
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+This project uses Biome for linting and formatting:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions
-are welcome!
+- Tab indentation (4 spaces equivalent)
+- Line width: 120 characters
+- Strict TypeScript mode
 
-## Deploy on Vercel
+Run checks before committing:
 
-The easiest way to deploy your Next.js app is to use
-the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme)
-from the creators of Next.js.
+```bash
+npm run lint
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for
-more details.
+Husky pre-commit hooks will automatically run Biome checks.
+
+## Architecture
+
+The application follows Atomic Design principles:
+
+- `components/atoms/` - Basic building blocks (Logo, buttons)
+- `components/molecules/` - Composed components (SearchBox, Pills)
+- `components/templates/` - Layout components (Navbar, Footer)
+- `components/pages/` - Full page components
+- `components/providers/` - React contexts (Query, Theme)
+- `components/ui/` - shadcn/ui components (new-york style)
+
+## Technology Stack
+
+- **Framework**: Next.js 16 with App Router
+- **UI**: React 19, TypeScript 5, Tailwind CSS 4
+- **Components**: shadcn/ui (new-york style), Radix UI primitives
+- **Data Fetching**: TanStack Query v5
+- **Documentation**: Fumadocs (MDX-based)
+- **Component Development**: Storybook 10
