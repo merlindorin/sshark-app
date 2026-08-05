@@ -1,5 +1,6 @@
 import { useAuth } from "@clerk/nextjs"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import { apiJson, apiVoid, authHeaders } from "@/lib/api-client"
 
 interface ApiKey {
 	object: "api_key"
@@ -41,53 +42,25 @@ type GetTokenFn = () => Promise<string | null>
 const fetchApiKeys = (getToken: GetTokenFn) => {
 	return async (): Promise<ApiKeysResponse> => {
 		const token = await getToken()
-		const response = await fetch("/api/v1/me/apikeys", {
-			headers: {
-				Authorization: `Bearer ${token}`,
-			},
-		})
-
-		if (response.status !== 200) {
-			throw await response.json()
-		}
-
-		return response.json()
+		return apiJson<ApiKeysResponse>("/api/v1/me/apikeys", 200, { headers: authHeaders(token) })
 	}
 }
 
 const createApiKey = (getToken: GetTokenFn) => {
 	return async (request: CreateApiKeyRequest): Promise<ApiKeyWithSecret> => {
 		const token = await getToken()
-		const response = await fetch("/api/v1/me/apikeys", {
+		return apiJson<ApiKeyWithSecret>("/api/v1/me/apikeys", 201, {
 			method: "POST",
-			headers: {
-				Authorization: `Bearer ${token}`,
-				"Content-Type": "application/json",
-			},
+			headers: authHeaders(token, { "Content-Type": "application/json" }),
 			body: JSON.stringify(request),
 		})
-
-		if (response.status !== 201) {
-			throw await response.json()
-		}
-
-		return response.json()
 	}
 }
 
 const deleteApiKey = (getToken: GetTokenFn) => {
 	return async (id: string): Promise<void> => {
 		const token = await getToken()
-		const response = await fetch(`/api/v1/me/apikeys/${id}`, {
-			method: "DELETE",
-			headers: {
-				Authorization: `Bearer ${token}`,
-			},
-		})
-
-		if (response.status !== 204) {
-			throw await response.json()
-		}
+		await apiVoid(`/api/v1/me/apikeys/${id}`, 204, { method: "DELETE", headers: authHeaders(token) })
 	}
 }
 

@@ -1,5 +1,6 @@
 import { useAuth } from "@clerk/nextjs"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import { apiJson, apiVoid, authHeaders } from "@/lib/api-client"
 
 interface KeySource {
 	id?: string
@@ -56,51 +57,29 @@ const MY_KEYS_QUERY_KEY = ["me", "keys"] as const
 const fetchMyKeys = (getToken: GetTokenFn) => {
 	return async (): Promise<MyKeysResponse> => {
 		const token = await getToken()
-		const response = await fetch("/api/v1/me/keys", {
-			headers: {
-				Authorization: `Bearer ${token}`,
-			},
+		return apiJson<MyKeysResponse>("/api/v1/me/keys", 200, {
+			headers: authHeaders(token),
 		})
-
-		if (response.status !== 200) {
-			throw await response.json()
-		}
-
-		return response.json()
 	}
 }
 
 const refreshMyKeys = (getToken: GetTokenFn) => {
 	return async (): Promise<MyKeysResponse> => {
 		const token = await getToken()
-		const response = await fetch("/api/v1/me/keys/refresh", {
+		return apiJson<MyKeysResponse>("/api/v1/me/keys/refresh", 200, {
 			method: "POST",
-			headers: {
-				Authorization: `Bearer ${token}`,
-			},
+			headers: authHeaders(token),
 		})
-
-		if (response.status !== 200) {
-			throw await response.json()
-		}
-
-		return response.json()
 	}
 }
 
 const revokeKey = (getToken: GetTokenFn) => {
 	return async (id: string): Promise<void> => {
 		const token = await getToken()
-		const response = await fetch(`/api/v1/me/keys/${id}`, {
+		await apiVoid(`/api/v1/me/keys/${id}`, 204, {
 			method: "DELETE",
-			headers: {
-				Authorization: `Bearer ${token}`,
-			},
+			headers: authHeaders(token),
 		})
-
-		if (response.status !== 204) {
-			throw await response.json()
-		}
 	}
 }
 

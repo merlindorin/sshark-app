@@ -23,19 +23,21 @@ import {
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { clerkErrorMessage } from "@/hooks/use-connected-accounts"
-import { useDeleteProfile } from "@/hooks/use-me"
+import { useDeleteProfile, useMe } from "@/hooks/use-me"
+import { apiErrorMessage } from "@/lib/api-client"
 
 /**
- * Typing this is the deliberate step between "clicked delete" and a gone account. Kept to one
- * short word: a longer phrase reads as a sentence in the label, and people type the first word
- * then wonder why nothing happens.
+ * Deleting asks for your own username, the way GitHub does. It is the one string that cannot
+ * be typed out of muscle memory, so it makes the step deliberate without being a riddle.
  */
-const CONFIRMATION_PHRASE = "delete"
+function confirmationFor(username: string | undefined): string {
+	return username ?? ""
+}
 
 export function DeleteAccountSection() {
 	const { user, isLoaded } = useUser()
 	const { signOut } = useClerk()
+	const { data: me } = useMe()
 	const { mutateAsync: releaseProfile } = useDeleteProfile()
 	const [open, setOpen] = useState(false)
 	const [confirmation, setConfirmation] = useState("")
@@ -50,7 +52,10 @@ export function DeleteAccountSection() {
 		setConfirmation("")
 	}
 
-	const canConfirm = confirmation.trim().toLowerCase() === CONFIRMATION_PHRASE
+	const expected = confirmationFor(me?.username)
+	// Without a username loaded there is nothing to match, so deletion stays closed rather than
+	// opening on an empty string.
+	const canConfirm = expected.length > 0 && confirmation.trim().toLowerCase() === expected.toLowerCase()
 
 	const handleDelete = async () => {
 		setIsDeleting(true)
@@ -66,7 +71,7 @@ export function DeleteAccountSection() {
 		} catch (error) {
 			setIsDeleting(false)
 			toast.error("Could not delete your account", {
-				description: clerkErrorMessage(error, "Please try again."),
+				description: apiErrorMessage(error, "Please try again."),
 			})
 		}
 	}
@@ -113,9 +118,9 @@ export function DeleteAccountSection() {
 						</DialogHeader>
 						<div className="grid gap-2 py-2">
 							<Label htmlFor="delete-confirmation">
-								Type{" "}
+								Type your username{" "}
 								<code className="rounded bg-muted px-1.5 py-0.5 font-mono text-foreground">
-									{CONFIRMATION_PHRASE}
+									{expected || "…"}
 								</code>{" "}
 								to confirm
 							</Label>
@@ -131,7 +136,7 @@ export function DeleteAccountSection() {
 							<p className="text-muted-foreground text-xs" id="delete-confirmation-hint">
 								{canConfirm
 									? "This cannot be undone."
-									: `Type "${CONFIRMATION_PHRASE}" above to enable the button.`}
+									: `Type "${expected}" above to enable the button.`}
 							</p>
 						</div>
 						<DialogFooter>

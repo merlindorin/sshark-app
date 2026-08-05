@@ -1,5 +1,6 @@
 import { useAuth } from "@clerk/nextjs"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import { apiJson, apiVoid, authHeaders } from "@/lib/api-client"
 
 interface Me {
 	id: string
@@ -31,17 +32,9 @@ const ME_QUERY_KEY = ["me"] as const
 const fetchMe = (getToken: GetTokenFn) => {
 	return async (): Promise<Me> => {
 		const token = await getToken()
-		const response = await fetch("/api/v1/me", {
-			headers: {
-				Authorization: `Bearer ${token}`,
-			},
+		return apiJson<Me>("/api/v1/me", 200, {
+			headers: authHeaders(token),
 		})
-
-		if (response.status !== 200) {
-			throw await response.json()
-		}
-
-		return response.json()
 	}
 }
 
@@ -49,53 +42,30 @@ const checkUsername = (getToken: GetTokenFn) => {
 	return async (username: string): Promise<UsernameAvailability> => {
 		const token = await getToken()
 		const params = new URLSearchParams({ username })
-		const response = await fetch(`/api/v1/me/username/available?${params.toString()}`, {
-			headers: {
-				Authorization: `Bearer ${token}`,
-			},
+		return apiJson<UsernameAvailability>(`/api/v1/me/username/available?${params.toString()}`, 200, {
+			headers: authHeaders(token),
 		})
-
-		if (response.status !== 200) {
-			throw await response.json()
-		}
-
-		return response.json()
 	}
 }
 
 const setUsername = (getToken: GetTokenFn) => {
 	return async (username: string): Promise<MyProfile> => {
 		const token = await getToken()
-		const response = await fetch("/api/v1/me/username", {
+		return apiJson<MyProfile>("/api/v1/me/username", 200, {
 			method: "PUT",
-			headers: {
-				Authorization: `Bearer ${token}`,
-				"Content-Type": "application/json",
-			},
+			headers: authHeaders(token, { "Content-Type": "application/json" }),
 			body: JSON.stringify({ username }),
 		})
-
-		if (response.status !== 200) {
-			throw await response.json()
-		}
-
-		return response.json()
 	}
 }
 
 const deleteProfile = (getToken: GetTokenFn) => {
 	return async (): Promise<void> => {
 		const token = await getToken()
-		const response = await fetch("/api/v1/me/profile", {
+		await apiVoid("/api/v1/me/profile", 204, {
 			method: "DELETE",
-			headers: {
-				Authorization: `Bearer ${token}`,
-			},
+			headers: authHeaders(token),
 		})
-
-		if (response.status !== 204) {
-			throw await response.json()
-		}
 	}
 }
 
