@@ -39,7 +39,6 @@ import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { useSources } from "@/hooks/use-sources"
 import { getFacetCount, getFacetData, getFacetTotal, getFacetValueCount, useStats } from "@/hooks/use-stats"
-import { providerProfileUrl } from "@/lib/providers"
 import { resolveSearchInput } from "@/lib/ssh-public-key"
 import { cn } from "@/lib/utils"
 
@@ -379,6 +378,14 @@ function BrowseByAlgorithm() {
 	)
 }
 
+/**
+ * Where clicking a name goes. Everywhere else in the app a username runs a search, so a Latest
+ * Users card does the same rather than being the one place it means something else.
+ */
+function searchUrlFor(username: string): string {
+	return `/explore/${encodeURIComponent(username)}?fields=source.username`
+}
+
 function avatarFor(provider: string, username: string): string | undefined {
 	if (provider === "github") {
 		return `https://github.com/${username}.png`
@@ -420,19 +427,11 @@ function LatestUsers() {
 	return (
 		<PageSection>
 			<PageSectionSRTitle>Recently indexed users</PageSectionSRTitle>
-			<PageSectionHeader className="flex flex-wrap items-end justify-between gap-4">
-				<div>
-					<PageSectionTitle>Latest Users</PageSectionTitle>
-					<PageSectionParagraph>
-						The most recently indexed users. Click any card to see all of their public SSH and GPG keys.
-					</PageSectionParagraph>
-				</div>
-				<Button asChild className="shrink-0" variant="outline">
-					<Link href="/explore">
-						Browse all
-						<ArrowRight className="ml-2 h-4 w-4" />
-					</Link>
-				</Button>
+			<PageSectionHeader>
+				<PageSectionTitle>Latest Users</PageSectionTitle>
+				<PageSectionParagraph>
+					The most recently indexed users. Click any card to search their public SSH and GPG keys.
+				</PageSectionParagraph>
 			</PageSectionHeader>
 			<PageSectionContent>
 				<ul className="grid list-none grid-cols-1 gap-4 p-0 sm:grid-cols-2 lg:grid-cols-4">
@@ -440,10 +439,7 @@ function LatestUsers() {
 						const avatar = avatarFor(source.provider, source.username)
 						return (
 							<li key={source.id}>
-								<a
-									href={providerProfileUrl(source.provider, source.username) ?? "#"}
-									rel="noopener noreferrer"
-									target="_blank">
+								<Link href={searchUrlFor(source.username)}>
 									<Card className="cursor-pointer pt-0 transition-all hover:border-accent hover:shadow-md">
 										<CardContent className="relative aspect-16/10 overflow-hidden bg-[#F2F2F3] dark:bg-[#262529]">
 											{avatar ? (
@@ -486,11 +482,20 @@ function LatestUsers() {
 											</span>
 										</CardFooter>
 									</Card>
-								</a>
+								</Link>
 							</li>
 						)
 					})}
 				</ul>
+
+				<div className="mt-8 flex justify-center">
+					<Button asChild variant="outline">
+						<Link href="/explore">
+							Browse all
+							<ArrowRight className="ml-2 h-4 w-4" />
+						</Link>
+					</Button>
+				</div>
 			</PageSectionContent>
 		</PageSection>
 	)
