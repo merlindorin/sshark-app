@@ -43,8 +43,13 @@ const SUPPORTED_PROVIDERS: readonly SupportedProvider[] = [
 		provider: "gitlab",
 		strategy: "oauth_gitlab",
 		label: "GitLab",
-		// SShark reads GitLab keys from the public API and cannot revoke them, so the default
-		// grant is enough and no additional scope is requested.
+		/**
+		 * GitLab has no granular key scope: read_api cannot write, and `api` — full read/write
+		 * over every project, group and registry the user can reach — is the only scope that can
+		 * delete a key. It is a far broader grant than GitHub's admin:public_key, and it is
+		 * requested up front so revoking works without a second consent screen.
+		 */
+		additionalScopes: ["api"],
 	},
 ]
 

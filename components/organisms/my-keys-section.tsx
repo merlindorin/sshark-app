@@ -25,6 +25,8 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import type { ConnectedAccount, MyGPGKey, MySSHKey } from "@/hooks/use-my-keys"
 import { useMyKeys, useRefreshMyKeys, useRevokeKey } from "@/hooks/use-my-keys"
+import type { Task } from "@/hooks/use-tasks"
+import { isSettled, useReloadTasks, useTasks } from "@/hooks/use-tasks"
 
 /** A fingerprint is long and its tail is the distinctive part, so keep the tail readable. */
 const FINGERPRINT_HEAD = 24
@@ -81,10 +83,12 @@ function RevokeKeyDialog({
 	keyToRevoke,
 	keyLabel,
 	onClose,
+	onQueued,
 }: {
 	keyToRevoke: AnyKey | null
 	keyLabel: string
 	onClose: () => void
+	onQueued: () => void
 }) {
 	const { mutate: revoke, isPending } = useRevokeKey()
 
@@ -96,9 +100,7 @@ function RevokeKeyDialog({
 		revoke(keyToRevoke.id, {
 			onSuccess: () => {
 				onClose()
-				toast.success("Key revoked", {
-					description: `The ${keyLabel} key was deleted from ${keyToRevoke.source?.provider ?? "the provider"} and removed from SSHark.`,
-				})
+				onQueued()
 			},
 			onError: (error) => {
 				toast.error("Could not revoke key", {
@@ -132,7 +134,7 @@ function RevokeKeyDialog({
 						Cancel
 					</Button>
 					<Button disabled={isPending} onClick={handleRevoke} variant="destructive">
-						{isPending ? "Revoking..." : "Revoke key"}
+						{isPending ? "Queueing..." : "Revoke key"}
 					</Button>
 				</DialogFooter>
 			</DialogContent>
@@ -267,16 +269,21 @@ function gpgDetail(entry: AnyKey): string {
 
 export function MyKeysSection() {
 	const { data, isLoading } = useMyKeys()
-	const { mutate: refresh, isPending: isRefreshing } = useRefreshMyKeys()
+	const { mutate: refresh, isPending: isQueueing } = useRefreshMyKeys()
+	const { data: tasks } = useTasks()
+	const reloadTasks = useReloadTasks()
 	const [keyToRevoke, setKeyToRevoke] = useState<AnyKey | null>(null)
 	const [revokeLabel, setRevokeLabel] = useState("SSH")
 
+	// Progress is shown in the Activity panel, not here. This only needs to know whether work is
+	// already in flight, so the button does not invite a second click the API would ignore.
+	const hasRunningKeyTask = (tasks ?? []).some((task: Task) => !isSettled(task))
+	const isWorking = isQueueing || hasRunningKeyTask
+
 	const handleRefresh = () => {
 		refresh(undefined, {
-			onSuccess: (fresh) => {
-				toast.success("Keys refreshed", {
-					description: `${fresh.ssh_keys.length} SSH and ${fresh.gpg_keys.length} GPG keys are up to date.`,
-				})
+			onSuccess: () => {
+				reloadTasks()
 			},
 			onError: (error) => {
 				toast.error("Could not refresh keys", {
@@ -318,9 +325,9 @@ export function MyKeysSection() {
 				<AccountsSummary accounts={accounts} />
 
 				<div className="mb-6 flex items-center justify-end">
-					<Button disabled={isRefreshing} onClick={handleRefresh} size="sm" variant="outline">
-						<RefreshCw className={`mr-2 h-4 w-4 ${isRefreshing ? "animate-spin" : ""}`} />
-						{isRefreshing ? "Refreshing..." : "Refresh"}
+					<Button disabled={isWorking} onClick={handleRefresh} size="sm" variant="outline">
+						<RefreshCw className={`mr-2 h-4 w-4 ${isWorking ? "animate-spin" : ""}`} />
+						{isWorking ? "Working..." : "Refresh"}
 					</Button>
 				</div>
 
@@ -342,6 +349,7 @@ export function MyKeysSection() {
 					keyLabel={revokeLabel}
 					keyToRevoke={keyToRevoke}
 					onClose={() => setKeyToRevoke(null)}
+					onQueued={reloadTasks}
 				/>
 			</PageSectionContent>
 		</PageSection>

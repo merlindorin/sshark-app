@@ -1,6 +1,7 @@
 import { useAuth } from "@clerk/nextjs"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { apiJson, apiVoid, authHeaders } from "@/lib/api-client"
+import type { Task } from "@/hooks/use-tasks"
+import { apiJson, authHeaders } from "@/lib/api-client"
 
 interface KeySource {
 	id?: string
@@ -64,9 +65,10 @@ const fetchMyKeys = (getToken: GetTokenFn) => {
 }
 
 const refreshMyKeys = (getToken: GetTokenFn) => {
-	return async (): Promise<MyKeysResponse> => {
+	return async (): Promise<Task> => {
 		const token = await getToken()
-		return apiJson<MyKeysResponse>("/api/v1/me/keys/refresh", 200, {
+		// 202: the work is queued, not done. The response is the task to follow.
+		return apiJson<Task>("/api/v1/me/keys/refresh", 202, {
 			method: "POST",
 			headers: authHeaders(token),
 		})
@@ -74,9 +76,9 @@ const refreshMyKeys = (getToken: GetTokenFn) => {
 }
 
 const revokeKey = (getToken: GetTokenFn) => {
-	return async (id: string): Promise<void> => {
+	return async (id: string): Promise<Task> => {
 		const token = await getToken()
-		await apiVoid(`/api/v1/me/keys/${id}`, 204, {
+		return apiJson<Task>(`/api/v1/me/keys/${id}`, 202, {
 			method: "DELETE",
 			headers: authHeaders(token),
 		})
@@ -95,33 +97,32 @@ const useMyKeys = () => {
 }
 
 /**
- * Pulls the current keys from every connected provider before returning them, so a key added
- * at the provider a moment ago shows up without waiting for the background crawler.
+ * Queues a refresh of every connected provider and returns the task to watch. The keys query is
+ * refetched by the caller once that task settles, not here, because nothing has changed yet.
  */
 const useRefreshMyKeys = () => {
 	const { getToken } = useAuth()
-	const queryClient = useQueryClient()
 
 	return useMutation({
 		mutationFn: refreshMyKeys(getToken),
-		onSuccess: (data) => {
-			queryClient.setQueryData(MY_KEYS_QUERY_KEY, data)
-		},
 	})
 }
 
-/** Deletes the key at its provider, then drops it from sshark. */
+/** Queues the deletion of a key at its provider, returning the task to watch. */
 const useRevokeKey = () => {
 	const { getToken } = useAuth()
-	const queryClient = useQueryClient()
 
 	return useMutation({
 		mutationFn: revokeKey(getToken),
-		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: MY_KEYS_QUERY_KEY })
-		},
 	})
 }
 
-export { useMyKeys, useRefreshMyKeys, useRevokeKey }
+/** Refetches the key list, for once a task that changed it has settled. */
+const useReloadMyKeys = () => {
+	const queryClient = useQueryClient()
+
+	return () => queryClient.invalidateQueries({ queryKey: MY_KEYS_QUERY_KEY })
+}
+
+export { useMyKeys, useReloadMyKeys, useRefreshMyKeys, useRevokeKey }
 export type { ConnectedAccount, KeySource, MyGPGKey, MyKeysResponse, MySSHKey }

@@ -9,6 +9,7 @@ import { ProviderIcon } from "@/components/molecules/provider-icon"
 import { ConnectedAccountsSection } from "@/components/organisms/connected-accounts-section"
 import { DeleteAccountSection } from "@/components/organisms/delete-account-section"
 import { MyKeysSection } from "@/components/organisms/my-keys-section"
+import { TasksSection } from "@/components/organisms/tasks-section"
 import { UsernameSection } from "@/components/organisms/username-section"
 import {
 	Page,
@@ -460,6 +461,7 @@ export default function Profile() {
 			<UsernameSection />
 			<ConnectedAccountsSection />
 			<MyKeysSection />
+			<TasksSection />
 			<ApiKeysSection />
 			<DeleteAccountSection />
 		</Page>
