@@ -26,8 +26,12 @@ import { Label } from "@/components/ui/label"
 import { clerkErrorMessage } from "@/hooks/use-connected-accounts"
 import { useDeleteProfile } from "@/hooks/use-me"
 
-/** Typing this out is the deliberate step between "clicked delete" and a gone account. */
-const CONFIRMATION_PHRASE = "delete my account"
+/**
+ * Typing this is the deliberate step between "clicked delete" and a gone account. Kept to one
+ * short word: a longer phrase reads as a sentence in the label, and people type the first word
+ * then wonder why nothing happens.
+ */
+const CONFIRMATION_PHRASE = "delete"
 
 export function DeleteAccountSection() {
 	const { user, isLoaded } = useUser()
@@ -45,6 +49,8 @@ export function DeleteAccountSection() {
 		setOpen(false)
 		setConfirmation("")
 	}
+
+	const canConfirm = confirmation.trim().toLowerCase() === CONFIRMATION_PHRASE
 
 	const handleDelete = async () => {
 		setIsDeleting(true)
@@ -107,24 +113,32 @@ export function DeleteAccountSection() {
 						</DialogHeader>
 						<div className="grid gap-2 py-2">
 							<Label htmlFor="delete-confirmation">
-								Type <span className="font-mono">{CONFIRMATION_PHRASE}</span> to confirm
+								Type{" "}
+								<code className="rounded bg-muted px-1.5 py-0.5 font-mono text-foreground">
+									{CONFIRMATION_PHRASE}
+								</code>{" "}
+								to confirm
 							</Label>
 							<Input
+								aria-describedby="delete-confirmation-hint"
 								autoComplete="off"
 								id="delete-confirmation"
 								onChange={(event) => setConfirmation(event.target.value)}
-								placeholder={CONFIRMATION_PHRASE}
+								spellCheck={false}
 								value={confirmation}
 							/>
+							{/* Without this the button is simply dead, with nothing saying why. */}
+							<p className="text-muted-foreground text-xs" id="delete-confirmation-hint">
+								{canConfirm
+									? "This cannot be undone."
+									: `Type "${CONFIRMATION_PHRASE}" above to enable the button.`}
+							</p>
 						</div>
 						<DialogFooter>
 							<Button disabled={isDeleting} onClick={close} variant="outline">
 								Cancel
 							</Button>
-							<Button
-								disabled={isDeleting || confirmation.trim().toLowerCase() !== CONFIRMATION_PHRASE}
-								onClick={handleDelete}
-								variant="destructive">
+							<Button disabled={isDeleting || !canConfirm} onClick={handleDelete} variant="destructive">
 								{isDeleting ? "Deleting..." : "Delete my account"}
 							</Button>
 						</DialogFooter>
