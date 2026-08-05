@@ -1,4 +1,4 @@
-import { useUser } from "@clerk/nextjs"
+import { useReverification, useUser } from "@clerk/nextjs"
 import { useQueryClient } from "@tanstack/react-query"
 import { useCallback, useState } from "react"
 
@@ -125,6 +125,11 @@ function linkParams(candidate: SupportedProvider, redirectUrl: string) {
 function useConnectedAccounts() {
 	const { user, isLoaded } = useUser()
 	const queryClient = useQueryClient()
+
+	// Clerk gates unlinking an account behind a recently verified session and answers
+	// session_reverification_required otherwise. This wrapper puts up Clerk's verification
+	// prompt and retries, instead of surfacing a 403 the user can do nothing about.
+	const destroyExternalAccount = useReverification((account: ExternalAccountResource) => account.destroy())
 	const [pendingProvider, setPendingProvider] = useState<string | null>(null)
 	const [disconnectingId, setDisconnectingId] = useState<string | null>(null)
 
@@ -242,7 +247,7 @@ function useConnectedAccounts() {
 			setDisconnectingId(account.id)
 
 			try {
-				await account.resource.destroy()
+				await destroyExternalAccount(account.resource)
 				await user?.reload()
 				// The keys SSHark attributed to this account are no longer the user's to manage.
 				queryClient.invalidateQueries({ queryKey: ["me", "keys"] })
@@ -252,7 +257,7 @@ function useConnectedAccounts() {
 				setDisconnectingId(null)
 			}
 		},
-		[user, queryClient],
+		[user, queryClient, destroyExternalAccount],
 	)
 
 	return {

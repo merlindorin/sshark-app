@@ -1,6 +1,6 @@
 "use client"
 
-import { useClerk, useUser } from "@clerk/nextjs"
+import { useClerk, useReverification, useUser } from "@clerk/nextjs"
 import { TriangleAlert } from "lucide-react"
 import { useState } from "react"
 import { toast } from "sonner"
@@ -39,6 +39,8 @@ export function DeleteAccountSection() {
 	const { signOut } = useClerk()
 	const { data: me } = useMe()
 	const { mutateAsync: releaseProfile } = useDeleteProfile()
+	// Deleting an account is reverification-gated too, for the same reason.
+	const deleteUser = useReverification(() => user?.delete() ?? Promise.resolve())
 	const [open, setOpen] = useState(false)
 	const [confirmation, setConfirmation] = useState("")
 	const [isDeleting, setIsDeleting] = useState(false)
@@ -64,7 +66,7 @@ export function DeleteAccountSection() {
 			// Release the SSHark profile first. Clerk owns the account but not the username, so
 			// deleting the account alone would leave the name held by a profile with no owner.
 			await releaseProfile()
-			await user.delete()
+			await deleteUser()
 			// The session outlives the user record, so end it explicitly rather than leaving the
 			// app holding a token for an account that no longer exists.
 			await signOut({ redirectUrl: "/" })
