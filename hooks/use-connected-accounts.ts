@@ -37,7 +37,7 @@ const SUPPORTED_PROVIDERS: readonly SupportedProvider[] = [
 		 * Requested up front so revoking a key works right after connecting, instead of sending
 		 * the user back through a second consent screen the first time they try.
 		 */
-		additionalScopes: ["read:public_key", "admin:public_key", "admin:gpg_key"],
+		additionalScopes: ["admin:public_key", "admin:gpg_key"],
 	},
 	{
 		provider: "gitlab",
@@ -81,9 +81,39 @@ function labelFor(provider: string): string {
 /** Providers hand back granted scopes as one string, separated by spaces or commas. */
 const SCOPE_SEPARATOR = /[\s,]+/
 
+/**
+ * Scopes that are covered by holding a broader one.
+ *
+ * GitHub nests its scopes: admin:public_key confers write:public_key and read:public_key, and
+ * the same for gpg_key. GitHub reports only what was asked for, so comparing the granted list
+ * to the required list as plain strings claims a scope is missing when a broader one already
+ * grants it.
+ */
+const SCOPE_IMPLICATIONS: Record<string, readonly string[]> = {
+	"admin:public_key": ["write:public_key", "read:public_key"],
+	"write:public_key": ["read:public_key"],
+	"admin:gpg_key": ["write:gpg_key", "read:gpg_key"],
+	"write:gpg_key": ["read:gpg_key"],
+}
+
+/** Expands granted scopes to everything they confer. */
+function expandScopes(granted: Iterable<string>): Set<string> {
+	const expanded = new Set<string>()
+
+	for (const scope of granted) {
+		expanded.add(scope)
+		for (const implied of SCOPE_IMPLICATIONS[scope] ?? []) {
+			expanded.add(implied)
+		}
+	}
+
+	return expanded
+}
+
 function missingScopesFor(provider: string, approvedScopes: string): string[] {
 	const required = providerFor(provider)?.additionalScopes ?? []
-	const approved = new Set(approvedScopes.split(SCOPE_SEPARATOR).filter(Boolean))
+	const approved = expandScopes(approvedScopes.split(SCOPE_SEPARATOR).filter(Boolean))
+
 	return required.filter((scope) => !approved.has(scope))
 }
 
