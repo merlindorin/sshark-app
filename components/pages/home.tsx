@@ -386,12 +386,12 @@ function searchUrlFor(username: string): string {
 	return `/explore/${encodeURIComponent(username)}?fields=source.username`
 }
 
-function avatarFor(provider: string, username: string): string | undefined {
+function avatarFor(provider: string, username: string, userId?: string): string | undefined {
 	if (provider === "github") {
 		return `https://github.com/${username}.png`
 	}
-	if (provider === "gitlab") {
-		return `https://gitlab.com/${username}.png`
+	if (provider === "gitlab" && userId) {
+		return `https://gitlab.com/uploads/-/system/user/avatar/${userId}/avatar.png`
 	}
 	return undefined
 }
@@ -436,7 +436,7 @@ function LatestUsers() {
 			<PageSectionContent>
 				<ul className="grid list-none grid-cols-1 gap-4 p-0 sm:grid-cols-2 lg:grid-cols-4">
 					{sources.map((source) => {
-						const avatar = avatarFor(source.provider, source.username)
+						const avatar = avatarFor(source.provider, source.username, source.user_id)
 						return (
 							<li key={source.id}>
 								<Link href={searchUrlFor(source.username)}>
