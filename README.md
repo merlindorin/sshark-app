@@ -6,6 +6,12 @@
 
 - Real-time SSH and GPG key search
 - Advanced query syntax with field filtering
+- User profiles with verified key ownership
+- Key management (refresh, revoke) from profile
+- Public profile pages at /@username
+- Download keys in authorized_keys and GPG armor format
+- Activity tracking for background tasks
+- Search performance metrics
 - Responsive design with shadcn/ui components
 - Type-safe API integration with TanStack Query
 - Component library via Storybook

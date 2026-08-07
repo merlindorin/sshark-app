@@ -100,3 +100,37 @@ Or use the field syntax for more control:
 ```
 @fingerprint:{SHA256:abc*}
 ```
+
+## SShark Profiles
+
+Create a free account to claim your public profile and manage your keys.
+
+### Public Profiles
+
+Your profile lives at `/@username` and displays:
+
+- All connected provider accounts (GitHub, GitLab)
+- SSH and GPG keys verified against those accounts
+- Download links for `authorized_keys` format (/@username.keys) and GPG armor (/@username.gpg)
+
+### Verified Badge
+
+Keys associated with an SShark account show a verified badge in search results, indicating ownership has been proven through provider OAuth.
+
+### Key Management
+
+From your profile page:
+
+- **Refresh keys** — Re-fetch from connected providers on demand
+- **Revoke keys** — Delete a key from the provider and remove it from SShark
+- **View activity** — Track background refresh and revocation tasks
+
+## Search Features
+
+### Search Performance
+
+Search results now display execution time to help you understand query performance.
+
+### Browse Latest Users
+
+The home page shows recently indexed users. Click any username to immediately search their keys.
